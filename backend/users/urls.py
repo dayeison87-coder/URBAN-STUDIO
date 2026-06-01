@@ -1,10 +1,15 @@
 from django.urls import path
-from .views import ServicioListCreateView
+
+from .views import (
+    ServicioListCreateView,
+    UsuarioListCreateView,
+    CitaListCreateView
+)
 
 urlpatterns = [
-    path(
-        'servicios/',
-        ServicioListCreateView.as_view(),
-        name='servicios'
-    ),
+    path('servicios/', ServicioListCreateView.as_view(), name='servicios'),
+
+    path('usuarios/', UsuarioListCreateView.as_view(), name='usuarios'),
+    
+    path('citas/', CitaListCreateView.as_view(), name='citas'),
 ]
