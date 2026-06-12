@@ -1,9 +1,10 @@
 from rest_framework import generics
 
 from .models import Servicio, Usuario, Cita
-from .serializers import ServicioSerializer, UsuarioSerializer, CitaSerializer
+from .serializers import ServicioSerializer, UsuarioSerializer, CitaSerializer, RegisterSerializer
 
 from .models import Servicio, Usuario
+from django.contrib.auth.models import User
 
 
 
@@ -24,3 +25,8 @@ class CitaListCreateView(
 ):
     queryset = Cita.objects.all()
     serializer_class = CitaSerializer
+
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
