@@ -1,0 +1,82 @@
+<!-- LOGIN -->
+<div class="background" *ngIf="!estaLogueado">
+
+  <div class="login-card">
+
+    <div class="logo-container">
+      <div class="logo">✂</div>
+    </div>
+
+    <h1>Urban Studio</h1>
+
+    <p class="subtitle">
+      Gestión inteligente para barberías
+    </p>
+
+    <div class="input-group">
+      <label>Usuario</label>
+
+      <input
+        type="text"
+        placeholder="Ingresa tu usuario"
+        [(ngModel)]="username"
+      >
+    </div>
+
+    <div class="input-group">
+      <label>Contraseña</label>
+
+      <input
+        type="password"
+        placeholder="Ingresa tu contraseña"
+        [(ngModel)]="password"
+      >
+    </div>
+
+    <button class="login-btn" (click)="login()">
+      Iniciar sesión
+    </button>
+
+    <div
+      *ngIf="mensaje"
+      class="mensaje"
+      [ngClass]="{
+        'success': mensaje.includes('Bienvenido'),
+        'error': mensaje.includes('incorrectos')
+      }"
+    >
+      {{ mensaje }}
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- HOME -->
+<div class="background" *ngIf="estaLogueado">
+
+  <div class="home-card">
+
+    <div class="success-icon">
+      ✓
+    </div>
+
+    <h1>¡Bienvenido!</h1>
+
+    <h2>{{ username }}</h2>
+
+    <p>
+      Has iniciado sesión correctamente.
+    </p>
+
+    <button
+      class="logout-btn"
+      (click)="logout()"
+    >
+      Cerrar sesión
+    </button>
+
+  </div>
+
+</div>
