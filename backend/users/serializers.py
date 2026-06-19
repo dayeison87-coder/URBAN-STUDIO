@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
-
+# 💡 Eliminamos la importación de User de Django para no causar conflictos
 from .models import Servicio, Usuario, Cita
 
 
@@ -15,11 +14,12 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = '__all__'
 
-    
+
 class CitaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cita
         fields = '__all__'
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -28,7 +28,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = User
+        model = Usuario  # 🔥 CAMBIADO: Ahora usa tu modelo personalizado
         fields = [
             'username',
             'email',
@@ -36,10 +36,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        user = User.objects.create_user(
+        # 🔥 CAMBIADO: Usamos 'Usuario.objects.create_user' para que guarde en TU tabla 
+        # y encripte la contraseña correctamente en SQLite.
+        user = Usuario.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
         )
-
         return user

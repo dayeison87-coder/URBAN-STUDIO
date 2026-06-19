@@ -7,16 +7,46 @@ from .views import (
     RegisterView
 )
 
-urlpatterns = [
-    path('servicios/', ServicioListCreateView.as_view(), name='servicios'),
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
-    path('usuarios/', UsuarioListCreateView.as_view(), name='usuarios'),
-    
-    path('citas/', CitaListCreateView.as_view(), name='citas'),
+urlpatterns = [
+
+    path(
+        'servicios/',
+        ServicioListCreateView.as_view(),
+        name='servicios'
+    ),
+
+    path(
+        'usuarios/',
+        UsuarioListCreateView.as_view(),
+        name='usuarios'
+    ),
+
+    path(
+        'citas/',
+        CitaListCreateView.as_view(),
+        name='citas'
+    ),
 
     path(
         'register/',
         RegisterView.as_view(),
         name='register'
+    ),
+
+    path(
+        'login/',
+        TokenObtainPairView.as_view(),
+        name='login'
+    ),
+
+    path(
+        'refresh/',
+        TokenRefreshView.as_view(),
+        name='token_refresh'
     ),
 ]
