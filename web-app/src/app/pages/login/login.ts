@@ -15,16 +15,39 @@ import { Router } from '@angular/router';
   styleUrl: './login.css'
 })
 export class LoginComponent {
-
   username = '';
   password = '';
   mensaje = '';
+
+  validarEmail(email: string): boolean {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
 
   private http = inject(HttpClient);
   private router = inject(Router);
 
   login() {
     this.mensaje = '';
+      if (!this.username || !this.password) {
+    this.mensaje = 'Debes completar todos los campos.';
+    return;
+  }
+    if (!this.validarEmail(this.username)) {
+    this.mensaje = 'El correo electrónico no es válido.';
+    return;
+  }
+  // Verificar que los campos no estén vacíos
+if (!this.username.trim() || !this.password.trim()) {
+  this.mensaje = 'Todos los campos son obligatorios.';
+  return;
+}
+
+// Verificar que el correo tenga un formato válido
+if (!this.validarEmail(this.username)) {
+  this.mensaje = 'Ingresa un correo electrónico válido.';
+  return;
+}
 
     // Cambia esta URL por la de tu endpoint real de login en Django (ej. /api/token/ o /api/login/)
     this.http.post<any>(
