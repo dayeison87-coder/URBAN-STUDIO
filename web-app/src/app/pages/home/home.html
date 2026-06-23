@@ -6,7 +6,9 @@
             <li><a routerLink="/home">Inicio</a></li>
             <li><a href="#servicios">Servicios</a></li>
             <li><a routerLink="/reservas">Reservas</a></li>
-            <li><a (click)="logout()" class="logout-link">Cerrar Sesión</a></li>
+            <button class="btn-logout" (click)="logout()">
+                Cerrar Sesión
+            </button>
         </ul>
     </nav>
 </header>

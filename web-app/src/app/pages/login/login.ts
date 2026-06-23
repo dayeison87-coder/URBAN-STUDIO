@@ -19,23 +19,23 @@ export class LoginComponent {
   password = '';
   mensaje = '';
 
-
   private http = inject(HttpClient);
   private router = inject(Router);
 
   login() {
     this.mensaje = '';
-      if (!this.username || !this.password) {
-    this.mensaje = 'Debes completar todos los campos.';
-    return;
-  }
-  // Verificar que los campos no estén vacíos
-if (!this.username.trim() || !this.password.trim()) {
-  this.mensaje = 'Todos los campos son obligatorios.';
-  return;
-}
+    
+    if (!this.username || !this.password) {
+      this.mensaje = 'Debes completar todos los campos.';
+      return;
+    }
+    
+    if (!this.username.trim() || !this.password.trim()) {
+      this.mensaje = 'Todos los campos son obligatorios.';
+      return;
+    }
 
-    // Cambia esta URL por la de tu endpoint real de login en Django (ej. /api/token/ o /api/login/)
+    // Petición POST al backend de Django
     this.http.post<any>(
       'http://127.0.0.1:8000/api/login/', 
       {
@@ -46,12 +46,12 @@ if (!this.username.trim() || !this.password.trim()) {
       next: (response) => {
         this.mensaje = 'Acceso correcto. Entrando...';
 
-        // Opcional: Si tu backend devuelve un token JWT, lo guardas así:
-        // if (response.token) {
-        //   localStorage.setItem('token', response.token);
-        // }
+        // 🔥 MODIFICACIÓN CLAVE: Guardar los tokens reales de Django SimpleJWT
+        if (response.access && response.refresh) {
+          localStorage.setItem('access_token', response.access);
+          localStorage.setItem('refresh_token', response.refresh);
+        }
 
-        // Esperamos un segundo para que el usuario experimente la transición visual
         setTimeout(() => {
           this.router.navigate(['/home']);
         }, 1000);
