@@ -1,5 +1,10 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
+# ===== Django =====
+db.sqlite3
+*.sqlite3
+backend/db.sqlite3
+
 # Compiled output
 /dist
 /tmp
