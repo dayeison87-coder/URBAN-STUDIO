@@ -19,6 +19,7 @@ export class LoginComponent {
   password = '';
   mensaje = '';
 
+
   private http = inject(HttpClient);
   private router = inject(Router);
 
