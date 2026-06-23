@@ -129,6 +129,8 @@ REST_FRAMEWORK = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
+    "http://localhost:55773",
+    "http://127.0.0.1:55773",
 ]
 
 AUTH_USER_MODEL = 'users.Usuario'  # <-- Cambia 'users' por el nombre de tu app si es diferente
