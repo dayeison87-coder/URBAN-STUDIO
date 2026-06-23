@@ -1,26 +1,41 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  // URL de tu API de Django (recuerda levantar el servidor en el puerto 8000)
+  private apiUrl = 'http://localhost:8000/api';
 
-  private http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
 
-  private apiUrl = 'http://127.0.0.1:8000/api';
-
-  login(data: any) {
-    return this.http.post(
-      `${this.apiUrl}/login/`,
-      data
+  // 1. Método para Iniciar Sesión (Login)
+  login(credentials: { username: string; password: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/login/`, credentials).pipe(
+      tap(res => {
+        if (res.access && res.refresh) {
+          localStorage.setItem('access_token', res.access);
+          localStorage.setItem('refresh_token', res.refresh);
+        }
+      })
     );
   }
 
-  register(data: any) {
-    return this.http.post(
-      `${this.apiUrl}/register/`,
-      data
-    );
+  // 2. Método para Registrar Clientes (Por si crean la vista en register.ts)
+  register(userData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/register/`, userData);
+  }
+
+  // 3. Cerrar sesión
+  logout() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+  }
+
+  // 4. Saber si está logueado
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('access_token');
   }
 }

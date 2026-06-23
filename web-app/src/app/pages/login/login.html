@@ -36,7 +36,11 @@
         >
       </div>
 
-      <div *ngIf="mensaje" class="alert-message" [ngClass]="{'alert-success': mensaje.includes('correcto'), 'alert-error': !mensaje.includes('correcto')}">
+      <div *ngIf="mensaje" class="alert-message" 
+           [ngClass]="{
+             'alert-success': mensaje.includes('correcto') || mensaje.includes('Entrando'), 
+             'alert-error': mensaje.includes('incorrectos') || mensaje.includes('obligatorios') || mensaje.includes('completar')
+           }">
         {{ mensaje }}
       </div>
 

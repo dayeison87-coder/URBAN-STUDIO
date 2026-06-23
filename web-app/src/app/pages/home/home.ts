@@ -20,7 +20,13 @@ export class HomeComponent {
     this.router.navigate(['/reservas']); 
   }
 
+  // 🔥 MODIFICADO: Ahora limpia el navegador antes de salir
   logout() {
+    // 1. Eliminamos los tokens del localStorage
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+
+    // 2. Redirigimos al login limpiecito
     this.router.navigate(['/login']);
   }
 }
