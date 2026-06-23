@@ -19,11 +19,6 @@ export class LoginComponent {
   password = '';
   mensaje = '';
 
-  validarEmail(email: string): boolean {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(email);
-}
-
   private http = inject(HttpClient);
   private router = inject(Router);
 
@@ -33,19 +28,9 @@ export class LoginComponent {
     this.mensaje = 'Debes completar todos los campos.';
     return;
   }
-    if (!this.validarEmail(this.username)) {
-    this.mensaje = 'El correo electrónico no es válido.';
-    return;
-  }
   // Verificar que los campos no estén vacíos
 if (!this.username.trim() || !this.password.trim()) {
   this.mensaje = 'Todos los campos son obligatorios.';
-  return;
-}
-
-// Verificar que el correo tenga un formato válido
-if (!this.validarEmail(this.username)) {
-  this.mensaje = 'Ingresa un correo electrónico válido.';
   return;
 }
 
