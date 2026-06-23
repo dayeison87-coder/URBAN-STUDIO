@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Studio | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="citas.html">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Urban Studio Dashboard</h1>
+
+        <div class="table-container">
+            <div class="header-section">
+                <h2>Citas Programadas</h2>
+                <button class="btn-primary" onclick="alert('Funcionalidad de formulario pronto')">+ Nueva Cita</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Servicio</th>
+                        <th>Fecha</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCitasBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="citas.js"></script>
+</body>
+</html>

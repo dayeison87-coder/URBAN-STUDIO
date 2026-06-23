@@ -48,13 +48,19 @@
         >
       </div>
 
-      <div *ngIf="mensaje" class="alert-message" [ngClass]="{'alert-success': mensaje.includes('correcto'), 'alert-error': !mensaje.includes('correcto')}">
+      <div *ngIf="mensaje" class="alert-message" 
+           [ngClass]="{
+             'alert-success': mensaje.includes('correcto') || mensaje.includes('Entrando'), 
+             'alert-error': mensaje.includes('incorrectos') || mensaje.includes('obligatorios') || mensaje.includes('completar')
+           }">
         <svg class="alert-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"/>
           <path d="M12 8v4M12 16h.01"/>
         </svg>
+
         {{ mensaje }}
       </div>
+     
 
       <div class="actions-group">
         <button type="submit" class="btn btn-primary">
