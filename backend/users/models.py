@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser # 🔥 IMPORTACIÓN CLAVE
+from django.contrib.auth.models import AbstractUser
 
 class Rol(models.Model):
     nombre = models.CharField(max_length=50)
@@ -8,24 +8,18 @@ class Rol(models.Model):
         return self.nombre
 
 
-# 🔥 CAMBIO PRINCIPAL: Ahora hereda de AbstractUser
+# 🔥 Modelo Custom de Usuario extendido de Django
 class Usuario(AbstractUser):
-    # 💡 NOTA: 'username', 'email', 'password' y 'is_active' YA VIENEN INCLUIDOS gracias a AbstractUser.
-    # No hace falta declararlos aquí. Django usa 'email' en vez de 'correo'.
-    
     telefono = models.CharField(max_length=20, blank=True, null=True)
-    
     rol = models.ForeignKey(
         Rol,
         on_delete=models.CASCADE,
         null=True,   # Permite que al crear el primer superusuario no falle por falta de rol
         blank=True
     )
-    
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        # Usamos 'username' o 'first_name' que vienen heredados
         return self.username
 
 
@@ -33,7 +27,7 @@ class Servicio(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
     precio = models.DecimalField(max_digits=10, decimal_places=2)
-    duracion = models.IntegerField()
+    duracion = models.IntegerField() # Duración estimada en minutos
 
     def __str__(self):
         return self.nombre
@@ -42,17 +36,25 @@ class Servicio(models.Model):
 class Disponibilidad(models.Model):
     barbero = models.ForeignKey(
         Usuario,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="disponibilidades"
     )
-    dia_semana = models.CharField(max_length=20)
+    dia_semana = models.CharField(max_length=20) # Ej: 'Lunes', 'Martes'
     hora_inicio = models.TimeField()
     hora_fin = models.TimeField()
 
     def __str__(self):
-        return f"{self.barbero} - {self.dia_semana}"
+        return f"{self.barbero.username} - {self.dia_semana}"
 
 
 class Cita(models.Model):
+    # Opciones fijas para controlar el flujo de los estados
+    ESTADOS_CITA = [
+        ('Pendiente', 'Pendiente'),
+        ('Completada', 'Completada'),
+        ('Cancelada', 'Cancelada'),
+    ]
+
     cliente = models.ForeignKey(
         Usuario,
         on_delete=models.CASCADE,
@@ -71,11 +73,12 @@ class Cita(models.Model):
     hora = models.TimeField()
     estado = models.CharField(
         max_length=20,
+        choices=ESTADOS_CITA,
         default="Pendiente"
     )
 
     def __str__(self):
-        return f"{self.cliente} - {self.fecha}"
+        return f"Cita: {self.cliente.username} con {self.barbero.username} - {self.fecha} a las {self.hora}"
 
 
 class Notificacion(models.Model):
@@ -88,4 +91,4 @@ class Notificacion(models.Model):
     leida = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.usuario.username
+        return f"Notificación para {self.usuario.username}"
