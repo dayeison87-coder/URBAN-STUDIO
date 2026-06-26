@@ -38,4 +38,10 @@ export class AuthService {
   isLoggedIn(): boolean {
     return !!localStorage.getItem('access_token');
   }
+
+  // Agrega esto dentro de tu clase AuthService en auth.ts
+obtenerUsuarioActual() {
+  const user = localStorage.getItem('user'); // O como hayas guardado el objeto al loguearte
+  return user ? JSON.parse(user) : null;
+}
 }

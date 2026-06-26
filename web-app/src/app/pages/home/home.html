@@ -1,14 +1,23 @@
 <header>
     <nav class="navbar">
-        <div class="logo">✂ urban studio</div>
+        <div class="brand-container">
+            <div class="logo">✂ urban studio</div>
+            <div class="user-greeting">
+                Hola, <span class="username">{{ nombreUsuario }}</span>
+            </div>
+        </div>
 
         <ul class="menu">
             <li><a routerLink="/home">Inicio</a></li>
             <li><a href="#servicios">Servicios</a></li>
-            <li><a routerLink="/reservas">Reservas</a></li>
-            <button class="btn-logout" (click)="logout()">
-                Cerrar Sesión
-            </button>
+            
+            <li><a routerLink="/citas">Citas</a></li>
+            
+            <li>
+                <button class="btn-logout" (click)="logout()">
+                    Cerrar Sesión
+                </button>
+            </li>
         </ul>
     </nav>
 </header>
@@ -20,7 +29,7 @@
         <h1>Tu Estilo, Nuestra Pasión</h1>
         <p>Cortes modernos, clásicos y atención premium.</p>
 
-        <button id="btnReserva" onclick="window.location.href='cita.html'">
+        <button id="btnReserva" (click)="irACitas()">
             Reservar Cita
         </button>
     </div>
