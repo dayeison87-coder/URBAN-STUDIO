@@ -1,213 +1,268 @@
-/* --- Contenedor Principal (Layout de dos columnas) --- */
+/* ==========================================================================
+   CONTEXTO GLOBAL Y VARIABLES (Estilo Barbería Premium)
+   ========================================================================== */
+:host {
+    display: block;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Letrero de pruebas (Opcional, lo puedes quitar después) */
+h1 {
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
+    font-weight: 700;
+}
+
+/* Contenedor Principal en Grid */
 .citas-container {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 30px;
-    padding: 40px 20px;
-    background-color: #0f172a; /* Fondo ultra oscuro */
-    min-height: 90vh;
-    color: #f8fafc;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 10px;
 }
 
-.form-section, .table-section {
-    background-color: #1e293b; /* Tarjetas gris oscuro */
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    flex: 1;
-    min-width: 320px;
+@media (min-width: 992px) {
+    .citas-container {
+        grid-template-columns: 400px 1fr; /* Formulario a la izquierda, Tabla a la derecha */
+    }
 }
 
-.table-section {
-    flex: 1.5; /* Le da un poco más de espacio a la tabla */
-}
-
+/* Títulos de las Secciones */
 .section-title {
-    color: #d4af37; /* Dorado Urban Studio */
     font-size: 1.5rem;
-    margin-bottom: 25px;
-    border-bottom: 2px solid #334155;
-    padding-bottom: 10px;
+    color: #ffffff;
+    margin-bottom: 20px;
+    font-weight: 600;
+    border-bottom: 2px solid #ffb703; /* Detalle dorado/amarillo barbería */
+    padding-bottom: 8px;
 }
 
-/* --- Formulario --- */
+/* ==========================================================================
+   SECCIÓN DEL FORMULARIO
+   ========================================================================== */
+.form-section {
+    background-color: #1e1e1e;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    height: fit-content;
+    border: 1px solid #2a2a2a;
+}
+
 .form-group {
-    display: flex;
-    flex-direction: column;
     margin-bottom: 20px;
 }
 
-.form-row {
-    display: flex;
-    gap: 15px;
-}
-
-.form-row .form-group {
-    flex: 1;
-}
-
-label {
+.form-group label {
+    display: block;
     font-size: 0.9rem;
-    color: #94a3b8;
+    color: #b3b3b3;
     margin-bottom: 8px;
     font-weight: 500;
 }
 
-input, select {
-    background-color: #0f172a;
-    border: 1px solid #475569;
-    border-radius: 6px;
-    color: #f8fafc;
+/* Inputs, Selects y Controles */
+.form-group select,
+.form-group input {
+    width: 100%;
     padding: 12px;
-    font-size: 1rem;
+    background-color: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group select:focus,
+.form-group input:focus {
     outline: none;
-    transition: border-color 0.3s;
+    border-color: #ffb703;
+    box-shadow: 0 0 8px rgba(255, 183, 3, 0.3);
 }
 
-input:focus, select:focus {
-    border-color: #d4af37;
+/* Filas combinadas (Fecha y Hora) */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
 }
 
-/* --- Botones --- */
+/* Mensajes de Alerta */
+.alert-message {
+    background-color: rgba(255, 183, 3, 0.15);
+    color: #ffb703;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid #ffb703;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+/* Botones */
 .button-group {
     display: flex;
+    flex-direction: column;
     gap: 10px;
-    margin-top: 10px;
+    margin-top: 25px;
 }
 
 .btn-submit {
-    background-color: #d4af37;
-    color: #0f172a;
+    background-color: #ffb703;
+    color: #023047;
     border: none;
-    border-radius: 6px;
-    padding: 14px 20px;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    flex: 1;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.btn-submit:hover:not(:disabled) {
-    background-color: #bfa030;
+.btn-submit:hover {
+    background-color: #fb8500;
 }
 
-.btn-submit:disabled {
-    background-color: #475569;
-    color: #94a3b8;
-    cursor: not-allowed;
+.btn-submit:active {
+    transform: scale(0.98);
 }
 
 .btn-cancel {
-    background-color: #475569;
-    color: #f8fafc;
-    border: none;
-    border-radius: 6px;
-    padding: 14px 20px;
+    background-color: transparent;
+    color: #aeaeae;
+    border: 1px solid #3a3a3a;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.2s ease;
 }
 
 .btn-cancel:hover {
-    background-color: #334155;
+    background-color: #2a2a2a;
+    color: #ffffff;
 }
 
-/* --- Mensajes de Alerta --- */
-.alert-message {
-    background-color: #334155;
-    border-left: 4px solid #d4af37;
-    padding: 12px;
-    border-radius: 4px;
-    color: #f8fafc;
-    margin-bottom: 20px;
-    font-size: 0.95rem;
+/* ==========================================================================
+   SECCIÓN DE LA TABLA (CITAS PROGRAMADAS)
+   ========================================================================== */
+.table-section {
+    background-color: #1e1e1e;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    border: 1px solid #2a2a2a;
 }
 
-/* --- Tabla de Citas --- */
 .table-responsive {
     overflow-x: auto;
+    border-radius: 8px;
 }
 
 .citas-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
-}
-
-.citas-table th, .citas-table td {
-    padding: 16px;
-    border-bottom: 1px solid #334155;
+    font-size: 0.95rem;
 }
 
 .citas-table th {
-    background-color: #0f172a;
-    color: #94a3b8;
+    background-color: #252525;
+    color: #ffb703;
+    padding: 15px;
     font-weight: 600;
-    font-size: 0.9rem;
-    text-transform: uppercase;
+    border-bottom: 2px solid #2a2a2a;
 }
 
+.citas-table td {
+    padding: 15px;
+    border-bottom: 1px solid #2a2a2a;
+    color: #d1d1d1;
+    vertical-align: middle;
+}
+
+.citas-table tbody tr:hover {
+    background-color: #252525;
+}
+
+/* Detalles del Servicio dentro de la Tabla */
 .table-service {
-    font-weight: 500;
+    font-weight: 600;
+    color: #ffffff;
 }
 
 .table-price {
     font-size: 0.85rem;
-    color: #d4af37;
+    color: #888888;
 }
 
-/* --- Insignias de Estado --- */
+/* Badges de Estado (Pendiente, Completada, Cancelada) */
 .status-badge {
+    display: inline-block;
     padding: 6px 12px;
     border-radius: 20px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    display: inline-block;
+    text-transform: uppercase;
+    text-align: center;
 }
 
 .status-badge.pendiente {
-    background-color: rgba(234, 179, 8, 0.15);
-    color: #eab308;
+    background-color: rgba(255, 183, 3, 0.15);
+    color: #ffb703;
 }
 
 .status-badge.completada {
-    background-color: rgba(34, 197, 94, 0.15);
-    color: #22c95e;
+    background-color: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
 }
 
 .status-badge.cancelada {
-    background-color: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    background-color: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
 }
 
-/* --- Acciones (Botones Tabla) --- */
+/* Botones de Acción de la Tabla (Iconos) */
 .actions-cell {
     display: flex;
     gap: 8px;
 }
 
 .btn-action {
-    background: none;
-    border: 1px solid #475569;
+    background-color: #2a2a2a;
+    border: 1px solid #3a3a3a;
     border-radius: 6px;
-    padding: 8px;
+    padding: 8px 12px;
     cursor: pointer;
     font-size: 1rem;
-    transition: all 0.3s;
+    transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
 }
 
 .btn-action.edit:hover {
-    background-color: rgba(212, 175, 55, 0.2);
-    border-color: #d4af37;
+    background-color: rgba(52, 152, 219, 0.2);
+    border-color: #3498db;
 }
 
 .btn-action.delete:hover {
-    background-color: rgba(239, 68, 68, 0.2);
-    border-color: #ef4444;
+    background-color: rgba(231, 76, 60, 0.2);
+    border-color: #e74c3c;
 }
 
+/* Estado de Tabla Vacía */
 .empty-state {
     text-align: center;
-    color: #94a3b8;
-    padding: 40px 0;
+    padding: 40px;
+    color: #888888;
+    font-size: 1.1rem;
 }

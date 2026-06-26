@@ -7,31 +7,48 @@ import { Observable } from 'rxjs';
 })
 export class CitasService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8000/api/citas/';
+  
+  // Endpoints del backend sincronizados con Django
+  private apiUrlCitas = 'http://localhost:8000/api/citas/';
+  private apiUrlServicios = 'http://localhost:8000/api/servicios/';
+  private apiUrlBarberos = 'http://localhost:8000/api/usuarios/barberos/'; // 👈 Nueva URL corregida
 
-  // 🔐 Función privada para generar las cabeceras con el Token JWT de Django
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('access_token') || 
+                  localStorage.getItem('token') || 
+                  localStorage.getItem('access');
+
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      // Adjuntamos el token usando el formato estándar Bearer que espera SimpleJWT
       'Authorization': token ? `Bearer ${token}` : ''
     });
   }
 
+  // --- MÉTODOS DE SERVICIOS ---
+  obtenerServicios(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrlServicios, { headers: this.getHeaders() });
+  }
+
+  // --- MÉTODOS DE BARBEROS ---
+  obtenerUsuarios(): Observable<any[]> { 
+    // Ahora apunta directo al filtro exclusivo de barberos que creamos en views.py
+    return this.http.get<any[]>(this.apiUrlBarberos, { headers: this.getHeaders() });
+  }
+
+  // --- MÉTODOS DE CITAS ---
   obtenerCitas(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() });
+    return this.http.get<any[]>(this.apiUrlCitas, { headers: this.getHeaders() });
   }
 
   crearCita(cita: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, cita, { headers: this.getHeaders() });
+    return this.http.post<any>(this.apiUrlCitas, cita, { headers: this.getHeaders() });
   }
 
   editarCita(id: number, cita: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}${id}/`, cita, { headers: this.getHeaders() });
+    return this.http.put<any>(`${this.apiUrlCitas}${id}/`, cita, { headers: this.getHeaders() });
   }
 
   eliminarCita(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}${id}/`, { headers: this.getHeaders() });
+    return this.http.delete<any>(`${this.apiUrlCitas}${id}/`, { headers: this.getHeaders() });
   }
 }
