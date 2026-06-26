@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import (
+    BarberoListView,
     CitaDetailView,
     ServicioListCreateView,
     UsuarioListCreateView,
@@ -52,5 +53,7 @@ urlpatterns = [
         'citas/<int:pk>/', 
         CitaDetailView.as_view(), 
         name='citas-detail'
-    ), # GET (Individual), PUT/PATCH (Editar) y DELETE (Eliminar)
+    ),
+     
+    path('usuarios/barberos/', BarberoListView.as_view(), name='lista-barberos'), # GET (Individual), PUT/PATCH (Editar) y DELETE (Eliminar)
 ]
