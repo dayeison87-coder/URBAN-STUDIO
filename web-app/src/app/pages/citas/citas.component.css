@@ -1,0 +1,213 @@
+/* --- Contenedor Principal (Layout de dos columnas) --- */
+.citas-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    padding: 40px 20px;
+    background-color: #0f172a; /* Fondo ultra oscuro */
+    min-height: 90vh;
+    color: #f8fafc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-section, .table-section {
+    background-color: #1e293b; /* Tarjetas gris oscuro */
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    flex: 1;
+    min-width: 320px;
+}
+
+.table-section {
+    flex: 1.5; /* Le da un poco más de espacio a la tabla */
+}
+
+.section-title {
+    color: #d4af37; /* Dorado Urban Studio */
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #334155;
+    padding-bottom: 10px;
+}
+
+/* --- Formulario --- */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+label {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+input, select {
+    background-color: #0f172a;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    color: #f8fafc;
+    padding: 12px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+input:focus, select:focus {
+    border-color: #d4af37;
+}
+
+/* --- Botones --- */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-submit {
+    background-color: #d4af37;
+    color: #0f172a;
+    border: none;
+    border-radius: 6px;
+    padding: 14px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+    transition: background-color 0.3s;
+}
+
+.btn-submit:hover:not(:disabled) {
+    background-color: #bfa030;
+}
+
+.btn-submit:disabled {
+    background-color: #475569;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.btn-cancel {
+    background-color: #475569;
+    color: #f8fafc;
+    border: none;
+    border-radius: 6px;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-cancel:hover {
+    background-color: #334155;
+}
+
+/* --- Mensajes de Alerta --- */
+.alert-message {
+    background-color: #334155;
+    border-left: 4px solid #d4af37;
+    padding: 12px;
+    border-radius: 4px;
+    color: #f8fafc;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+/* --- Tabla de Citas --- */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.citas-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.citas-table th, .citas-table td {
+    padding: 16px;
+    border-bottom: 1px solid #334155;
+}
+
+.citas-table th {
+    background-color: #0f172a;
+    color: #94a3b8;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.table-service {
+    font-weight: 500;
+}
+
+.table-price {
+    font-size: 0.85rem;
+    color: #d4af37;
+}
+
+/* --- Insignias de Estado --- */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-badge.pendiente {
+    background-color: rgba(234, 179, 8, 0.15);
+    color: #eab308;
+}
+
+.status-badge.completada {
+    background-color: rgba(34, 197, 94, 0.15);
+    color: #22c95e;
+}
+
+.status-badge.cancelada {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+/* --- Acciones (Botones Tabla) --- */
+.actions-cell {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-action {
+    background: none;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    padding: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.btn-action.edit:hover {
+    background-color: rgba(212, 175, 55, 0.2);
+    border-color: #d4af37;
+}
+
+.btn-action.delete:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+}
+
+.empty-state {
+    text-align: center;
+    color: #94a3b8;
+    padding: 40px 0;
+}

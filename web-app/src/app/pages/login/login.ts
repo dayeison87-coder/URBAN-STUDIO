@@ -24,6 +24,8 @@ export class LoginComponent {
 
   login() {
     this.mensaje = '';
+
+    
     
     if (!this.username || !this.password) {
       this.mensaje = 'Debes completar todos los campos.';
@@ -51,6 +53,8 @@ export class LoginComponent {
           localStorage.setItem('access_token', response.access);
           localStorage.setItem('refresh_token', response.refresh);
         }
+
+        localStorage.setItem('username', this.username);
 
         setTimeout(() => {
           this.router.navigate(['/home']);

@@ -135,3 +135,28 @@ body{
 .btn-logout:active {
     transform: scale(0.98);        /* Efecto de hundimiento táctil */
 }
+
+/* --- Contenedor para el logo y el saludo alineados --- */
+.brand-container {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Controla qué tan pegado queda el saludo al logo */
+}
+
+/* --- Estilos para el saludo --- */
+.user-greeting {
+    color: #cbd5e1;
+    font-weight: 500;
+    font-size: 0.95rem;
+    border-left: 1px solid #475569; /* Línea divisoria fina */
+    padding-left: 15px; /* Espacio después de la línea */
+    display: flex;
+    align-items: center;
+}
+
+/* --- Color dorado para el nombre del usuario --- */
+.user-greeting .username {
+    color: #d4af37;
+    margin-left: 5px;
+    font-weight: 600;
+}
