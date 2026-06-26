@@ -1,0 +1,125 @@
+<header>
+  <nav class="navbar">
+    <div class="brand-container">
+      <div class="logo">✂ urban studio</div>
+      <div class="user-greeting">
+        Panel Admin — <span class="username">{{ nombreUsuario }}</span>
+      </div>
+    </div>
+    <ul class="menu">
+      <li><a routerLink="/home">Inicio</a></li>
+      <li><a routerLink="/citas">Citas</a></li>
+      <li>
+        <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<div class="admin-wrapper">
+
+  <div class="mensaje" *ngIf="mensaje">{{ mensaje }}</div>
+
+  <div class="tabs">
+    <button [class.active]="pestanaActiva === 'servicios'" (click)="cambiarPestana('servicios')">
+      ✂ Servicios
+    </button>
+    <button [class.active]="pestanaActiva === 'barberos'" (click)="cambiarPestana('barberos')">
+      👤 Barberos
+    </button>
+  </div>
+
+  <div class="tab-content" *ngIf="pestanaActiva === 'servicios'">
+    <h2>{{ editandoServicio ? 'Editar Servicio' : 'Nuevo Servicio' }}</h2>
+    <div class="form-card">
+      <div class="form-row">
+        <input [(ngModel)]="servicioForm.nombre" placeholder="Nombre del servicio" />
+        <input [(ngModel)]="servicioForm.precio" placeholder="Precio ($)" type="number" />
+        <input [(ngModel)]="servicioForm.duracion" placeholder="Duración (min)" type="number" />
+      </div>
+      <textarea [(ngModel)]="servicioForm.descripcion" placeholder="Descripción"></textarea>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="guardarServicio()">
+          {{ editandoServicio ? 'Actualizar' : 'Crear Servicio' }}
+        </button>
+        <button class="btn-secondary" *ngIf="editandoServicio" (click)="limpiarServicio()">Cancelar</button>
+      </div>
+    </div>
+
+    <h2>Lista de Servicios</h2>
+    <div class="tabla-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Duración</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of listaServicios">
+            <td>{{ s.nombre }}</td>
+            <td>{{ s.descripcion }}</td>
+            <td>${{ s.precio }}</td>
+            <td>{{ s.duracion }} min</td>
+            <td class="acciones">
+              <button class="btn-edit" (click)="editarServicio(s)">Editar</button>
+              <button class="btn-delete" (click)="eliminarServicio(s.id)">Eliminar</button>
+            </td>
+          </tr>
+          <tr *ngIf="listaServicios.length === 0">
+            <td colspan="5" class="empty">No hay servicios registrados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tab-content" *ngIf="pestanaActiva === 'barberos'">
+    <h2>{{ editandoBarbero ? 'Editar Barbero' : 'Barberos Registrados' }}</h2>
+
+    <div class="form-card" *ngIf="editandoBarbero">
+      <div class="form-row">
+        <input [(ngModel)]="barberoForm.username" placeholder="Nombre de usuario" />
+        <input [(ngModel)]="barberoForm.email" placeholder="Email" type="email" />
+        <input [(ngModel)]="barberoForm.telefono" placeholder="Teléfono" />
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="guardarBarbero()">Actualizar</button>
+        <button class="btn-secondary" (click)="limpiarBarbero()">Cancelar</button>
+      </div>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of listaBarberos">
+            <td>{{ b.id }}</td>
+            <td>{{ b.username }}</td>
+            <td>{{ b.email }}</td>
+            <td>{{ b.telefono || '—' }}</td>
+            <td class="acciones">
+              <button class="btn-edit" (click)="editarBarbero(b)">Editar</button>
+              <button class="btn-delete" (click)="eliminarBarbero(b.id)">Eliminar</button>
+            </td>
+          </tr>
+          <tr *ngIf="listaBarberos.length === 0">
+            <td colspan="5" class="empty">No hay barberos registrados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

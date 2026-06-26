@@ -1,3 +1,4 @@
+import { AdminComponent } from './pages/admin/admin';
 import { Routes } from '@angular/router'; //  ¡ESTÁ BIEN!
 import { HomeComponent } from './pages/home/home';
 import { LoginComponent } from './pages/login/login';
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
   { path: 'citas', component: CitasComponent, canActivate: [authGuard] },
+  { path: 'admin', component: AdminComponent, canActivate: [authGuard] },
 
     // 4. Comodín: Si escriben cualquier otra locura en la URL, los devuelve al login
   { path: '**', redirectTo: 'login' },
