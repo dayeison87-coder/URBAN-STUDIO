@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router'; //  ¡ESTÁ BIEN!
+import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home';
 import { LoginComponent } from './pages/login/login';
 import { RegisterComponent } from './pages/register/register';
@@ -6,18 +6,27 @@ import { authGuard } from './services/auth-guard';
 import { CitasComponent } from './pages/citas/citas.component';
 
 export const routes: Routes = [
-  // 1. Cuando entres a la app, te mandará directo al login por defecto
+
+  // Redirección inicial
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-  // 2. Rutas Públicas (Cualquiera puede entrar sin registrarse)
+  // Rutas públicas
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
 
-  // 3. Ruta Protegida (Solo entra el que tenga el Token JWT de Django válido)
+  // Rutas protegidas
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
-
   { path: 'citas', component: CitasComponent, canActivate: [authGuard] },
 
-    // 4. Comodín: Si escriben cualquier otra locura en la URL, los devuelve al login
-  { path: '**', redirectTo: 'login' },
+  //  BARBEROS (IMPORTANTE: antes del wildcard)
+  {
+    path: 'barberos',
+    loadComponent: () =>
+      import('./pages/barberos/barberos')
+        .then(m => m.Barberos),
+    canActivate: [authGuard]
+  },
+
+  // Ruta comodín (SIEMPRE AL FINAL)
+  { path: '**', redirectTo: 'login' }
 ];

@@ -1,0 +1,27 @@
+<div class="contenedor">
+
+    <h1>💈 Nuestros Barberos</h1>
+
+    <div class="grid">
+
+        <div class="card" *ngFor="let barbero of barberos">
+
+            <img
+                src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                alt="Barbero">
+
+            <h2>{{ barbero.username }}</h2>
+
+            <p>
+                {{ barbero.email }}
+            </p>
+
+            <button>
+                Agendar cita
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
