@@ -20,6 +20,8 @@ export const routes: Routes = [
   { path: 'citas', component: CitasComponent, canActivate: [authGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [authGuard] },
 
+  {path: 'barberos',loadComponent: () =>import('./pages/barberos/barberos').then(m => m.Barberos),canActivate: [authGuard]},
+
     // 4. Comodín: Si escriben cualquier otra locura en la URL, los devuelve al login
   { path: '**', redirectTo: 'login' },
 ];
