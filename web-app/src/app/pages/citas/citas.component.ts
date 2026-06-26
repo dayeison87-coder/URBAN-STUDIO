@@ -1,12 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CitasService } from '../../services/citas.service'; // Asegúrate de que la ruta apunte bien a tu servicio
+import { CitasService } from '../../services/citas.service';
 
 @Component({
   selector: 'app-citas',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Módulos críticos cargados explícitamente
+  imports: [CommonModule, FormsModule],
   templateUrl: './citas.component.html',
   styleUrl: './citas.component.css'
 })
@@ -14,21 +14,9 @@ export class CitasComponent implements OnInit {
   private citasService = inject(CitasService);
 
   listaCitas: any[] = [];
-  
-  // Mocks locales para los barberos y servicios asignados a Urban Studio
-  barberosDisponibles = [
-    { id: 2, username: 'Olivera' },
-    { id: 3, username: 'Larota' },
-    { id: 4, username: 'Kevin' }
-  ];
-  
-  serviciosDisponibles = [
-    { id: 1, nombre: 'Corte Tradicional', precio: '20000' },
-    { id: 2, nombre: 'Barba Premium', precio: '15000' },
-    { id: 3, nombre: 'Combo Urban (Corte + Barba)', precio: '30000' }
-  ];
+  serviciosDisponibles: any[] = []; 
+  barberosDisponibles: any[] = []; // 🔥 CLAVE 1: Debe empezar vacía para limpiar los quemados viejos
 
-  // Modelo del formulario tipado de forma segura para evitar conflictos en los selectores
   citaForm = {
     id: null as number | null,
     barbero: '' as any,
@@ -43,30 +31,51 @@ export class CitasComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarCitas();
+    this.cargarServicios();
+    this.cargarBarberos(); // 🔥 CLAVE 2: Ejecuta la petición al backend inmediatamente al cargar
   }
 
   cargarCitas(): void {
     this.citasService.obtenerCitas().subscribe({
+      next: (data) => this.listaCitas = data,
+      error: (err) => console.error('Error al cargar citas:', err)
+    });
+  }
+
+  cargarServicios(): void {
+    this.citasService.obtenerServicios().subscribe({
+      next: (data) => this.serviciosDisponibles = data,
+      error: (err) => console.error('Error al cargar servicios:', err)
+    });
+  }
+
+  cargarBarberos(): void {
+    this.citasService.obtenerUsuarios().subscribe({
       next: (data) => {
-        this.listaCitas = data;
+        this.barberosDisponibles = data; 
+        console.log('✅ Barberos reales cargados desde la BD:', data);
       },
       error: (err) => {
-        console.error('Error al conectar con Django:', err);
-        this.mensaje = 'Aviso: No se pudieron cargar los datos del servidor.';
+        console.error('Error crítico al cargar barberos:', err);
+        this.mensaje = 'Aviso: No se pudieron mapear los barberos del servidor.';
       }
     });
   }
 
   guardarCita(): void {
-    // Validación manual rápida antes de procesar
     if (!this.citaForm.barbero || !this.citaForm.servicio || !this.citaForm.fecha || !this.citaForm.hora) {
       this.mensaje = 'Por favor, llena todos los campos.';
       return;
     }
 
-    if (this.editando && this.citaForm.id) {
-      // Flujo para actualizar cita existente
-      this.citasService.editarCita(this.citaForm.id, this.citaForm).subscribe({
+    const datosAEnviar = {
+      ...this.citaForm,
+      barbero: parseInt(this.citaForm.barbero, 10),
+      servicio: parseInt(this.citaForm.servicio, 10)
+    };
+
+    if (this.editando && this.citaForm.id !== null) {
+      this.citasService.editarCita(this.citaForm.id, datosAEnviar).subscribe({
         next: () => {
           this.mensaje = 'Cita actualizada con éxito.';
           this.limpiarFormulario();
@@ -75,14 +84,20 @@ export class CitasComponent implements OnInit {
         error: (err) => console.error('Error al editar:', err)
       });
     } else {
-      // Flujo para crear nueva cita
-      this.citasService.crearCita(this.citaForm).subscribe({
+      console.log('✂️ Intentando CREAR una nueva cita dinámica...');
+      const nuevaCita = { ...datosAEnviar };
+      delete (nuevaCita as any).id;
+
+      this.citasService.crearCita(nuevaCita).subscribe({
         next: () => {
           this.mensaje = '¡Cita agendada correctamente!';
           this.limpiarFormulario();
           this.cargarCitas();
         },
-        error: (err) => console.error('Error al crear:', err)
+        error: (err) => {
+          console.error('Error al crear:', err);
+          this.mensaje = 'Error al registrar la cita en la base de datos.';
+        }
       });
     }
   }
