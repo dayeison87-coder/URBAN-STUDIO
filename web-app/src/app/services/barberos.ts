@@ -9,7 +9,8 @@ export class BarberosService {
 
   private http = inject(HttpClient);
 
-  private apiUrl = 'http://localhost:8000/api/usuarios/';
+  // Ahora consulta únicamente los usuarios con rol Barbero
+  private apiUrl = 'http://localhost:8000/api/usuarios/barberos/';
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('access_token');
