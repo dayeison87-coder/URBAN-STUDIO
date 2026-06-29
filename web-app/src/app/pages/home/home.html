@@ -1,7 +1,7 @@
 <header>
   <nav class="navbar">
     <div class="brand-container">
-      <div class="logo">✂ urban studio</div>
+      <div class="logo" routerLink="/chat">✂ urban studio</div>
       <div class="user-greeting">
         Hola, <span class="username">{{ nombreUsuario }}</span>
       </div>
@@ -11,6 +11,7 @@
       <li><a routerLink="/home">Inicio</a></li>
       <li><a routerLink="/servicios">Servicios</a></li>
       <li><a routerLink="/citas">Citas</a></li>
+      <li><a routerLink="/barberos">Barberos</a></li>
       <li>
         <button class="btn-ia" (click)="abrirIA()">
           ✦ IA Estilo

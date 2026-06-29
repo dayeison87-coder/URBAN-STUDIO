@@ -1,0 +1,93 @@
+<header>
+  <nav class="navbar">
+    <div class="brand-container">
+      <div class="logo" routerLink="/home">✂ urban studio</div>
+      <div class="user-greeting">
+        Hola, <span class="username">{{ nombreUsuario }}</span>
+      </div>
+    </div>
+
+    <ul class="menu">
+      <li><a routerLink="/home">Inicio</a></li>
+      <li><a routerLink="/servicios">Servicios</a></li>
+      <li><a routerLink="/citas">Citas</a></li>
+      <li><a routerLink="/barberos">Barberos</a></li>
+      <li>
+        <button class="btn-ia" (click)="abrirIA()">
+          ✦ IA Estilo
+        </button>
+      </li>
+      <li><a routerLink="/chat">💬 Chat</a></li>
+      <li>
+        <button class="btn-logout" (click)="logout()">
+          Cerrar Sesión
+        </button>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+
+<!-- CONTENIDO -->
+
+<section class="barberos-section">
+
+    <div class="titulo">
+
+        <h1>
+            💈 Nuestros Barberos
+        </h1>
+
+        <p>
+            Conoce a nuestros profesionales y elige quién llevará tu próximo estilo.
+        </p>
+
+    </div>
+
+    <div class="grid">
+
+        <div
+            class="card"
+            *ngFor="let barbero of barberos">
+
+            <img
+                src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                alt="Barbero">
+
+            <h2>
+                {{ barbero.username }}
+            </h2>
+
+            <div class="estrellas">
+
+                ⭐ ⭐ ⭐ ⭐ ⭐
+
+                <span>4.9</span>
+
+            </div>
+
+            <p class="descripcion">
+
+                Especialista en cortes clásicos, fades y barba.
+
+            </p>
+
+            <p class="correo">
+
+                {{ barbero.email }}
+
+            </p>
+
+            <button
+                class="btn-agendar"
+                (click)="irACitas()">
+
+                Agendar cita
+
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
