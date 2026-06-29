@@ -7,20 +7,28 @@ import { authGuard } from './services/auth-guard';
 import { CitasComponent } from './pages/citas/citas.component';
 import { ServicioComponent } from './pages/servicios/servicio.component';
 import { BarberoComponent } from './pages/barbero/barbero';
-import { ChatComponent } from './pages/chat/chat'; // ← agregar
+import { ChatComponent } from './pages/chat/chat';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-  { path: 'login',    component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  { path: 'login',     component: LoginComponent },
+  { path: 'register',  component: RegisterComponent },
   { path: 'servicios', component: ServicioComponent },
 
-  { path: 'home',    component: HomeComponent,    canActivate: [authGuard] },
-  { path: 'citas',   component: CitasComponent,   canActivate: [authGuard] },
-  { path: 'admin',   component: AdminComponent,   canActivate: [authGuard] },
-  { path: 'barbero', component: BarberoComponent, canActivate: [authGuard] },
-  { path: 'chat',    component: ChatComponent,    canActivate: [authGuard] }, // ← agregar
+  { path: 'home',      component: HomeComponent,    canActivate: [authGuard] },
+  { path: 'citas',     component: CitasComponent,   canActivate: [authGuard] },
+  { path: 'admin',     component: AdminComponent,   canActivate: [authGuard] },
+  { path: 'barbero',   component: BarberoComponent, canActivate: [authGuard] },
+  { path: 'chat',      component: ChatComponent,    canActivate: [authGuard] },
 
+  // Ruta con Lazy Loading que venía de main
+  { 
+    path: 'barberos', 
+    loadComponent: () => import('./pages/barberos/barberos').then(m => m.Barberos), 
+    canActivate: [authGuard] 
+  },
+
+  // 4. Comodín: Si escriben cualquier otra locura en la URL, los devuelve al login
   { path: '**', redirectTo: 'login' },
 ];

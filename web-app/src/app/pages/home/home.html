@@ -11,6 +11,7 @@
       <li><a routerLink="/home">Inicio</a></li>
       <li><a routerLink="/servicios">Servicios</a></li>
       <li><a routerLink="/citas">Citas</a></li>
+      <li><a routerLink="/barberos">Barberos</a></li>
       <li>
         <button class="btn-ia" (click)="abrirIA()">
           ✦ IA Estilo
@@ -35,7 +36,6 @@
   </div>
 </section>
 
-<!-- ══════════ MODAL PASO 1: Verificación ══════════ -->
 <div class="modal-bg" *ngIf="paso === 1" (click)="cerrarSiOverlay($event)">
   <div class="modal-box">
     <div class="modal-icon">✦</div>
@@ -56,7 +56,6 @@
   </div>
 </div>
 
-<!-- ══════════ MODAL PASO 2: Permiso cámara ══════════ -->
 <div class="modal-bg" *ngIf="paso === 2" (click)="cerrarSiOverlay($event)">
   <div class="modal-box">
     <div class="modal-icon">📷</div>
@@ -67,7 +66,6 @@
   </div>
 </div>
 
-<!-- ══════════ MODAL PASO 3: Cámara activa ══════════ -->
 <div class="modal-bg camara-modal" *ngIf="paso === 3">
   <div class="camara-box">
 
@@ -79,7 +77,6 @@
     <div class="camara-wrapper">
       <video #videoRef autoplay playsinline class="camara-video"></video>
 
-      <!-- Marco de escaneo -->
       <div class="scan-frame">
         <div class="corner tl"></div>
         <div class="corner tr"></div>
