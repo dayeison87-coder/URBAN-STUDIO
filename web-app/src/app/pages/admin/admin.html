@@ -1,11 +1,7 @@
-<!-- admin.html -->
-
 <div class="admin-wrapper">
 
-  <!-- Mensaje -->
   <div class="mensaje" *ngIf="mensaje">{{ mensaje }}</div>
 
-  <!-- Header -->
   <div class="admin-header">
     <div>
       <h1 class="admin-title">Panel Admin</h1>
@@ -14,7 +10,6 @@
     <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs">
     <button [class.active]="pestanaActiva === 'servicios'" (click)="cambiarPestana('servicios')">
       ✂ Servicios
@@ -24,7 +19,6 @@
     </button>
   </div>
 
-  <!-- ══════════ TAB SERVICIOS ══════════ -->
   <div class="tab-content" *ngIf="pestanaActiva === 'servicios'">
 
     <h2>{{ editandoServicio ? 'Editar Servicio' : 'Nuevo Servicio' }}</h2>
@@ -32,7 +26,6 @@
     <div class="form-card">
       <div class="form-row">
 
-        <!-- Categoría -->
         <select [(ngModel)]="servicioForm.categoria" class="select-cat">
           <option value="" disabled>Selecciona categoría</option>
           <option *ngFor="let cat of categorias" [value]="cat.id">
@@ -46,7 +39,6 @@
 
       <textarea [(ngModel)]="servicioForm.descripcion" placeholder="Descripción del servicio"></textarea>
 
-      <!-- Disponible -->
       <label class="check-label">
         <input type="checkbox" [(ngModel)]="servicioForm.disponible" />
         Disponible para reservar
@@ -62,7 +54,6 @@
       </div>
     </div>
 
-    <!-- Filtro por categoría -->
     <div class="filtros">
       <span class="filtro-label">Filtrar por:</span>
       <button
@@ -78,7 +69,6 @@
       >{{ cat.nombre }}</button>
     </div>
 
-    <!-- Tabla -->
     <h2>Lista de Servicios</h2>
     <div class="tabla-wrapper">
       <table>
@@ -116,22 +106,46 @@
     </div>
   </div>
 
-  <!-- ══════════ TAB BARBEROS ══════════ -->
   <div class="tab-content" *ngIf="pestanaActiva === 'barberos'">
-    <h2>{{ editandoBarbero ? 'Editar Barbero' : 'Barberos Registrados' }}</h2>
-
-    <div class="form-card" *ngIf="editandoBarbero">
-      <div class="form-row">
-        <input [(ngModel)]="barberoForm.username" placeholder="Nombre de usuario" />
-        <input [(ngModel)]="barberoForm.email"    placeholder="Email" type="email" />
-        <input [(ngModel)]="barberoForm.telefono" placeholder="Teléfono" />
-      </div>
-      <div class="form-actions">
-        <button class="btn-primary"   (click)="guardarBarbero()">Actualizar</button>
-        <button class="btn-secondary" (click)="limpiarBarbero()">Cancelar</button>
+    
+    <div *ngIf="editandoBarbero">
+      <h2>Editar Información del Barbero</h2>
+      <div class="form-card">
+        <div class="form-row">
+          <input [(ngModel)]="barberoForm.username" placeholder="Nombre de usuario" />
+          <input [(ngModel)]="barberoForm.email"    placeholder="Email" type="email" />
+          <input [(ngModel)]="barberoForm.telefono" placeholder="Teléfono" />
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary"   (click)="guardarBarbero()">Actualizar</button>
+          <button class="btn-secondary" (click)="limpiarBarbero()">Cancelar</button>
+        </div>
       </div>
     </div>
 
+    <div *ngIf="!editandoBarbero">
+      <h2>Asignar Nuevo Barbero</h2>
+      <div class="form-card">
+        <div class="form-row" style="display: flex; gap: 1rem; align-items: center;">
+          
+          <select [(ngModel)]="usuarioSeleccionadoId" class="select-cat" style="flex: 1;">
+            <option value="" disabled selected>Selecciona un usuario registrado...</option>
+            <option *ngFor="let usuario of listaUsuariosComunes" [value]="usuario.id">
+              {{ usuario.username }} — ({{ usuario.email }})
+            </option>
+            <option *ngIf="listaUsuariosComunes.length === 0" disabled>
+              No hay usuarios disponibles para asignar
+            </option>
+          </select>
+
+          <button class="btn-primary" (click)="guardarBarbero()" [disabled]="!usuarioSeleccionadoId">
+            ✦ Asignar como Barbero
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <h2>Barberos Activos</h2>
     <div class="tabla-wrapper">
       <table>
         <thead>
@@ -147,7 +161,7 @@
             <td>{{ b.telefono || '—' }}</td>
             <td class="acciones">
               <button class="btn-edit"   (click)="editarBarbero(b)">Editar</button>
-              <button class="btn-delete" (click)="eliminarBarbero(b.id)">Eliminar</button>
+              <button class="btn-delete" (click)="eliminarBarbero(b.id)">Quitar Rol</button>
             </td>
           </tr>
           <tr *ngIf="listaBarberos.length === 0">
