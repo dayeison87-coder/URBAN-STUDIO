@@ -241,3 +241,46 @@ body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-seri
   .hero-stats { display: none; }
   .footer-content { flex-direction: column; text-align: center; }
 }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE DESIGN: NAVBAR
+   ══════════════════════════════════════════ */
+@media (max-width: 992px) {
+  
+  /* 1. Hacemos que la barra se distribuya en columnas para ganar espacio */
+  .navbar {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px 10px;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* 2. Centramos el logo y el saludo en su propio bloque */
+  .brand-container {
+    flex-direction: column; /* Si se amontonan el logo y el "Hola, pedro", los baja */
+    gap: 5px;
+    align-items: center;
+  }
+
+  /* 3. Ajustamos el menú para que los enlaces no se desborden */
+  .navbar .menu {
+    flex-wrap: wrap;       /* Permite que los elementos bajen de renglón si no caben */
+    justify-content: center;
+    gap: 12px;             /* Reduce un poco la distancia entre opciones */
+    padding: 0;
+    margin: 0;
+  }
+
+  /* 4. Achicamos ligeramente el tamaño del texto y los botones en móvil */
+  .navbar .menu li a {
+    font-size: 13px;       /* Un poco más pequeña la letra para optimizar espacio */
+  }
+
+  /* 5. Los botones de IA y Cerrar Sesión se adaptan mejor */
+  .navbar .btn-ia, 
+  .navbar .btn-logout {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
