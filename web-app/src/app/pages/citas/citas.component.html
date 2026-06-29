@@ -1,111 +1,190 @@
-<div class="citas-container">
-    
-    <div class="form-section">
-        <h2 class="section-title">
-            {{ editando ? '✏️ Editar Cita' : '✂️ Agendar Nueva Cita' }}
-        </h2>
-        
-        @if (mensaje) {
-            <p class="alert-message">{{ mensaje }}</p>
-        }
+<div class="citas-page">
+    <div class="citas-volver">
+  <button class="btn-volver" (click)="volverHome()">← Volver</button>
+</div>
+  <!-- HEADER -->
+  <div class="citas-header">
+    <p class="citas-eyebrow">Urban Studio</p>
+    <h1 class="citas-title">{{ editandoId ? 'Editar Cita' : 'Reservar Cita' }}</h1>
+    <p class="citas-sub">{{ paso === 0 ? 'Tus citas programadas' : 'Sigue los pasos para agendar tu experiencia' }}</p>
+  </div>
 
-        <form>
-            <div class="form-group">
-                <label for="barbero">Selecciona tu Barbero</label>
-                <select id="barbero" name="barbero" [(ngModel)]="citaForm.barbero">
-                    <option value="" disabled>Escoge un barbero...</option>
-                    @for (barbero of barberosDisponibles; track barbero.id) {
-                        <option [value]="barbero.id">{{ barbero.username }}</option>
-                    }
-                </select>
-            </div>
+  <!-- MENSAJE -->
+  <div class="mensaje" *ngIf="mensaje">{{ mensaje }}</div>
 
-            <div class="form-group">
-                <label for="servicio">Servicio Deseado</label>
-                <select id="servicio" name="servicio" [(ngModel)]="citaForm.servicio">
-                    <option value="" disabled>Escoge un servicio...</option>
-                    @for (servicio of serviciosDisponibles; track servicio.id) {
-                        <option [value]="servicio.id">
-                            {{ servicio.nombre }} (${{ servicio.precio }})
-                        </option>
-                    }
-                </select>
-            </div>
+  <!-- STEPPER (solo visible cuando hay flujo activo) -->
+  <div class="stepper" *ngIf="paso > 0">
+    <div class="step" [class.active]="paso >= 1" [class.done]="paso > 1">
+      <div class="step-circle">{{ paso > 1 ? '✓' : '1' }}</div>
+      <span>Categoría</span>
+    </div>
+    <div class="step-line" [class.done]="paso > 1"></div>
+    <div class="step" [class.active]="paso >= 2" [class.done]="paso > 2">
+      <div class="step-circle">{{ paso > 2 ? '✓' : '2' }}</div>
+      <span>Servicio</span>
+    </div>
+    <div class="step-line" [class.done]="paso > 2"></div>
+    <div class="step" [class.active]="paso >= 3" [class.done]="paso > 3">
+      <div class="step-circle">{{ paso > 3 ? '✓' : '3' }}</div>
+      <span>Barbero</span>
+    </div>
+    <div class="step-line" [class.done]="paso > 3"></div>
+    <div class="step" [class.active]="paso >= 4">
+      <div class="step-circle">4</div>
+      <span>Fecha & Hora</span>
+    </div>
+  </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="fecha">Fecha</label>
-                    <input type="date" id="fecha" name="fecha" [(ngModel)]="citaForm.fecha">
-                </div>
+  <!-- ══════ PASO 1: CATEGORÍA ══════ -->
+  <div class="paso-section" *ngIf="paso === 1">
+    <h2 class="paso-title">¿Qué tipo de servicio buscas?</h2>
+    <div class="categoria-grid">
+      <div class="categoria-card" *ngFor="let cat of categorias"
+        [class.selected]="categoriaSeleccionada?.id === cat.id"
+        (click)="seleccionarCategoria(cat)">
+        <div class="cat-icon">{{ getIconCategoria(cat.slug) }}</div>
+        <h3 class="cat-nombre">{{ cat.nombre }}</h3>
+        <p class="cat-desc">{{ cat.descripcion }}</p>
+        <span class="cat-count">{{ cat.servicios.length }} servicios</span>
+      </div>
+    </div>
+    <div class="paso-actions">
+      <button class="btn-atras" (click)="resetear()">✕ Cancelar</button>
+      <button class="btn-siguiente" (click)="irPaso(2)" [disabled]="!categoriaSeleccionada">Siguiente →</button>
+    </div>
+  </div>
 
-                <div class="form-group">
-                    <label for="hora">Hora</label>
-                    <input type="time" id="hora" name="hora" [(ngModel)]="citaForm.hora">
-                </div>
-            </div>
+  <!-- ══════ PASO 2: SERVICIO ══════ -->
+  <div class="paso-section" *ngIf="paso === 2">
+    <h2 class="paso-title">Elige tu servicio de {{ categoriaSeleccionada?.nombre }}</h2>
+    <div class="servicio-list">
+      <div class="servicio-card" *ngFor="let srv of categoriaSeleccionada?.servicios"
+        [class.selected]="servicioSeleccionado?.id === srv.id"
+        [class.nodisponible]="!srv.disponible"
+        (click)="srv.disponible && seleccionarServicio(srv)">
+        <div class="srv-info">
+          <h3 class="srv-nombre">{{ srv.nombre }}</h3>
+          <p class="srv-desc">{{ srv.descripcion }}</p>
+        </div>
+        <div class="srv-precio">
+          <span class="precio">{{ formatPrecio(srv.precio) }}</span>
+          <span class="badge-no" *ngIf="!srv.disponible">No disponible</span>
+        </div>
+      </div>
+      <div class="empty" *ngIf="categoriaSeleccionada?.servicios?.length === 0">No hay servicios en esta categoría aún.</div>
+    </div>
+    <div class="paso-actions">
+      <button class="btn-atras" (click)="irPaso(1)">← Atrás</button>
+      <button class="btn-siguiente" (click)="irPaso(3)" [disabled]="!servicioSeleccionado">Siguiente →</button>
+    </div>
+  </div>
 
-            <div class="button-group">
-                <button type="button" class="btn-submit" (click)="guardarCita()">
-                    {{ editando ? 'Actualizar Cita' : 'Confirmar Cita' }}
-                </button>
-                
-                @if (editando) {
-                    <button type="button" class="btn-cancel" (click)="limpiarFormulario()">
-                        Cancelar
-                    </button>
-                }
-            </div>
+  <!-- ══════ PASO 3: BARBERO ══════ -->
+  <div class="paso-section" *ngIf="paso === 3">
+    <h2 class="paso-title">Elige tu barbero</h2>
+    <div class="barbero-grid">
+      <div class="barbero-card" *ngFor="let b of barberos"
+        [class.selected]="barberoSeleccionado?.id === b.id"
+        (click)="seleccionarBarbero(b)">
+        <div class="barbero-avatar">{{ getInicial(b.username) }}</div>
+        <h3 class="barbero-nombre">{{ b.username }}</h3>
+        <p class="barbero-email">{{ b.email }}</p>
+      </div>
+      <div class="empty" *ngIf="barberos.length === 0">No hay barberos disponibles.</div>
+    </div>
+    <div class="paso-actions">
+      <button class="btn-atras" (click)="irPaso(2)">← Atrás</button>
+      <button class="btn-siguiente" (click)="irPaso(4)" [disabled]="!barberoSeleccionado">Siguiente →</button>
+    </div>
+  </div>
 
-        </form>
+  <!-- ══════ PASO 4: FECHA & HORA ══════ -->
+  <div class="paso-section" *ngIf="paso === 4">
+    <h2 class="paso-title">Elige fecha y hora</h2>
+
+    <div class="calendario-wrapper">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" (click)="mesPrevio()">‹</button>
+        <span class="cal-mes">{{ nombreMes }} {{ anioActual }}</span>
+        <button class="cal-nav-btn" (click)="mesSiguiente()">›</button>
+      </div>
+      <div class="cal-semana">
+        <span *ngFor="let d of diasSemana">{{ d }}</span>
+      </div>
+      <div class="cal-dias">
+        <div *ngFor="let dia of diasCalendario" class="cal-dia"
+          [class.vacio]="!dia"
+          [class.pasado]="dia && esPasado(dia)"
+          [class.seleccionado]="dia && fechaSeleccionada === formatFecha(dia)"
+          [class.ocupado]="dia && tieneTodasHorasOcupadas(dia)"
+          (click)="dia && !esPasado(dia) && seleccionarFecha(dia)">
+          {{ dia?.getDate() }}
+        </div>
+      </div>
     </div>
 
-    <div class="table-section">
-        <h2 class="section-title">📋 Tus Citas Programadas</h2>
-
-        @if (listaCitas.length === 0) {
-            <div class="empty-state">
-                <p>No tienes citas agendadas en este momento.</p>
-            </div>
-        } @else {
-            <div class="table-responsive">
-                <table class="citas-table">
-                    <thead>
-                        <tr>
-                            <th>Barbero</th>
-                            <th>Servicio</th>
-                            <th>Fecha</th>
-                            <th>Hora</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (cita of listaCitas; track cita.id) {
-                            <tr>
-                                <td>{{ cita.barbero_nombre }}</td>
-                                <td>
-                                    <div class="table-service">{{ cita.servicio_nombre }}</div>
-                                    <span class="table-price">${{ cita.servicio_precio }}</span>
-                                </td>
-                                <td>{{ cita.fecha | date:'dd/MM/yyyy' }}</td>
-                                <td>{{ cita.hora }}</td>
-                                <td>
-                                    <span class="status-badge" [class]="cita.estado.toLowerCase()">
-                                        {{ cita.estado }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="actions-cell">
-                                        <button class="btn-action edit" (click)="seleccionarCita(cita)">✏️</button>
-                                        <button class="btn-action delete" (click)="borrarCita(cita.id)">🗑️</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
+    <div class="horarios-wrapper" *ngIf="fechaSeleccionada">
+      <h3 class="horarios-title">Horarios disponibles</h3>
+      <div class="horarios-grid">
+        <button class="hora-btn" *ngFor="let hora of horariosDisponibles"
+          [class.ocupado]="hora.ocupado"
+          [class.seleccionado]="horaSeleccionada === hora.valor"
+          [disabled]="hora.ocupado"
+          (click)="seleccionarHora(hora.valor)">
+          {{ hora.valor }}
+        </button>
+      </div>
     </div>
+
+    <div class="resumen" *ngIf="fechaSeleccionada && horaSeleccionada">
+      <h3 class="resumen-title">Resumen de tu cita</h3>
+      <div class="resumen-item"><span>Categoría</span><strong>{{ categoriaSeleccionada?.nombre }}</strong></div>
+      <div class="resumen-item"><span>Servicio</span><strong>{{ servicioSeleccionado?.nombre }}</strong></div>
+      <div class="resumen-item"><span>Precio</span><strong>{{ formatPrecio(servicioSeleccionado?.precio) }}</strong></div>
+      <div class="resumen-item"><span>Barbero</span><strong>{{ barberoSeleccionado?.username }}</strong></div>
+      <div class="resumen-item"><span>Fecha</span><strong>{{ fechaSeleccionada }}</strong></div>
+      <div class="resumen-item"><span>Hora</span><strong>{{ horaSeleccionada }}</strong></div>
+    </div>
+
+    <div class="paso-actions">
+      <button class="btn-atras" (click)="irPaso(3)">← Atrás</button>
+      <button class="btn-confirmar" (click)="confirmarCita()" [disabled]="!fechaSeleccionada || !horaSeleccionada">
+        ✓ {{ editandoId ? 'Guardar Cambios' : 'Confirmar Cita' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════ MIS CITAS ══════ -->
+  <div class="mis-citas">
+    <div class="mis-citas-header">
+      <h2 class="mis-citas-title">Tus Citas Programadas</h2>
+      <button class="btn-nueva" (click)="nuevaCita()" *ngIf="paso === 0">
+        + Nueva Cita
+      </button>
+    </div>
+
+    <div class="citas-grid" *ngIf="listaCitas.length > 0">
+      <div class="cita-card" *ngFor="let cita of listaCitas">
+        <div class="cita-estado" [ngClass]="cita.estado.toLowerCase()">{{ cita.estado }}</div>
+        <div class="cita-info">
+          <h3>{{ cita.servicio_nombre }}</h3>
+          <p>{{ cita.barbero_nombre }}</p>
+          <p class="cita-fecha">{{ cita.fecha }} — {{ cita.hora }}</p>
+        </div>
+        <div class="cita-precio">{{ formatPrecio(cita.servicio_precio) }}</div>
+        <div class="cita-acciones">
+          <button class="cita-editar" (click)="editarCita(cita)" title="Editar">✎</button>
+          <button class="cita-cancelar" (click)="borrarCita(cita.id)" title="Cancelar">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-citas" *ngIf="listaCitas.length === 0">
+      <p>No tienes citas agendadas.</p>
+      <button class="btn-nueva" (click)="nuevaCita()">+ Agendar primera cita</button>
+    </div>
+  </div>
+
+  
 
 </div>

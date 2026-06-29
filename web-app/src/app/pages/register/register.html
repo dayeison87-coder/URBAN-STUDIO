@@ -6,7 +6,7 @@
         </header>
 
         <form (ngSubmit)="registrar()" #registerForm="ngForm" class="register-form">
-            
+
             <div class="input-group">
                 <label for="username">Nombre de usuario</label>
                 <input 
@@ -32,15 +32,41 @@
             </div>
 
             <div class="input-group">
+                <label for="telefono">Teléfono</label>
+                <input 
+                    type="tel" 
+                    id="telefono"
+                    placeholder="Ej. 3001234567" 
+                    [(ngModel)]="telefono" 
+                    name="telefono"
+                    required
+                >
+            </div>
+
+            <div class="input-group">
                 <label for="password">Contraseña</label>
                 <input 
                     type="password" 
                     id="password"
-                    placeholder="••••••••" 
+                    placeholder="Mínimo 8 caracteres" 
                     [(ngModel)]="password" 
                     name="password"
                     required
                 >
+                <ul *ngIf="password.length > 0" class="password-checklist">
+                    <li [class.ok]="passwordChecks.minLength">
+                        {{ passwordChecks.minLength ? '✓' : '✗' }} Mínimo 8 caracteres
+                    </li>
+                    <li [class.ok]="passwordChecks.hasUpper">
+                        {{ passwordChecks.hasUpper ? '✓' : '✗' }} Al menos una mayúscula
+                    </li>
+                    <li [class.ok]="passwordChecks.hasNumber">
+                        {{ passwordChecks.hasNumber ? '✓' : '✗' }} Al menos un número
+                    </li>
+                    <li [class.ok]="passwordChecks.hasSymbol">
+                        {{ passwordChecks.hasSymbol ? '✓' : '✗' }} Al menos un símbolo (!@#$...)
+                    </li>
+                </ul>
             </div>
 
             <div *ngIf="mensaje" class="alert-message" [ngClass]="{'alert-success': mensaje.includes('correctamente'), 'alert-error': !mensaje.includes('correctamente')}">
@@ -48,7 +74,7 @@
             </div>
 
             <div class="actions-group">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" [disabled]="!passwordValida">
                     Registrarme
                 </button>
                 

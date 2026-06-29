@@ -1,27 +1,34 @@
 import { AdminComponent } from './pages/admin/admin';
-import { Routes } from '@angular/router'; //  ¡ESTÁ BIEN!
+import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home';
 import { LoginComponent } from './pages/login/login';
 import { RegisterComponent } from './pages/register/register';
 import { authGuard } from './services/auth-guard';
 import { CitasComponent } from './pages/citas/citas.component';
+import { ServicioComponent } from './pages/servicios/servicio.component';
+import { BarberoComponent } from './pages/barbero/barbero';
+import { ChatComponent } from './pages/chat/chat';
 
 export const routes: Routes = [
-  // 1. Cuando entres a la app, te mandará directo al login por defecto
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-  // 2. Rutas Públicas (Cualquiera puede entrar sin registrarse)
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  { path: 'login',     component: LoginComponent },
+  { path: 'register',  component: RegisterComponent },
+  { path: 'servicios', component: ServicioComponent },
 
-  // 3. Ruta Protegida (Solo entra el que tenga el Token JWT de Django válido)
-  { path: 'home', component: HomeComponent, canActivate: [authGuard] },
+  { path: 'home',      component: HomeComponent,    canActivate: [authGuard] },
+  { path: 'citas',     component: CitasComponent,   canActivate: [authGuard] },
+  { path: 'admin',     component: AdminComponent,   canActivate: [authGuard] },
+  { path: 'barbero',   component: BarberoComponent, canActivate: [authGuard] },
+  { path: 'chat',      component: ChatComponent,    canActivate: [authGuard] },
 
-  { path: 'citas', component: CitasComponent, canActivate: [authGuard] },
-  { path: 'admin', component: AdminComponent, canActivate: [authGuard] },
+  // Ruta con Lazy Loading que venía de main
+  { 
+    path: 'barberos', 
+    loadComponent: () => import('./pages/barberos/barberos').then(m => m.Barberos), 
+    canActivate: [authGuard] 
+  },
 
-  {path: 'barberos',loadComponent: () =>import('./pages/barberos/barberos').then(m => m.Barberos),canActivate: [authGuard]},
-
-    // 4. Comodín: Si escriben cualquier otra locura en la URL, los devuelve al login
+  // 4. Comodín: Si escriben cualquier otra locura en la URL, los devuelve al login
   { path: '**', redirectTo: 'login' },
 ];

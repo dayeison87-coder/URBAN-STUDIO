@@ -1,8 +1,20 @@
+<!-- admin.html -->
 
 <div class="admin-wrapper">
 
+  <!-- Mensaje -->
   <div class="mensaje" *ngIf="mensaje">{{ mensaje }}</div>
 
+  <!-- Header -->
+  <div class="admin-header">
+    <div>
+      <h1 class="admin-title">Panel Admin</h1>
+      <p class="admin-sub">Bienvenido, <span class="gold">{{ nombreUsuario }}</span></p>
+    </div>
+    <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
+  </div>
+
+  <!-- Tabs -->
   <div class="tabs">
     <button [class.active]="pestanaActiva === 'servicios'" (click)="cambiarPestana('servicios')">
       ✂ Servicios
@@ -12,65 +24,110 @@
     </button>
   </div>
 
+  <!-- ══════════ TAB SERVICIOS ══════════ -->
   <div class="tab-content" *ngIf="pestanaActiva === 'servicios'">
+
     <h2>{{ editandoServicio ? 'Editar Servicio' : 'Nuevo Servicio' }}</h2>
+
     <div class="form-card">
       <div class="form-row">
-        <input [(ngModel)]="servicioForm.nombre" placeholder="Nombre del servicio" />
-        <input [(ngModel)]="servicioForm.precio" placeholder="Precio ($)" type="number" />
-        <input [(ngModel)]="servicioForm.duracion" placeholder="Duración (min)" type="number" />
+
+        <!-- Categoría -->
+        <select [(ngModel)]="servicioForm.categoria" class="select-cat">
+          <option value="" disabled>Selecciona categoría</option>
+          <option *ngFor="let cat of categorias" [value]="cat.id">
+            {{ cat.nombre }}
+          </option>
+        </select>
+
+        <input [(ngModel)]="servicioForm.nombre"      placeholder="Nombre del servicio" />
+        <input [(ngModel)]="servicioForm.precio"      placeholder="Precio ($)"  type="number" />
       </div>
-      <textarea [(ngModel)]="servicioForm.descripcion" placeholder="Descripción"></textarea>
+
+      <textarea [(ngModel)]="servicioForm.descripcion" placeholder="Descripción del servicio"></textarea>
+
+      <!-- Disponible -->
+      <label class="check-label">
+        <input type="checkbox" [(ngModel)]="servicioForm.disponible" />
+        Disponible para reservar
+      </label>
+
       <div class="form-actions">
         <button class="btn-primary" (click)="guardarServicio()">
           {{ editandoServicio ? 'Actualizar' : 'Crear Servicio' }}
         </button>
-        <button class="btn-secondary" *ngIf="editandoServicio" (click)="limpiarServicio()">Cancelar</button>
+        <button class="btn-secondary" *ngIf="editandoServicio" (click)="limpiarServicio()">
+          Cancelar
+        </button>
       </div>
     </div>
 
+    <!-- Filtro por categoría -->
+    <div class="filtros">
+      <span class="filtro-label">Filtrar por:</span>
+      <button
+        class="filtro-btn"
+        [class.active]="categoriaSeleccionada === ''"
+        (click)="filtrarPorCategoria('')"
+      >Todos</button>
+      <button
+        class="filtro-btn"
+        *ngFor="let cat of categorias"
+        [class.active]="categoriaSeleccionada === cat.slug"
+        (click)="filtrarPorCategoria(cat.slug)"
+      >{{ cat.nombre }}</button>
+    </div>
+
+    <!-- Tabla -->
     <h2>Lista de Servicios</h2>
     <div class="tabla-wrapper">
       <table>
         <thead>
           <tr>
+            <th>Categoría</th>
             <th>Nombre</th>
             <th>Descripción</th>
             <th>Precio</th>
-            <th>Duración</th>
+            <th>Disponible</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let s of listaServicios">
+          <tr *ngFor="let s of serviciosFiltrados">
+            <td><span class="badge-cat">{{ getNombreCategoria(s.categoria) }}</span></td>
             <td>{{ s.nombre }}</td>
             <td>{{ s.descripcion }}</td>
-            <td>${{ s.precio }}</td>
-            <td>{{ s.duracion }} min</td>
+            <td class="gold">${{ s.precio }}</td>
+            <td>
+              <span class="estado" [class.on]="s.disponible">
+                {{ s.disponible ? 'Sí' : 'No' }}
+              </span>
+            </td>
             <td class="acciones">
-              <button class="btn-edit" (click)="editarServicio(s)">Editar</button>
+              <button class="btn-edit"   (click)="editarServicio(s)">Editar</button>
               <button class="btn-delete" (click)="eliminarServicio(s.id)">Eliminar</button>
             </td>
           </tr>
-          <tr *ngIf="listaServicios.length === 0">
-            <td colspan="5" class="empty">No hay servicios registrados.</td>
+          <tr *ngIf="serviciosFiltrados.length === 0">
+            <td colspan="6" class="empty">No hay servicios registrados.</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
+  <!-- ══════════ TAB BARBEROS ══════════ -->
   <div class="tab-content" *ngIf="pestanaActiva === 'barberos'">
     <h2>{{ editandoBarbero ? 'Editar Barbero' : 'Barberos Registrados' }}</h2>
 
     <div class="form-card" *ngIf="editandoBarbero">
       <div class="form-row">
         <input [(ngModel)]="barberoForm.username" placeholder="Nombre de usuario" />
-        <input [(ngModel)]="barberoForm.email" placeholder="Email" type="email" />
+        <input [(ngModel)]="barberoForm.email"    placeholder="Email" type="email" />
         <input [(ngModel)]="barberoForm.telefono" placeholder="Teléfono" />
       </div>
       <div class="form-actions">
-        <button class="btn-primary" (click)="guardarBarbero()">Actualizar</button>
+        <button class="btn-primary"   (click)="guardarBarbero()">Actualizar</button>
         <button class="btn-secondary" (click)="limpiarBarbero()">Cancelar</button>
       </div>
     </div>
@@ -79,11 +136,7 @@
       <table>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Usuario</th>
-            <th>Email</th>
-            <th>Teléfono</th>
-            <th>Acciones</th>
+            <th>ID</th><th>Usuario</th><th>Email</th><th>Teléfono</th><th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -93,7 +146,7 @@
             <td>{{ b.email }}</td>
             <td>{{ b.telefono || '—' }}</td>
             <td class="acciones">
-              <button class="btn-edit" (click)="editarBarbero(b)">Editar</button>
+              <button class="btn-edit"   (click)="editarBarbero(b)">Editar</button>
               <button class="btn-delete" (click)="eliminarBarbero(b.id)">Eliminar</button>
             </td>
           </tr>

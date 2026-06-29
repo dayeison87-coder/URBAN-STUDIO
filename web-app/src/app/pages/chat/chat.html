@@ -1,0 +1,92 @@
+<div class="chat-page">
+
+  <!-- SIDEBAR: Lista de barberos -->
+  <div class="chat-sidebar">
+    <div class="sidebar-header">
+      <p class="sidebar-eyebrow">Urban Studio</p>
+      <h2 class="sidebar-title">Mensajes</h2>
+    </div>
+
+    <div class="barberos-list">
+      <div
+        class="barbero-item"
+        *ngFor="let b of barberos"
+        [class.activo]="barberoActivo?.id === b.id"
+        (click)="seleccionarBarbero(b)"
+      >
+        <div class="barbero-avatar">{{ getInicial(b.username) }}</div>
+        <div class="barbero-info">
+          <span class="barbero-nombre">{{ b.username }}</span>
+          <span class="barbero-rol">Barbero</span>
+        </div>
+        <div class="barbero-estado" [class.online]="barberoActivo?.id === b.id && conectado"></div>
+      </div>
+
+      <div class="empty-barberos" *ngIf="barberos.length === 0">
+        No hay barberos disponibles.
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT PRINCIPAL -->
+  <div class="chat-main">
+
+    <!-- Sin barbero seleccionado -->
+    <div class="chat-empty" *ngIf="!barberoActivo">
+      <div class="empty-icon">💬</div>
+      <p class="empty-titulo">Selecciona un barbero</p>
+      <p class="empty-sub">Elige un barbero de la lista para iniciar una conversación</p>
+    </div>
+
+    <!-- Chat activo -->
+    <div class="chat-activo" *ngIf="barberoActivo">
+
+      <!-- Header del chat -->
+      <div class="chat-header">
+        <div class="chat-header-avatar">{{ getInicial(barberoActivo.username) }}</div>
+        <div class="chat-header-info">
+          <span class="chat-header-nombre">{{ barberoActivo.username }}</span>
+          <span class="chat-header-estado" [class.conectado]="conectado">
+            {{ conectado ? 'Conectado' : 'Desconectado' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Mensajes -->
+      <div class="chat-mensajes" id="chatMensajes">
+        <div class="empty-mensajes" *ngIf="mensajes.length === 0">
+          <p>Inicia la conversación con {{ barberoActivo.username }}</p>
+        </div>
+
+        <div
+          class="mensaje-wrapper"
+          *ngFor="let m of mensajes"
+          [class.propio]="m.propio"
+          [class.otro]="!m.propio"
+        >
+          <div class="mensaje-avatar" *ngIf="!m.propio">{{ getInicial(m.usuario) }}</div>
+          <div class="mensaje-contenido">
+            <span class="mensaje-usuario" *ngIf="!m.propio">{{ m.usuario }}</span>
+            <div class="mensaje-burbuja">{{ m.mensaje }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="chat-input-area">
+        <input
+          type="text"
+          class="chat-input"
+          [(ngModel)]="mensajeTexto"
+          placeholder="Escribe un mensaje..."
+          (keyup.enter)="enviarMensaje()"
+          [disabled]="!conectado"
+        />
+        <button class="chat-send" (click)="enviarMensaje()" [disabled]="!conectado || !mensajeTexto.trim()">
+          ➤
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

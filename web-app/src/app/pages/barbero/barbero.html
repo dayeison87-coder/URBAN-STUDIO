@@ -1,0 +1,179 @@
+<div class="barbero-container">
+
+  <nav class="navbar">
+    <span class="logo">✂ urban studio</span>
+    <span class="bienvenida">Hola, <strong>{{ nombreUsuario }}</strong></span>
+    <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
+  </nav>
+
+  <div class="tabs">
+    <button [class.active]="pestanaActiva === 'citas'" (click)="cambiarPestana('citas')">
+      📅 Mis Citas
+    </button>
+    <button [class.active]="pestanaActiva === 'horarios'" (click)="cambiarPestana('horarios')">
+      🕐 Mis Horarios
+    </button>
+    <button [class.active]="pestanaActiva === 'perfil'" (click)="cambiarPestana('perfil')">
+      👤 Mi Perfil
+    </button>
+    <button [class.active]="pestanaActiva === 'chat'" (click)="cambiarPestana('chat')">
+      💬 Chat
+    </button>
+  </div>
+
+  <div class="contenido">
+
+    <!-- CITAS -->
+    <div *ngIf="pestanaActiva === 'citas'">
+      <h2>Citas programadas</h2>
+      <div *ngIf="listaCitas.length === 0" class="vacio">No tienes citas programadas.</div>
+      <div class="cita-card" *ngFor="let cita of listaCitas">
+        <div class="cita-info">
+          <span class="cita-cliente">{{ cita.cliente_nombre }}</span>
+          <span class="cita-servicio">{{ cita.servicio_nombre }}</span>
+          <span class="cita-fecha">{{ cita.fecha }} — {{ cita.hora }}</span>
+          <span class="cita-precio">${{ cita.servicio_precio }}</span>
+        </div>
+        <div class="cita-acciones">
+          <span class="badge" [ngClass]="{
+            'badge-pendiente':  cita.estado === 'Pendiente',
+            'badge-completada': cita.estado === 'Completada',
+            'badge-cancelada':  cita.estado === 'Cancelada'
+          }">{{ cita.estado }}</span>
+          <button class="btn-completar" (click)="cambiarEstado(cita, 'Completada')"
+            *ngIf="cita.estado === 'Pendiente'">Completar</button>
+          <button class="btn-cancelar" (click)="cambiarEstado(cita, 'Cancelada')"
+            *ngIf="cita.estado === 'Pendiente'">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HORARIOS -->
+    <div *ngIf="pestanaActiva === 'horarios'">
+      <h2>Mis horarios de atención</h2>
+      <div class="horario-form">
+        <select [(ngModel)]="horarioForm.dia_semana" name="dia">
+          <option *ngFor="let dia of dias" [value]="dia">{{ dia }}</option>
+        </select>
+        <input type="time" [(ngModel)]="horarioForm.hora_inicio" name="inicio">
+        <input type="time" [(ngModel)]="horarioForm.hora_fin" name="fin">
+        <button class="btn-guardar" (click)="guardarHorario()">+ Agregar</button>
+      </div>
+      <div *ngIf="mensaje" class="alert">{{ mensaje }}</div>
+      <div *ngIf="listaHorarios.length === 0" class="vacio">No tienes horarios configurados.</div>
+      <div class="horario-card" *ngFor="let h of listaHorarios">
+        <span class="dia">{{ h.dia_semana }}</span>
+        <span class="horas">{{ h.hora_inicio }} — {{ h.hora_fin }}</span>
+        <button class="btn-cancelar" (click)="eliminarHorario(h.id!)">Eliminar</button>
+      </div>
+    </div>
+
+    <!-- PERFIL -->
+    <div *ngIf="pestanaActiva === 'perfil'">
+      <h2>Mi Perfil</h2>
+      <div class="perfil-card">
+        <div class="foto-section">
+          <div class="foto-wrapper">
+            <img *ngIf="fotoPreview" [src]="fotoPreview" alt="Foto de perfil" class="foto-preview">
+            <div *ngIf="!fotoPreview" class="foto-placeholder">
+              {{ nombreUsuario.charAt(0).toUpperCase() }}
+            </div>
+          </div>
+          <label class="btn-foto">
+            Cambiar foto
+            <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" hidden>
+          </label>
+        </div>
+        <div class="perfil-campos">
+          <div class="input-group">
+            <label>Usuario</label>
+            <input type="text" [value]="perfil.username" disabled>
+          </div>
+          <div class="input-group">
+            <label>Correo</label>
+            <input type="text" [value]="perfil.email" disabled>
+          </div>
+          <div class="input-group">
+            <label>Teléfono</label>
+            <input type="tel" [(ngModel)]="perfil.telefono" name="telefono">
+          </div>
+          <div class="input-group">
+            <label>Años de experiencia</label>
+            <input type="number" [(ngModel)]="perfil.experiencia" name="experiencia" min="0">
+          </div>
+          <div class="input-group">
+            <label>Descripción / Bio</label>
+            <textarea [(ngModel)]="perfil.descripcion" name="descripcion" rows="4"
+              placeholder="Cuéntale a tus clientes sobre ti..."></textarea>
+          </div>
+          <div *ngIf="mensaje" class="alert">{{ mensaje }}</div>
+          <button class="btn-guardar" (click)="guardarPerfil()">Guardar cambios</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <!-- Reemplaza solo la sección del CHAT en barbero.html -->
+<!-- Busca: <div *ngIf="pestanaActiva === 'chat'"> y reemplaza todo ese bloque -->
+
+<div *ngIf="pestanaActiva === 'chat'" class="chat-container">
+
+  <!-- SIDEBAR: clientes conectados -->
+  <div class="chat-sidebar">
+    <div class="chat-sidebar-header">
+      <p class="chat-sidebar-eyebrow">Conversaciones</p>
+    </div>
+
+    <div class="chat-clientes-list">
+      <div class="chat-cliente-item activo">
+        <div class="chat-cliente-avatar">C</div>
+        <div class="chat-cliente-info">
+          <span class="chat-cliente-nombre">Clientes</span>
+          <span class="chat-cliente-sub">Sala general</span>
+        </div>
+        <div class="chat-cliente-dot online"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT PRINCIPAL -->
+  <div class="chat-main">
+    <div class="chat-header-bar">
+      <div class="chat-header-avatar">💬</div>
+      <div class="chat-header-info">
+        <span class="chat-header-nombre">Chat con clientes</span>
+        <span class="chat-header-estado conectado">En línea</span>
+      </div>
+    </div>
+
+    <div class="chat-mensajes-area" id="chatMensajes">
+      <div class="chat-empty-msg" *ngIf="mensajes.length === 0">
+        No hay mensajes aún.
+      </div>
+
+      <div class="chat-msg-wrapper"
+        *ngFor="let m of mensajes"
+        [class.propio]="m.propio"
+        [class.otro]="!m.propio">
+        <div class="chat-msg-avatar" *ngIf="!m.propio">{{ m.usuario.charAt(0).toUpperCase() }}</div>
+        <div class="chat-msg-contenido">
+          <span class="chat-msg-usuario" *ngIf="!m.propio">{{ m.usuario }}</span>
+          <div class="chat-msg-burbuja">{{ m.mensaje }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-bar">
+      <input
+        type="text"
+        class="chat-input-field"
+        [(ngModel)]="mensajeTexto"
+        name="mensajeTexto"
+        placeholder="Escribe un mensaje..."
+        (keyup.enter)="enviarMensaje()"
+      />
+      <button class="chat-send-btn" (click)="enviarMensaje()">➤</button>
+    </div>
+  </div>
+
+</div>
