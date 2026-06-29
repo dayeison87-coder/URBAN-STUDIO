@@ -26,6 +26,7 @@ interface Barbero {
   username: string;
   email: string;
   telefono?: string;
+  rol?: string;
 }
 
 @Component({
@@ -60,8 +61,11 @@ export class AdminComponent implements OnInit {
   };
   editandoServicio = false;
 
-  // Barberos
+  // Barberos y Asignación
   listaBarberos: Barbero[] = [];
+  listaUsuariosComunes: any[] = [];
+  usuarioSeleccionadoId: string | number = '';
+  
   barberoForm = { id: null as number | null, username: '', email: '', telefono: '' };
   editandoBarbero = false;
 
@@ -100,7 +104,6 @@ export class AdminComponent implements OnInit {
     if (slug === '') {
       this.serviciosFiltrados = this.listaServicios;
     } else {
-      // Carga servicios de esa categoría desde el endpoint de detalle
       this.http.get<any>(`${this.apiUrl}/categorias/${slug}/`).subscribe({
         next: (data) => this.serviciosFiltrados = data.servicios,
         error: (err) => console.error(err)
@@ -175,31 +178,71 @@ export class AdminComponent implements OnInit {
   }
 
   // ── Barberos ─────────────────────────────────────────────
-  // ✅ Después — trae solo los barberos
-cargarBarberos(): void {
-  this.http.get<Barbero[]>(`${this.apiUrl}/usuarios/barberos/`, { headers: this.getHeaders() }).subscribe({
-      next:  (data) => this.listaBarberos = data,
+  cargarBarberos(): void {
+    this.http.get<Barbero[]>(`${this.apiUrl}/usuarios/barberos/`, { headers: this.getHeaders() }).subscribe({
+      next:  (data) => {
+        this.listaBarberos = data;
+        // Cargamos y filtramos usuarios comunes una vez obtenidos los barberos
+        this.cargarUsuariosComunes();
+      },
       error: (err)  => console.error('Error barberos:', err)
     });
   }
 
+  cargarUsuariosComunes(): void {
+    this.http.get<any[]>(`${this.apiUrl}/usuarios/`, { headers: this.getHeaders() }).subscribe({
+      next:  (data) => {
+        // Excluye a barberos activos y al usuario administrador actual logueado
+        this.listaUsuariosComunes = data.filter(u => 
+          !this.listaBarberos.some(b => b.id === u.id) && 
+          u.username.toLowerCase() !== this.nombreUsuario.toLowerCase()
+        );
+      },
+      error: (err) => console.error('Error cargando usuarios:', err)
+    });
+  }
+
   guardarBarbero(): void {
-    if (!this.barberoForm.username || !this.barberoForm.email) {
-      this.mensaje = 'Completa nombre y email del barbero.';
-      return;
-    }
-    const payload = {
-      username: this.barberoForm.username,
-      email:    this.barberoForm.email,
-      telefono: this.barberoForm.telefono
-    };
+    // Caso 1: Editar información básica de un barbero existente
     if (this.editandoBarbero && this.barberoForm.id) {
+      const payload = {
+        username: this.barberoForm.username,
+        email:    this.barberoForm.email,
+        telefono: this.barberoForm.telefono
+      };
       this.http.put(`${this.apiUrl}/usuarios/${this.barberoForm.id}/`, payload, { headers: this.getHeaders() }).subscribe({
         next:  () => { this.mensaje = '✓ Barbero actualizado.'; this.limpiarBarbero(); this.cargarBarberos(); },
         error: (err) => console.error(err)
       });
-    } else {
-      this.mensaje = 'Para crear barberos usa el panel de Django Admin.';
+    } 
+    // Caso 2: Promover o asignar un nuevo usuario como barbero
+    else {
+      if (!this.usuarioSeleccionadoId) {
+        this.mensaje = 'Selecciona un usuario para asignarlo como barbero.';
+        return;
+      }
+      
+      // ⬇️ CAMBIO AQUÍ: Enviamos el ID del Rol como número. 
+      // Si el ID de Barbero en tu DB no es 3, cámbialo por el número correcto (ej: 2, 4)
+      const payload = {
+        rol: 2 // 👈 Cambia este número por el ID real de tu rol Barbero
+      };
+
+      this.http.patch(`${this.apiUrl}/usuarios/${this.usuarioSeleccionadoId}/`, payload, { headers: this.getHeaders() }).subscribe({
+        next: () => {
+          this.mensaje = '✓ Usuario asignado como Barbero con éxito.';
+          this.limpiarBarbero();
+          this.cargarBarberos(); 
+        },
+        error: (err) => {
+          if (err.error && err.error.rol) {
+            console.log('Mensaje exacto de Django:', err.error.rol[0]);
+          } else {
+            console.error('Error completo:', err.error);
+          }
+          this.mensaje = 'Error al asignar el rol en el servidor.';
+        }
+      });
     }
   }
 
@@ -209,16 +252,33 @@ cargarBarberos(): void {
   }
 
   eliminarBarbero(id: number): void {
-    if (confirm('¿Eliminar este barbero?')) {
-      this.http.delete(`${this.apiUrl}/usuarios/${id}/`, { headers: this.getHeaders() }).subscribe({
-        next:  () => { this.mensaje = '✓ Barbero eliminado.'; this.cargarBarberos(); },
-        error: (err) => console.error(err)
+    if (confirm('¿Quitar el rol de barbero a este usuario?')) {
+      
+      // ⬇️ CAMBIO AQUÍ: Coloca el ID correspondiente al rol de Cliente común (suele ser 1 o 2)
+      const payload = { 
+        rol: 1 
+      };
+
+      this.http.patch(`${this.apiUrl}/usuarios/${id}/`, payload, { headers: this.getHeaders() }).subscribe({
+        next:  () => { 
+          this.mensaje = '✓ Rol de barbero removido.'; 
+          this.cargarBarberos(); 
+        },
+        error: (err) => {
+          if (err.error && err.error.rol) {
+            console.log('Mensaje exacto de Django al remover:', err.error.rol[0]);
+          } else {
+            console.error('Error completo al remover:', err.error);
+          }
+          this.mensaje = 'Error al remover el rol en el servidor.';
+        }
       });
     }
   }
 
   limpiarBarbero(): void {
     this.editandoBarbero = false;
+    this.usuarioSeleccionadoId = '';
     this.barberoForm = { id: null, username: '', email: '', telefono: '' };
     setTimeout(() => this.mensaje = '', 3000);
   }
