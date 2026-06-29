@@ -10,7 +10,7 @@ export class CitasService {
   
   // Endpoints del backend sincronizados con Django
   private apiUrlCitas = 'http://localhost:8000/api/citas/';
-  private apiUrlServicios = 'http://localhost:8000/api/servicios/';
+  private apiUrlServicios = 'http://localhost:8000/api/categorias/';
   private apiUrlBarberos = 'http://localhost:8000/api/usuarios/barberos/'; // 👈 Nueva URL corregida
 
   private getHeaders(): HttpHeaders {

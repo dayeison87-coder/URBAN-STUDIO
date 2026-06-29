@@ -8,16 +8,20 @@ class Rol(models.Model):
         return self.nombre
 
 
-# 🔥 Modelo Custom de Usuario extendido de Django
 class Usuario(AbstractUser):
     telefono = models.CharField(max_length=20, blank=True, null=True)
     rol = models.ForeignKey(
         Rol,
         on_delete=models.CASCADE,
-        null=True,   # Permite que al crear el primer superusuario no falle por falta de rol
+        null=True,
         blank=True
     )
     fecha_registro = models.DateTimeField(auto_now_add=True)
+    
+    # 👈 Campos nuevos para el perfil del barbero
+    foto = models.ImageField(upload_to='fotos_barberos/', blank=True, null=True)
+    descripcion = models.TextField(blank=True, null=True)
+    experiencia = models.IntegerField(blank=True, null=True)  # años de experiencia
 
     def __str__(self):
         return self.username
@@ -27,7 +31,7 @@ class Servicio(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
     precio = models.DecimalField(max_digits=10, decimal_places=2)
-    duracion = models.IntegerField() # Duración estimada en minutos
+    duracion = models.IntegerField()
 
     def __str__(self):
         return self.nombre
@@ -39,7 +43,7 @@ class Disponibilidad(models.Model):
         on_delete=models.CASCADE,
         related_name="disponibilidades"
     )
-    dia_semana = models.CharField(max_length=20) # Ej: 'Lunes', 'Martes'
+    dia_semana = models.CharField(max_length=20)
     hora_inicio = models.TimeField()
     hora_fin = models.TimeField()
 
@@ -48,7 +52,6 @@ class Disponibilidad(models.Model):
 
 
 class Cita(models.Model):
-    # Opciones fijas para controlar el flujo de los estados
     ESTADOS_CITA = [
         ('Pendiente', 'Pendiente'),
         ('Completada', 'Completada'),
@@ -66,8 +69,8 @@ class Cita(models.Model):
         related_name="citas_barbero"
     )
     servicio = models.ForeignKey(
-        Servicio,
-        on_delete=models.CASCADE
+    'servicios.Servicio',   # ← apunta a la nueva tabla
+    on_delete=models.CASCADE
     )
     fecha = models.DateField()
     hora = models.TimeField()

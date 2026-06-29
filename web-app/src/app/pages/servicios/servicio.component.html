@@ -1,0 +1,93 @@
+<!-- servicio.component.html -->
+
+<div class="us-page">
+
+  <!-- HERO -->
+  <section class="us-hero">
+  <button class="us-back" (click)="volver()">← Volver</button>  <!-- agrega esta línea -->
+  <p class="us-eyebrow">Urban Studio</p>
+  <h1 class="us-title">Servicios</h1>
+  <p class="us-subtitle">Elige tu experiencia</p>
+  </section>
+
+  <!-- LOADING -->
+  <div class="us-loading" *ngIf="cargando">
+    <div class="us-spinner"></div>
+  </div>
+
+  <!-- GRID -->
+  <div class="us-grid" *ngIf="!cargando">
+    <div
+      class="us-card"
+      *ngFor="let cat of categorias; let i = index"
+      [attr.data-slug]="cat.slug"
+      (click)="abrirModal(cat)"
+    >
+      <div class="us-card-bg" [ngClass]="'bg-' + cat.slug"></div>
+      <div class="us-card-overlay"></div>
+      <div class="us-card-icon" [innerHTML]="getIcono(cat.slug)"></div>
+      <div class="us-card-content">
+        <p class="us-card-number">{{ numeros[i] }}</p>
+        <h2 class="us-card-name">{{ cat.nombre }}</h2>
+        <p class="us-card-desc">{{ cat.descripcion }}</p>
+        <span class="us-card-cta">Ver servicios</span>
+      </div>
+      <div class="us-card-line"></div>
+    </div>
+  </div>
+
+  <!-- SIN CATEGORÍAS -->
+  <div class="us-empty" *ngIf="!cargando && categorias.length === 0">
+    <p>No hay servicios disponibles por el momento.</p>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="us-footer">
+    <p class="us-footer-text">Urban Studio — Bogotá, Colombia</p>
+  </footer>
+
+</div>
+
+<!-- MODAL -->
+<div
+  class="us-modal-bg"
+  [class.open]="categoriaActiva !== null"
+  (click)="cerrarSiOverlay($event)"
+  *ngIf="categoriaActiva"
+>
+  <div class="us-modal">
+    <div class="us-modal-header">
+      <p class="us-modal-eyebrow">Urban Studio — {{ categoriaActiva.descripcion }}</p>
+      <h2 class="us-modal-title">{{ categoriaActiva.nombre }}</h2>
+      <button class="us-modal-close" (click)="cerrarModal()">✕</button>
+    </div>
+
+    <div class="us-modal-body">
+
+      <!-- Servicios disponibles -->
+      <ul class="us-service-list" *ngIf="categoriaActiva.servicios.length > 0">
+        <li
+          class="us-service-item"
+          *ngFor="let srv of categoriaActiva.servicios"
+          [class.no-disponible]="!srv.disponible"
+        >
+          <div>
+            <p class="us-service-name">{{ srv.nombre }}</p>
+            <p class="us-service-detail">{{ srv.descripcion }}</p>
+            <span class="us-badge" *ngIf="!srv.disponible">No disponible</span>
+          </div>
+          <span class="us-service-price">{{ formatPrecio(srv.precio) }}</span>
+        </li>
+      </ul>
+
+      <!-- Sin servicios -->
+      <div class="us-modal-empty" *ngIf="categoriaActiva.servicios.length === 0">
+        <p>Próximamente servicios en esta categoría.</p>
+      </div>
+
+      <button class="us-modal-cta" (click)="irACitas()">
+    Reservar cita
+      </button>
+    </div>
+  </div>
+</div>

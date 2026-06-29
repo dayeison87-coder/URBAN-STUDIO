@@ -1,36 +1,107 @@
 <header>
-    <nav class="navbar">
-        <div class="brand-container">
-            <div class="logo">✂ urban studio</div>
-            <div class="user-greeting">
-                Hola, <span class="username">{{ nombreUsuario }}</span>
-            </div>
-        </div>
+  <nav class="navbar">
+    <div class="brand-container">
+      <div class="logo">✂ urban studio</div>
+      <div class="user-greeting">
+        Hola, <span class="username">{{ nombreUsuario }}</span>
+      </div>
+    </div>
 
-        <ul class="menu">
-            <li><a routerLink="/home">Inicio</a></li>
-            <li><a href="#servicios">Servicios</a></li>
-            
-            <li><a routerLink="/citas">Citas</a></li>
-            
-            <li>
-                <button class="btn-logout" (click)="logout()">
-                    Cerrar Sesión
-                </button>
-            </li>
-        </ul>
-    </nav>
+    <ul class="menu">
+      <li><a routerLink="/home">Inicio</a></li>
+      <li><a routerLink="/servicios">Servicios</a></li>
+      <li><a routerLink="/citas">Citas</a></li>
+      <li>
+        <button class="btn-ia" (click)="abrirIA()">
+          ✦ IA Estilo
+        </button>
+      </li>
+      <li><a routerLink="/chat">💬 Chat</a></li>
+      <li>
+        <button class="btn-logout" (click)="logout()">
+          Cerrar Sesión
+        </button>
+      </li>
+    </ul>
+  </nav>
 </header>
 
 <section class="hero">
-    <div class="overlay"></div>
-
-    <div class="hero-content">
-        <h1>Tu Estilo, Nuestra Pasión</h1>
-        <p>Cortes modernos, clásicos y atención premium.</p>
-
-        <button id="btnReserva" (click)="irACitas()">
-            Reservar Cita
-        </button>
-    </div>
+  <div class="overlay"></div>
+  <div class="hero-content">
+    <h1>Tu Estilo, Nuestra Pasión</h1>
+    <p>Cortes modernos, clásicos y atención premium.</p>
+    <button id="btnReserva" (click)="irACitas()">Reservar Cita</button>
+  </div>
 </section>
+
+<!-- ══════════ MODAL PASO 1: Verificación ══════════ -->
+<div class="modal-bg" *ngIf="paso === 1" (click)="cerrarSiOverlay($event)">
+  <div class="modal-box">
+    <div class="modal-icon">✦</div>
+    <h2 class="modal-title">Urban Studio IA</h2>
+    <p class="modal-desc">Análisis facial inteligente para recomendarte el corte y estilo ideal según tu rostro.</p>
+    <div class="verificando" *ngIf="verificando">
+      <div class="spinner"></div>
+      <span>Verificando acceso...</span>
+    </div>
+    <div class="acceso-ok" *ngIf="!verificando">
+      <span class="check">✓</span>
+      <span>Servicio activo — Acceso verificado</span>
+    </div>
+    <button class="btn-continuar" (click)="solicitarCamara()" *ngIf="!verificando">
+      Continuar
+    </button>
+    <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══════════ MODAL PASO 2: Permiso cámara ══════════ -->
+<div class="modal-bg" *ngIf="paso === 2" (click)="cerrarSiOverlay($event)">
+  <div class="modal-box">
+    <div class="modal-icon">📷</div>
+    <h2 class="modal-title">Permiso de Cámara</h2>
+    <p class="modal-desc">Para analizar tu rostro necesitamos acceso a tu cámara. Tu privacidad es importante — no guardamos imágenes.</p>
+    <button class="btn-continuar" (click)="activarCamara()">Permitir cámara</button>
+    <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══════════ MODAL PASO 3: Cámara activa ══════════ -->
+<div class="modal-bg camara-modal" *ngIf="paso === 3">
+  <div class="camara-box">
+
+    <div class="camara-header">
+      <span class="camara-titulo">Escaneo Facial</span>
+      <button class="camara-cerrar" (click)="cerrarModal()">✕</button>
+    </div>
+
+    <div class="camara-wrapper">
+      <video #videoRef autoplay playsinline class="camara-video"></video>
+
+      <!-- Marco de escaneo -->
+      <div class="scan-frame">
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+        <div class="scan-line"></div>
+      </div>
+
+      <div class="camara-instruccion">
+        Centra tu rostro dentro del marco
+      </div>
+    </div>
+
+    <canvas #canvasRef style="display:none"></canvas>
+
+    <button class="btn-escanear" (click)="escanear()">
+      ✦ Escanear rostro
+    </button>
+
+    <div class="captura-ok" *ngIf="capturado">
+      <span class="check">✓</span> Rostro capturado — IA lista para analizar
+    </div>
+
+  </div>
+</div>

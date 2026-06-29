@@ -196,3 +196,25 @@
     font-size: 1.6rem;
   }
 }
+
+.password-checklist {
+  list-style: none;
+  padding: 8px 0;
+  margin: 6px 0 12px 0;
+  font-size: 0.8rem;
+}
+
+.password-checklist li {
+  color: #e57373; /* rojo por defecto */
+  margin-bottom: 4px;
+  transition: color 0.2s ease;
+}
+
+.password-checklist li.ok {
+  color: #c9a84c; /* dorado del proyecto cuando cumple */
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

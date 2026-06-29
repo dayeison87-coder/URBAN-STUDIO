@@ -7,10 +7,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule
-  ],
+  imports: [CommonModule, FormsModule],
   templateUrl: './register.html',
   styleUrl: './register.css'
 })
@@ -18,36 +15,52 @@ export class RegisterComponent {
 
   username = '';
   email = '';
+  telefono = '';
   password = '';
   mensaje = '';
+
+  get passwordChecks() {
+    return {
+      minLength:  this.password.length >= 8,
+      hasUpper:   /[A-Z]/.test(this.password),
+      hasNumber:  /[0-9]/.test(this.password),
+      hasSymbol:  /[!@#$%^&*(),.?":{}|<>_\-]/.test(this.password),
+    };
+  }
+
+  get passwordValida(): boolean {
+    const c = this.passwordChecks;
+    return c.minLength && c.hasUpper && c.hasNumber && c.hasSymbol;
+  }
 
   private http = inject(HttpClient);
   private router = inject(Router);
 
   registrar() {
-    // Limpiamos el mensaje al iniciar un nuevo intento de registro
     this.mensaje = '';
+
+    if (!this.passwordValida) {
+      this.mensaje = 'La contraseña no cumple los requisitos de seguridad.';
+      return;
+    }
 
     this.http.post(
       'http://127.0.0.1:8000/api/register/',
       {
         username: this.username,
         email: this.email,
+        telefono: this.telefono,
         password: this.password
       }
     ).subscribe({
       next: () => {
-        // Asignamos el mensaje de éxito (el CSS detectará la palabra 'correctamente' para ponerse verde)
         this.mensaje = 'Cuenta creada correctamente';
-
-        // Retardamos un segundo la redirección para que el usuario alcance a ver la alerta verde
         setTimeout(() => {
           this.router.navigate(['/login']);
         }, 1500);
       },
       error: (err) => {
         console.error('Error en el registro:', err);
-        
         this.mensaje = 'Error al crear la cuenta. Inténtalo de nuevo.';
       }
     });
