@@ -1,7 +1,11 @@
 <header>
   <nav class="navbar">
     <div class="brand-container">
-      <div class="logo">✂ urban studio</div>
+<<<<<<< Updated upstream
+      <div class="logo" routerLink="/chat">✂ urban studio</div>
+=======
+      <div class="logo" routerLink="/home">✂ urban studio</div>
+>>>>>>> Stashed changes
       <div class="user-greeting">
         Hola, <span class="username">{{ nombreUsuario }}</span>
       </div>
@@ -36,6 +40,7 @@
   </div>
 </section>
 
+<!-- ══════════ MODAL PASO 1: Verificación ══════════ -->
 <div class="modal-bg" *ngIf="paso === 1" (click)="cerrarSiOverlay($event)">
   <div class="modal-box">
     <div class="modal-icon">✦</div>
@@ -56,6 +61,7 @@
   </div>
 </div>
 
+<!-- ══════════ MODAL PASO 2: Permiso cámara ══════════ -->
 <div class="modal-bg" *ngIf="paso === 2" (click)="cerrarSiOverlay($event)">
   <div class="modal-box">
     <div class="modal-icon">📷</div>
@@ -66,6 +72,7 @@
   </div>
 </div>
 
+<!-- ══════════ MODAL PASO 3: Cámara activa ══════════ -->
 <div class="modal-bg camara-modal" *ngIf="paso === 3">
   <div class="camara-box">
 
@@ -77,6 +84,7 @@
     <div class="camara-wrapper">
       <video #videoRef autoplay playsinline class="camara-video"></video>
 
+      <!-- Marco de escaneo -->
       <div class="scan-frame">
         <div class="corner tl"></div>
         <div class="corner tr"></div>
