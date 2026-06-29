@@ -203,3 +203,20 @@ body{
         font-size:17px;
     }
 }
+.btn-ia {
+  background: linear-gradient(135deg, #c9a96e, #d4af37); /* Degradado dorado elegante */
+  color: #0a0a0a;                                       /* Texto oscuro para contraste */
+  border: none;
+  padding: 8px 18px;                                   /* Tamaño del botón */
+  font-size: 12px;
+  font-weight: 700;                                     /* Negrita */
+  letter-spacing: 1px;                                  /* Espaciado entre letras */
+  cursor: pointer;
+  transition: all 0.3s;                                 /* Suavizado en animaciones */
+  border-radius: 2px;                                   /* Esquinas ligeramente redondeadas */
+}
+
+.btn-ia:hover { 
+  opacity: 0.85;                                        /* Efecto de aclarado al pasar el mouse */
+  transform: scale(1.03);                               /* Pequeño aumento de tamaño al pasar el mouse */
+}
