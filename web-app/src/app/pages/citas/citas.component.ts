@@ -66,6 +66,14 @@ export class CitasComponent implements OnInit {
   horariosBase = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'];
   horariosDisponibles: HoraSlot[] = [];
 
+  // ── 🌟 VARIABLES NUEVAS PARA EL SISTEMA DE CALIFICACIÓN ────────────────────────
+  citaSeleccionadaId: number | null = null;
+  estrellas: number[] = [1, 2, 3, 4, 5];
+  calificacionSeleccionada = 0;
+  votoTemporal = 0;
+  comentario = '';
+  mensajeCalificacion = '';
+
   get nombreMes(): string { return this.meses[this.mesActual.getMonth()]; }
   get anioActual(): number { return this.mesActual.getFullYear(); }
 
@@ -102,27 +110,22 @@ export class CitasComponent implements OnInit {
     });
   }
 
-  // ── Iniciar nueva cita ────────────────────────────────────
   nuevaCita(): void {
     this.editandoId = null;
     this.resetearSelecciones();
     this.paso = 1;
   }
 
-  
   volverHome(): void {
-  this.router.navigate(['/home']);
+    this.router.navigate(['/home']);
   }
 
-  // ── Editar cita existente ─────────────────────────────────
   editarCita(cita: any): void {
     this.editandoId = cita.id;
     this.paso = 1;
     this.resetearSelecciones();
 
-    // Precargar categoría
     setTimeout(() => {
-      // Buscar categoría que contiene el servicio
       for (const cat of this.categorias) {
         const srv = cat.servicios.find(s => s.id === cita.servicio);
         if (srv) {
@@ -131,16 +134,13 @@ export class CitasComponent implements OnInit {
           break;
         }
       }
-      // Precargar barbero
       this.barberoSeleccionado = this.barberos.find(b => b.id === cita.barbero) || null;
-      // Precargar fecha y hora
       this.fechaSeleccionada = cita.fecha;
       this.horaSeleccionada = cita.hora?.substring(0, 5);
       if (this.fechaSeleccionada) this.calcularHorarios();
     }, 300);
   }
 
-  // ── Selecciones ───────────────────────────────────────────
   seleccionarCategoria(cat: Categoria): void { this.categoriaSeleccionada = cat; this.servicioSeleccionado = null; }
   seleccionarServicio(srv: Servicio): void { this.servicioSeleccionado = srv; }
   seleccionarBarbero(b: Barbero): void { this.barberoSeleccionado = b; this.fechaSeleccionada = ''; this.horaSeleccionada = ''; }
@@ -155,7 +155,6 @@ export class CitasComponent implements OnInit {
 
   irPaso(n: number): void { this.paso = n; this.mensaje = ''; }
 
-  // ── Calendario ────────────────────────────────────────────
   generarCalendario(): void {
     const año = this.mesActual.getFullYear();
     const mes = this.mesActual.getMonth();
@@ -195,7 +194,7 @@ export class CitasComponent implements OnInit {
     const citasDelDia = this.citasExistentes.filter(
       c => c.fecha === this.fechaSeleccionada &&
            c.barbero === this.barberoSeleccionado?.id &&
-           c.id !== this.editandoId  // excluye la cita que se está editando
+           c.id !== this.editandoId
     );
     const horasOcupadas = citasDelDia.map((c: any) => c.hora.substring(0, 5));
     this.horariosDisponibles = this.horariosBase.map(h => ({
@@ -212,7 +211,6 @@ export class CitasComponent implements OnInit {
     return citasDelDia.length >= this.horariosBase.length;
   }
 
-  // ── Confirmar / Guardar ────────────────────────────────────
   confirmarCita(): void {
     if (!this.servicioSeleccionado || !this.barberoSeleccionado || !this.fechaSeleccionada || !this.horaSeleccionada) {
       this.mensaje = 'Completa todos los pasos.'; return;
@@ -227,13 +225,11 @@ export class CitasComponent implements OnInit {
     };
 
     if (this.editandoId !== null) {
-      // EDITAR
       this.http.put(`${this.apiUrl}/citas/${this.editandoId}/`, payload, { headers: this.getHeaders() }).subscribe({
         next: () => { this.mensaje = '✓ Cita actualizada correctamente.'; this.cargarCitas(); this.resetear(); },
         error: (err) => { console.error(err); this.mensaje = 'Error al actualizar la cita.'; }
       });
     } else {
-      // CREAR
       this.http.post(`${this.apiUrl}/citas/`, payload, { headers: this.getHeaders() }).subscribe({
         next: () => { this.mensaje = '✓ Cita agendada correctamente.'; this.cargarCitas(); this.resetear(); },
         error: (err) => { console.error(err); this.mensaje = 'Error al agendar la cita.'; }
@@ -263,6 +259,58 @@ export class CitasComponent implements OnInit {
     this.barberoSeleccionado = null;
     this.fechaSeleccionada = '';
     this.horaSeleccionada = '';
+  }
+
+  // ── 🌟 FUNCIONES PARA EL MANEJO VISUAL DE LAS ESTRELLAS ────────────────────────
+  abrirModalCalificar(citaId: number): void {
+    this.citaSeleccionadaId = citaId;
+    this.calificacionSeleccionada = 0;
+    this.votoTemporal = 0;
+    this.comentario = '';
+    this.mensajeCalificacion = '';
+  }
+
+  fijarCalificacion(voto: number): void {
+    this.calificacionSeleccionada = voto;
+  }
+
+  resaltarEstrellas(voto: number): void {
+    this.votoTemporal = voto;
+  }
+
+  limpiarResaltado(): void {
+    this.votoTemporal = 0;
+  }
+
+  enviarCalificacion(): void {
+    if (this.calificacionSeleccionada === 0) {
+      this.mensajeCalificacion = 'Por favor selecciona al menos una estrella.';
+      return;
+    }
+
+    const payload = {
+      cita: this.citaSeleccionadaId,
+      estrellas: this.calificacionSeleccionada,
+      comentario: this.comentario
+    };
+
+    this.http.post(`${this.apiUrl}/calificaciones/`, payload, { headers: this.getHeaders() }).subscribe({
+      next: () => {
+        this.mensajeCalificacion = '✓ ¡Muchas gracias por calificar!';
+        this.cargarCitas(); // Refresca las citas para reflejar cambios
+        setTimeout(() => {
+          this.citaSeleccionadaId = null;
+        }, 2000);
+      },
+      error: (err) => {
+        console.error(err);
+        if (err.error && err.error.non_field_errors) {
+          this.mensajeCalificacion = err.error.non_field_errors[0];
+        } else {
+          this.mensajeCalificacion = 'Error al enviar la calificación.';
+        }
+      }
+    });
   }
 
   // ── Helpers ───────────────────────────────────────────────

@@ -13,13 +13,14 @@
       <li><a routerLink="/barberos">Barberos</a></li>
       <li>
         <button class="btn-ia" (click)="abrirIA()">✦ IA Estilo</button>
+      </li>
+      <li>
         <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
       </li>
     </ul>
   </nav>
 </header>
 
-<!-- ══════ HERO ══════ -->
 <section class="hero">
   <div class="overlay"></div>
   <div class="hero-content">
@@ -31,7 +32,6 @@
       <button class="btn-ver-servicios" (click)="irAReservas()">Ver Servicios</button>
     </div>
   </div>
-  <!-- Stats flotantes -->
   <div class="hero-stats">
     <div class="stat">
       <span class="stat-num">500+</span>
@@ -50,7 +50,6 @@
   </div>
 </section>
 
-<!-- ══════ SERVICIOS ══════ -->
 <section class="section servicios-section">
   <div class="section-header">
     <p class="section-eyebrow">Lo que ofrecemos</p>
@@ -88,7 +87,6 @@
   </div>
 </section>
 
-<!-- ══════ POR QUÉ ELEGIRNOS ══════ -->
 <section class="section porque-section">
   <div class="section-header">
     <p class="section-eyebrow">Nuestra diferencia</p>
@@ -118,50 +116,37 @@
   </div>
 </section>
 
-<!-- ══════ TESTIMONIOS ══════ -->
 <section class="section testimonios-section">
   <div class="section-header">
     <p class="section-eyebrow">Lo que dicen</p>
     <h2 class="section-title">Testimonios</h2>
   </div>
-  <div class="testimonios-grid">
-    <div class="testimonio-card">
-      <div class="testimonio-stars">★★★★★</div>
-      <p class="testimonio-texto">"El mejor corte que me han hecho. El ambiente es increíble y el barbero muy profesional."</p>
-      <div class="testimonio-autor">
-        <div class="testimonio-avatar">J</div>
-        <div>
-          <span class="testimonio-nombre">Juan M.</span>
-          <span class="testimonio-fecha">Cliente habitual</span>
-        </div>
+
+  <div class="testimonios-grid" *ngIf="testimonios && testimonios.length > 0; else sinTestimonios">
+    <div class="testimonio-card" *ngFor="let cal of testimonios">
+      <div class="testimonio-stars">
+        <ng-container *ngFor="let star of [].constructor(cal.estrellas)">⭐</ng-container>
       </div>
-    </div>
-    <div class="testimonio-card">
-      <div class="testimonio-stars">★★★★★</div>
-      <p class="testimonio-texto">"La IA de estilo me recomendó un corte que nunca habría elegido y quedé perfecto."</p>
+      <p class="testimonio-texto">"{{ cal.comentario }}"</p>
       <div class="testimonio-autor">
-        <div class="testimonio-avatar">C</div>
-        <div>
-          <span class="testimonio-nombre">Carlos R.</span>
-          <span class="testimonio-fecha">Cliente nuevo</span>
+        <div class="testimonio-avatar">
+          {{ cal.cliente_username ? cal.cliente_username.charAt(0).toUpperCase() : 'U' }}
         </div>
-      </div>
-    </div>
-    <div class="testimonio-card">
-      <div class="testimonio-stars">★★★★★</div>
-      <p class="testimonio-texto">"Reservar la cita fue facilísimo. El sistema online es muy cómodo y rápido."</p>
-      <div class="testimonio-autor">
-        <div class="testimonio-avatar">A</div>
         <div>
-          <span class="testimonio-nombre">Andrés P.</span>
-          <span class="testimonio-fecha">Cliente habitual</span>
+          <span class="testimonio-nombre">{{ cal.cliente_username }}</span>
+          <span class="testimonio-fecha">Cliente Verificado</span>
         </div>
       </div>
     </div>
   </div>
+
+  <ng-template #sinTestimonios>
+    <div style="text-align: center; padding: 2rem; color: #a5a5a5; font-style: italic;">
+      No hay reseñas recientes. ¡Sé el primero en calificar tu cita! ✨
+    </div>
+  </ng-template>
 </section>
 
-<!-- ══════ CTA FINAL ══════ -->
 <section class="cta-section">
   <div class="cta-content">
     <p class="section-eyebrow">¿Listo para el cambio?</p>
@@ -171,7 +156,6 @@
   </div>
 </section>
 
-<!-- ══════ FOOTER ══════ -->
 <footer class="footer">
   <div class="footer-content">
     <div class="footer-brand">
@@ -189,7 +173,6 @@
   </div>
 </footer>
 
-<!-- ══════ MODALES IA ══════ -->
 <div class="modal-bg" *ngIf="paso === 1" (click)="cerrarSiOverlay($event)">
   <div class="modal-box">
     <div class="modal-icon">✦</div>
