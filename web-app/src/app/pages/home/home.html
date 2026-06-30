@@ -6,37 +6,190 @@
         Hola, <span class="username">{{ nombreUsuario }}</span>
       </div>
     </div>
-
     <ul class="menu">
       <li><a routerLink="/home">Inicio</a></li>
       <li><a routerLink="/servicios">Servicios</a></li>
       <li><a routerLink="/citas">Citas</a></li>
       <li><a routerLink="/barberos">Barberos</a></li>
       <li>
-        <button class="btn-ia" (click)="abrirIA()">
-          ✦ IA Estilo
-        </button>
-      </li>
-      <li><a routerLink="/chat">💬 Chat</a></li>
-      <li>
-        <button class="btn-logout" (click)="logout()">
-          Cerrar Sesión
-        </button>
+        <button class="btn-ia" (click)="abrirIA()">✦ IA Estilo</button>
+        <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
       </li>
     </ul>
   </nav>
 </header>
 
+<!-- ══════ HERO ══════ -->
 <section class="hero">
   <div class="overlay"></div>
   <div class="hero-content">
-    <h1>Tu Estilo, Nuestra Pasión</h1>
-    <p>Cortes modernos, clásicos y atención premium.</p>
-    <button id="btnReserva" (click)="irACitas()">Reservar Cita</button>
+    <p class="hero-eyebrow">Bienvenido a Urban Studio</p>
+    <h1>Tu Estilo,<br>Nuestra Pasión</h1>
+    <p class="hero-sub">Cortes modernos, clásicos y atención premium.</p>
+    <div class="hero-btns">
+      <button id="btnReserva" (click)="irACitas()">Reservar Cita</button>
+      <button class="btn-ver-servicios" (click)="irAReservas()">Ver Servicios</button>
+    </div>
+  </div>
+  <!-- Stats flotantes -->
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">500+</span>
+      <span class="stat-label">Clientes felices</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">5+</span>
+      <span class="stat-label">Años de experiencia</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">4.9★</span>
+      <span class="stat-label">Valoración promedio</span>
+    </div>
   </div>
 </section>
 
-<!-- ══════════ MODAL PASO 1: Verificación ══════════ -->
+<!-- ══════ SERVICIOS ══════ -->
+<section class="section servicios-section">
+  <div class="section-header">
+    <p class="section-eyebrow">Lo que ofrecemos</p>
+    <h2 class="section-title">Nuestros Servicios</h2>
+    <p class="section-sub">Cada servicio está diseñado para resaltar tu mejor versión</p>
+  </div>
+  <div class="servicios-grid">
+    <div class="servicio-card">
+      <div class="servicio-icon">✂</div>
+      <h3>Cabello</h3>
+      <p>Cortes clásicos, modernos y degradados con técnicas premium.</p>
+      <span class="servicio-desde">Desde $20.000</span>
+    </div>
+    <div class="servicio-card">
+      <div class="servicio-icon">🪒</div>
+      <h3>Barba</h3>
+      <p>Afeitado clásico, perfilado y diseño de barba a tu medida.</p>
+      <span class="servicio-desde">Desde $25.000</span>
+    </div>
+    <div class="servicio-card">
+      <div class="servicio-icon">✨</div>
+      <h3>Rostro</h3>
+      <p>Tratamientos faciales, hidratación y cuidado de la piel.</p>
+      <span class="servicio-desde">Desde $35.000</span>
+    </div>
+    <div class="servicio-card destacado">
+      <div class="servicio-icon">🤖</div>
+      <h3>IA Estilo</h3>
+      <p>Análisis facial inteligente que recomienda el corte ideal para ti.</p>
+      <span class="servicio-desde">Incluido</span>
+    </div>
+  </div>
+  <div class="section-cta">
+    <button class="btn-gold" (click)="irAReservas()">Ver todos los servicios →</button>
+  </div>
+</section>
+
+<!-- ══════ POR QUÉ ELEGIRNOS ══════ -->
+<section class="section porque-section">
+  <div class="section-header">
+    <p class="section-eyebrow">Nuestra diferencia</p>
+    <h2 class="section-title">¿Por qué Urban Studio?</h2>
+  </div>
+  <div class="porque-grid">
+    <div class="porque-item">
+      <div class="porque-icon">🏆</div>
+      <h3>Barberos expertos</h3>
+      <p>Profesionales con años de experiencia y certificaciones internacionales.</p>
+    </div>
+    <div class="porque-item">
+      <div class="porque-icon">📅</div>
+      <h3>Reservas online</h3>
+      <p>Agenda tu cita en segundos, elige tu barbero y horario favorito.</p>
+    </div>
+    <div class="porque-item">
+      <div class="porque-icon">💬</div>
+      <h3>Chat directo</h3>
+      <p>Habla directamente con tu barbero antes y después de tu cita.</p>
+    </div>
+    <div class="porque-item">
+      <div class="porque-icon">✦</div>
+      <h3>IA personalizada</h3>
+      <p>Tecnología de análisis facial para recomendarte el mejor estilo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ TESTIMONIOS ══════ -->
+<section class="section testimonios-section">
+  <div class="section-header">
+    <p class="section-eyebrow">Lo que dicen</p>
+    <h2 class="section-title">Testimonios</h2>
+  </div>
+  <div class="testimonios-grid">
+    <div class="testimonio-card">
+      <div class="testimonio-stars">★★★★★</div>
+      <p class="testimonio-texto">"El mejor corte que me han hecho. El ambiente es increíble y el barbero muy profesional."</p>
+      <div class="testimonio-autor">
+        <div class="testimonio-avatar">J</div>
+        <div>
+          <span class="testimonio-nombre">Juan M.</span>
+          <span class="testimonio-fecha">Cliente habitual</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonio-card">
+      <div class="testimonio-stars">★★★★★</div>
+      <p class="testimonio-texto">"La IA de estilo me recomendó un corte que nunca habría elegido y quedé perfecto."</p>
+      <div class="testimonio-autor">
+        <div class="testimonio-avatar">C</div>
+        <div>
+          <span class="testimonio-nombre">Carlos R.</span>
+          <span class="testimonio-fecha">Cliente nuevo</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonio-card">
+      <div class="testimonio-stars">★★★★★</div>
+      <p class="testimonio-texto">"Reservar la cita fue facilísimo. El sistema online es muy cómodo y rápido."</p>
+      <div class="testimonio-autor">
+        <div class="testimonio-avatar">A</div>
+        <div>
+          <span class="testimonio-nombre">Andrés P.</span>
+          <span class="testimonio-fecha">Cliente habitual</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ CTA FINAL ══════ -->
+<section class="cta-section">
+  <div class="cta-content">
+    <p class="section-eyebrow">¿Listo para el cambio?</p>
+    <h2>Reserva tu cita hoy</h2>
+    <p>Elige tu barbero, servicio y horario en menos de 2 minutos.</p>
+    <button class="btn-gold-lg" (click)="irACitas()">Reservar ahora →</button>
+  </div>
+</section>
+
+<!-- ══════ FOOTER ══════ -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-brand">
+      <span class="logo">✂ urban studio</span>
+      <p>Estilo premium para el hombre moderno.</p>
+    </div>
+    <div class="footer-links">
+      <a routerLink="/servicios">Servicios</a>
+      <a routerLink="/citas">Citas</a>
+      <a routerLink="/chat">Chat</a>
+    </div>
+    <div class="footer-copy">
+      <p>© 2026 Urban Studio. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════ MODALES IA ══════ -->
 <div class="modal-bg" *ngIf="paso === 1" (click)="cerrarSiOverlay($event)">
   <div class="modal-box">
     <div class="modal-icon">✦</div>
@@ -50,14 +203,11 @@
       <span class="check">✓</span>
       <span>Servicio activo — Acceso verificado</span>
     </div>
-    <button class="btn-continuar" (click)="solicitarCamara()" *ngIf="!verificando">
-      Continuar
-    </button>
+    <button class="btn-continuar" (click)="solicitarCamara()" *ngIf="!verificando">Continuar</button>
     <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
   </div>
 </div>
 
-<!-- ══════════ MODAL PASO 2: Permiso cámara ══════════ -->
 <div class="modal-bg" *ngIf="paso === 2" (click)="cerrarSiOverlay($event)">
   <div class="modal-box">
     <div class="modal-icon">📷</div>
@@ -65,5 +215,32 @@
     <p class="modal-desc">Para analizar tu rostro necesitamos acceso a tu cámara. Tu privacidad es importante — no guardamos imágenes.</p>
     <button class="btn-continuar" (click)="activarCamara()">Permitir cámara</button>
     <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+  </div>
+</div>
+
+<div class="modal-bg camara-modal" *ngIf="paso === 3">
+  <div class="camara-box">
+    <div class="camara-header">
+      <span class="camara-titulo">Escaneo Facial</span>
+      <button class="camara-cerrar" (click)="cerrarModal()">✕</button>
+    </div>
+    <div class="camara-wrapper">
+      <video #videoRef autoplay playsinline class="camara-video"></video>
+      <div class="scan-frame">
+        <div class="face-oval"></div>
+        <div class="face-dot dot-eye-l"></div>
+        <div class="face-dot dot-eye-r"></div>
+        <div class="face-dot dot-nose"></div>
+        <div class="face-dot dot-mouth-l"></div>
+        <div class="face-dot dot-mouth-r"></div>
+        <div class="scan-line"></div>
+      </div>
+      <div class="camara-instruccion">Centra tu rostro dentro del marco</div>
+    </div>
+    <canvas #canvasRef style="display:none"></canvas>
+    <button class="btn-escanear" (click)="escanear()">✦ Escanear rostro</button>
+    <div class="captura-ok" *ngIf="capturado">
+      <span class="check">✓</span> Rostro capturado — IA lista para analizar
+    </div>
   </div>
 </div>
