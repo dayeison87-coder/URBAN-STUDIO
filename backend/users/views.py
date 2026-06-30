@@ -2,11 +2,14 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Servicio, Usuario, Cita, Disponibilidad
+from django.db.models import Avg
+# ⬇️ Importamos el nuevo modelo de Calificaciones junto a los demás
+from .models import Servicio, Usuario, Cita, Disponibilidad, CalificacionBarbero
+# ⬇️ Importamos el nuevo Serializer de Calificaciones junto a los demás
 from .serializers import (
     ServicioSerializer, UsuarioSerializer, CitaSerializer,
     RegisterSerializer, DisponibilidadSerializer,
-    PerfilBarberoSerializer  # 👈
+    PerfilBarberoSerializer, CalificacionBarberoSerializer  
 )
 
 
@@ -125,3 +128,38 @@ class PerfilBarberoView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user    
+
+
+# ── 🌟 NUEVA VISTA PARA CREAR Y LISTAR CALIFICACIONES ────────────────────────
+class CalificacionBarberoListCreateView(generics.ListCreateAPIView):
+    queryset = CalificacionBarbero.objects.all()
+    serializer_class = CalificacionBarberoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Tomamos el objeto de la cita enviado desde Angular para extraer al barbero
+        cita = serializer.validated_data['cita']
+        serializer.save(
+            cliente=self.request.user, # Asigna automáticamente al cliente logueado
+            barbero=cita.barbero       # Asigna automáticamente al barbero de la cita
+        )
+
+class BarberoListView(generics.ListAPIView):
+    serializer_class = UsuarioSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Cambiamos 'calificacionbarbero__estrellas' por 'calificaciones_recibidas__estrellas'
+        return Usuario.objects.filter(rol__nombre='Barbero').annotate(
+            promedio_calificacion=Avg('calificaciones_recibidas__estrellas')
+        )
+    
+# Al final de tu views.py
+
+class UltimosTestimoniosView(generics.ListAPIView):
+    serializer_class = CalificacionBarberoSerializer
+    permission_classes = [AllowAny] # Cualquiera puede ver testimonios en la Landing
+
+    def get_queryset(self):
+        # Retorna las últimas 3 calificaciones ordenadas por id descendente
+        return CalificacionBarbero.objects.all().order_by('-id')[:3]

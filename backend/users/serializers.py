@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Servicio, Usuario, Cita, Disponibilidad  # 👈 agregar Disponibilidad
+# ⬇️ Importamos el nuevo modelo de calificaciones junto a los demás
+from .models import Servicio, Usuario, Cita, Disponibilidad, CalificacionBarbero  
 
 
 class ServicioSerializer(serializers.ModelSerializer):
@@ -9,9 +10,12 @@ class ServicioSerializer(serializers.ModelSerializer):
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
+    # Declaramos el campo calculado como FloatField de solo lectura para las tarjetas
+    promedio_calificacion = serializers.FloatField(read_only=True, required=False)
+
     class Meta:
         model = Usuario
-        fields = ['id', 'username', 'email', 'telefono', 'rol']
+        fields = ['id', 'username', 'email', 'telefono', 'rol', 'promedio_calificacion']
 
 
 class CitaSerializer(serializers.ModelSerializer):
@@ -50,14 +54,40 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class DisponibilidadSerializer(serializers.ModelSerializer):  # 👈 fuera de RegisterSerializer
+class DisponibilidadSerializer(serializers.ModelSerializer):  
     class Meta:
         model = Disponibilidad
         fields = ['id', 'dia_semana', 'hora_inicio', 'hora_fin']
-
 
 
 class PerfilBarberoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
         fields = ['id', 'username', 'email', 'telefono', 'descripcion', 'experiencia', 'foto']
+
+
+# ── 🌟 NUEVO SERIALIZER PARA CALIFICACIONES (ACTUALIZADO) ────────────────────────────────────────
+class CalificacionBarberoSerializer(serializers.ModelSerializer):
+    cliente_nombre = serializers.ReadOnlyField(source='cliente.username')
+    # 👈 Mapeamos el alias exacto que pusimos en el home.html para evitar fallos de lectura
+    cliente_username = serializers.ReadOnlyField(source='cliente.username') 
+    barbero_nombre = serializers.ReadOnlyField(source='barbero.username')
+
+    class Meta:
+        model = CalificacionBarbero
+        fields = [
+            'id', 'cita', 'cliente', 'cliente_nombre', 'cliente_username',
+            'barbero', 'barbero_nombre', 'estrellas', 
+            'comentario', 'fecha'
+        ]
+        # Estos se llenan automáticamente en el backend usando la Cita y el token
+        read_only_fields = ['cliente', 'barbero']
+
+    def validate(self, data):
+        cita = data['cita']
+        # Validamos que la cita esté realmente terminada para poder dejar la reseña
+        if cita.estado != 'Completada':
+            raise serializers.ValidationError(
+                "Solo puedes calificar servicios que ya hayan sido marcados como 'Completada'."
+            )
+        return data
