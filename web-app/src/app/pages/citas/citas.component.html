@@ -1,18 +1,15 @@
 <div class="citas-page">
-    <div class="citas-volver">
-  <button class="btn-volver" (click)="volverHome()">← Volver</button>
-</div>
-  <!-- HEADER -->
+  <div class="citas-volver">
+    <button class="btn-volver" (click)="volverHome()">← Volver</button>
+  </div>
   <div class="citas-header">
     <p class="citas-eyebrow">Urban Studio</p>
     <h1 class="citas-title">{{ editandoId ? 'Editar Cita' : 'Reservar Cita' }}</h1>
     <p class="citas-sub">{{ paso === 0 ? 'Tus citas programadas' : 'Sigue los pasos para agendar tu experiencia' }}</p>
   </div>
 
-  <!-- MENSAJE -->
   <div class="mensaje" *ngIf="mensaje">{{ mensaje }}</div>
 
-  <!-- STEPPER (solo visible cuando hay flujo activo) -->
   <div class="stepper" *ngIf="paso > 0">
     <div class="step" [class.active]="paso >= 1" [class.done]="paso > 1">
       <div class="step-circle">{{ paso > 1 ? '✓' : '1' }}</div>
@@ -35,7 +32,6 @@
     </div>
   </div>
 
-  <!-- ══════ PASO 1: CATEGORÍA ══════ -->
   <div class="paso-section" *ngIf="paso === 1">
     <h2 class="paso-title">¿Qué tipo de servicio buscas?</h2>
     <div class="categoria-grid">
@@ -54,7 +50,6 @@
     </div>
   </div>
 
-  <!-- ══════ PASO 2: SERVICIO ══════ -->
   <div class="paso-section" *ngIf="paso === 2">
     <h2 class="paso-title">Elige tu servicio de {{ categoriaSeleccionada?.nombre }}</h2>
     <div class="servicio-list">
@@ -79,7 +74,6 @@
     </div>
   </div>
 
-  <!-- ══════ PASO 3: BARBERO ══════ -->
   <div class="paso-section" *ngIf="paso === 3">
     <h2 class="paso-title">Elige tu barbero</h2>
     <div class="barbero-grid">
@@ -98,7 +92,6 @@
     </div>
   </div>
 
-  <!-- ══════ PASO 4: FECHA & HORA ══════ -->
   <div class="paso-section" *ngIf="paso === 4">
     <h2 class="paso-title">Elige fecha y hora</h2>
 
@@ -154,7 +147,6 @@
     </div>
   </div>
 
-  <!-- ══════ MIS CITAS ══════ -->
   <div class="mis-citas">
     <div class="mis-citas-header">
       <h2 class="mis-citas-title">Tus Citas Programadas</h2>
@@ -173,8 +165,10 @@
         </div>
         <div class="cita-precio">{{ formatPrecio(cita.servicio_precio) }}</div>
         <div class="cita-acciones">
-          <button class="cita-editar" (click)="editarCita(cita)" title="Editar">✎</button>
-          <button class="cita-cancelar" (click)="borrarCita(cita.id)" title="Cancelar">✕</button>
+          <button *ngIf="cita.estado === 'Completada'" class="cita-calificar" (click)="abrirModalCalificar(cita.id)" title="Calificar Barbero">⭐ Calificar</button>
+          
+          <button *ngIf="cita.estado !== 'Completada' && cita.estado !== 'Cancelada'" class="cita-editar" (click)="editarCita(cita)" title="Editar">✎</button>
+          <button *ngIf="cita.estado !== 'Completada' && cita.estado !== 'Cancelada'" class="cita-cancelar" (click)="borrarCita(cita.id)" title="Cancelar">✕</button>
         </div>
       </div>
     </div>
@@ -185,6 +179,43 @@
     </div>
   </div>
 
-  
+  <div class="modal-calificacion-overlay" *ngIf="citaSeleccionadaId !== null">
+    <div class="modal-calificacion-content">
+      <button class="modal-cerrar" (click)="citaSeleccionadaId = null">✕</button>
+      
+      <h3 class="modal-calificacion-title">Califica tu experiencia</h3>
+      <p class="modal-calificacion-sub">¿Cuántas estrellas le das a la atención de tu barbero?</p>
+      
+      <div class="estrellas-wrapper">
+        <span 
+          *ngFor="let estrella of estrellas"
+          class="estrella-icono"
+          [class.activa]="estrella <= (votoTemporal || calificacionSeleccionada)"
+          (click)="fijarCalificacion(estrella)"
+          (mouseenter)="resaltarEstrellas(estrella)"
+          (mouseleave)="limpiarResaltado()">
+          ★
+        </span>
+      </div>
+
+      <div class="comentario-wrapper">
+        <label for="txtComentario">Deja una reseña (Opcional):</label>
+        <textarea 
+          id="txtComentario"
+          [(ngModel)]="comentario" 
+          placeholder="Escribe aquí tu opinión sobre el corte o la atención...">
+        </textarea>
+      </div>
+
+      <div class="mensaje-alerta-modal" *ngIf="mensajeCalificacion" [class.exito]="mensajeCalificacion.includes('✓')">
+        {{ mensajeCalificacion }}
+      </div>
+
+      <div class="modal-acciones">
+        <button class="btn-cancelar-modal" (click)="citaSeleccionadaId = null">Cerrar</button>
+        <button class="btn-enviar-modal" (click)="enviarCalificacion()">Enviar Calificación</button>
+      </div>
+    </div>
+  </div>
 
 </div>
