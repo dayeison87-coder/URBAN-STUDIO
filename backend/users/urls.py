@@ -1,24 +1,3 @@
-from django.urls import path
-from .views import (
-    BarberoListView,
-    CitaDetailView,
-    PerfilBarberoView,
-    ServicioListCreateView,
-    UsuarioListCreateView,
-    UsuarioDetailView,
-    CitaListCreateView,
-    RegisterView,
-    PerfilView,
-    DisponibilidadView,        
-    DisponibilidadDetailView,  
-    CalificacionBarberoListCreateView,
-    UltimosTestimoniosView  # 👈 1. Importamos la vista de testimonios globales
-)
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
-
 urlpatterns = [
     # --- 1. AUTENTICACIÓN Y REGISTRO ---
     path('register/', RegisterView.as_view(), name='register'),
@@ -43,5 +22,9 @@ urlpatterns = [
 
     # --- 5. CALIFICACIONES Y RESEÑAS ---
     path('calificaciones/', CalificacionBarberoListCreateView.as_view(), name='calificaciones-list-create'),
-    path('testimonios/ultimos/', UltimosTestimoniosView.as_view(), name='ultimos-testimonios'), # 👈 2. Ruta para el Home
+    path('testimonios/ultimos/', UltimosTestimoniosView.as_view(), name='ultimos-testimonios'),
+
+    # --- 6. INTEGRACIÓN GEMINI / IA ---
+    # Si agregaron una vista de Gemini en views.py o una app aparte, agrégala aquí. Por ejemplo:
+    # path('gemini/', include('gemini.urls')),
 ]

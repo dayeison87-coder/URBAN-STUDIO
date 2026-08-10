@@ -4,10 +4,14 @@ Django settings for config project.
 
 from pathlib import Path
 from datetime import timedelta
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-+%65^7a3jnb2+9e&luc2ta@mm6fp&oy18b&a!41i$s1p_7c)gr'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
@@ -31,6 +35,7 @@ INSTALLED_APPS = [
     # Propias
     'users',
     'servicios',
+    'analisis_ia',   # <--- AGREGAR ESTA LÍNEA
 ]
 
 # ── Middleware ───────────────────────────────────────────────

@@ -5,4 +5,13 @@ __pycache__/
 .vscode/
 .idea/
 build/
-.dart_tool/
+.dart_tool/.env
+.venv/
+backend/.venv/
+node_modules/
+backend/media/
+backend/foto_prueba*.jpg
+backend/1.jpg
+__pycache__/
+*.pyc
+backend/db.sqlite3
