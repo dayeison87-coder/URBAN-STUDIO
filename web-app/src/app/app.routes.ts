@@ -10,6 +10,7 @@ import { CitasComponent } from './pages/citas/citas.component';
 import { ServicioComponent } from './pages/servicios/servicio.component';
 import { BarberoComponent } from './pages/barbero/barbero';
 import { ChatComponent } from './pages/chat/chat';
+import { AnalisisRostroComponent } from './pages/gemini/geminis';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -25,6 +26,7 @@ export const routes: Routes = [
   { path: 'admin',     component: AdminComponent,     canActivate: [authGuard] },
   { path: 'barbero',   component: BarberoComponent,   canActivate: [authGuard] },
   { path: 'chat',      component: ChatComponent,      canActivate: [authGuard] },
+  { path: 'gemini',    component: AnalisisRostroComponent, canActivate: [authGuard] },
   
   // Ruta con Lazy Loading
   { 

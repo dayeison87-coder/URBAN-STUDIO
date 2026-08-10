@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 from .views import (
     BarberoListView,
     CitaDetailView,
@@ -40,4 +40,7 @@ urlpatterns = [
 
     path('disponibilidad/', DisponibilidadView.as_view(), name='disponibilidad'),
     path('disponibilidad/<int:pk>/', DisponibilidadDetailView.as_view(), name='disponibilidad-detail'),
+
+      # 👈 Agrega esta línea para incluir las rutas de Gemini
+    
 ]
