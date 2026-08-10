@@ -12,24 +12,54 @@
 
 /* ── NAVBAR ── */
 .navbar {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 20px 80px; background: rgba(0,0,0,0.92);
-  position: fixed; width: 100%; z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 80px;
+  background: rgba(0, 0, 0, 0.92);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
   border-bottom: 0.5px solid #d4af3722;
   backdrop-filter: blur(10px);
+  font-family: 'Cormorant Garamond', serif;
 }
+
 .logo {
-  font-size: 20px; font-weight: 700; color: #d4af37;
-  cursor: pointer; letter-spacing: 2px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #d4af37;
+  cursor: pointer;
+  letter-spacing: 2px;
 }
-.brand-container { display: flex; align-items: center; gap: 15px; }
-.menu { display: flex; list-style: none; align-items: center; gap: 28px; }
+
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.menu {
+  display: flex;
+  list-style: none;
+  align-items: center;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+}
+
 .menu a {
   text-decoration: none; color: #aaa;
   font-size: 11px; letter-spacing: 2px;
   text-transform: uppercase; transition: color 0.3s;
 }
-.menu a:hover { color: #d4af37; }
+
+.menu a:hover {
+  color: #d4af37;
+}
 
 /* ── HERO ── */
 .us-hero {
