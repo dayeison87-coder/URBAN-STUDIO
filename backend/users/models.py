@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator, MaxValueValidator # 👈 Añadimos los validadores
 
 class Rol(models.Model):
     nombre = models.CharField(max_length=50)
@@ -18,7 +19,7 @@ class Usuario(AbstractUser):
     )
     fecha_registro = models.DateTimeField(auto_now_add=True)
     
-    # 👈 Campos nuevos para el perfil del barbero
+    # Campos nuevos para el perfil del barbero
     foto = models.ImageField(upload_to='fotos_barberos/', blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
     experiencia = models.IntegerField(blank=True, null=True)  # años de experiencia
@@ -69,8 +70,8 @@ class Cita(models.Model):
         related_name="citas_barbero"
     )
     servicio = models.ForeignKey(
-    'servicios.Servicio',   # ← apunta a la nueva tabla
-    on_delete=models.CASCADE
+        'servicios.Servicio',   # ← apunta a tu tabla vinculada
+        on_delete=models.CASCADE
     )
     fecha = models.DateField()
     hora = models.TimeField()
@@ -95,3 +96,34 @@ class Notificacion(models.Model):
 
     def __str__(self):
         return f"Notificación para {self.usuario.username}"
+
+
+# ── 🌟 NUEVO MODELO DE CALIFICACIONES ────────────────────────────────────────
+class CalificacionBarbero(models.Model):
+    # Una cita solo se puede calificar una vez
+    cita = models.OneToOneField(
+        Cita, 
+        on_delete=models.CASCADE, 
+        related_name='calificacion'
+    )
+    # El cliente que deja la puntuación
+    cliente = models.ForeignKey(
+        Usuario, 
+        on_delete=models.CASCADE, 
+        related_name='calificaciones_dadas'
+    )
+    # El barbero que la recibe
+    barbero = models.ForeignKey(
+        Usuario, 
+        on_delete=models.CASCADE, 
+        related_name='calificaciones_recibidas'
+    )
+    # Forzamos un número entero estrictamente entre 1 y 5 estrellas
+    estrellas = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    comentario = models.TextField(blank=True, null=True)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.estrellas} ★ para {self.barbero.username} por {self.cliente.username}"

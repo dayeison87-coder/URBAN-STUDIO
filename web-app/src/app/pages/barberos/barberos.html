@@ -27,67 +27,47 @@
   </nav>
 </header>
 
-
-<!-- CONTENIDO -->
-
 <section class="barberos-section">
+  <div class="titulo">
+    <h1>
+      💈 Nuestros Barberos
+    </h1>
+    <p>
+      Conoce a nuestros profesionales y elige quién llevará tu próximo estilo.
+    </p>
+  </div>
 
-    <div class="titulo">
+  <div class="grid">
+    <div class="card" *ngFor="let barbero of barberos">
+      <img
+        src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+        alt="Barbero">
 
-        <h1>
-            💈 Nuestros Barberos
-        </h1>
+      <h2>
+        {{ barbero.username }}
+      </h2>
 
-        <p>
-            Conoce a nuestros profesionales y elige quién llevará tu próximo estilo.
-        </p>
+      <div class="estrellas" *ngIf="barbero.promedio_calificacion">
+        ⭐ <span>{{ barbero.promedio_calificacion | number:'1.1-1' }}</span>
+      </div>
+      
+      <div class="estrellas" *ngIf="!barbero.promedio_calificacion">
+        <span>Nuevo ✨</span>
+      </div>
 
+      <p class="descripcion">
+        Especialista en cortes clásicos, fades y barba.
+      </p>
+
+      <p class="correo">
+        {{ barbero.email }}
+      </p>
+
+      <button
+        class="btn-agendar"
+        (click)="irACitas()">
+        Agendar cita
+      </button>
     </div>
-
-    <div class="grid">
-
-        <div
-            class="card"
-            *ngFor="let barbero of barberos">
-
-            <img
-                src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                alt="Barbero">
-
-            <h2>
-                {{ barbero.username }}
-            </h2>
-
-            <div class="estrellas">
-
-                ⭐ ⭐ ⭐ ⭐ ⭐
-
-                <span>4.9</span>
-
-            </div>
-
-            <p class="descripcion">
-
-                Especialista en cortes clásicos, fades y barba.
-
-            </p>
-
-            <p class="correo">
-
-                {{ barbero.email }}
-
-            </p>
-
-            <button
-                class="btn-agendar"
-                (click)="irACitas()">
-
-                Agendar cita
-
-            </button>
-
-        </div>
-
-    </div>
-
+  </div>
 </section>

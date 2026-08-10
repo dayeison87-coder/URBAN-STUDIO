@@ -184,7 +184,7 @@
 }
 .btn-nueva:hover { background: #c9a96e; color: #0a0a0a; }
 
-.cita-acciones { display: flex; gap: 6px; }
+.cita-acciones { display: flex; gap: 6px; align-items: center; }
 .cita-editar {
   background: none; border: 0.5px solid #2a2a2a;
   color: #c9a96e; width: 28px; height: 28px;
@@ -212,4 +212,189 @@
   border-color: #c9a96e;
   background: #c9a96e;
   color: #0a0a0a;
+}
+
+/* ── 🌟 NUEVOS ESTILOS INTERACTIVOS PARA CALIFICACIONES (ESTRELLAS) ── */
+
+.cita-calificar {
+  background: none;
+  border: 0.5px solid #c9a96e;
+  color: #c9a96e;
+  padding: 6px 14px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cita-calificar:hover {
+  background: #c9a96e;
+  color: #0a0a0a;
+  box-shadow: 0 0 10px rgba(201, 169, 110, 0.3);
+}
+
+/* Modal Overlay */
+.modal-calificacion-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.25s ease forwards;
+}
+
+/* Modal Content Box */
+.modal-calificacion-content {
+  background: #0f0f0f;
+  border: 0.5px solid #2a2a2a;
+  padding: 40px 32px;
+  max-width: 450px;
+  width: 90%;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+}
+
+.modal-cerrar {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: none; border: none;
+  color: #5a5a5a; font-size: 16px;
+  cursor: pointer; transition: color 0.2s;
+}
+.modal-cerrar:hover { color: #e63946; }
+
+.modal-calificacion-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #f0ede8;
+  margin-bottom: 8px;
+}
+
+.modal-calificacion-sub {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #5a5a5a;
+  margin-bottom: 24px;
+}
+
+/* Stars Group */
+.estrellas-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.estrella-icono {
+  font-size: 36px;
+  color: #2a2a2a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+/* Clase dinámica que pinta las estrellas en oro */
+.estrella-icono.activa {
+  color: #c9a96e;
+  text-shadow: 0 0 12px rgba(201, 169, 110, 0.5);
+}
+
+/* Comment Box */
+.comentario-wrapper {
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.comentario-wrapper label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #4a4a4a;
+  margin-bottom: 8px;
+}
+
+.comentario-wrapper textarea {
+  width: 100%;
+  height: 80px;
+  background: #0a0a0a;
+  border: 0.5px solid #2a2a2a;
+  border-radius: 0;
+  color: #f0ede8;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  padding: 12px;
+  resize: none;
+  transition: border-color 0.2s;
+}
+
+.comentario-wrapper textarea:focus {
+  outline: none;
+  border-color: #c9a96e;
+}
+
+/* Alertas internas */
+.mensaje-alerta-modal {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #e63946;
+  background: rgba(230, 57, 70, 0.05);
+  border: 0.5px solid rgba(230, 57, 70, 0.2);
+  padding: 10px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.mensaje-alerta-modal.exito {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.05);
+  border: 0.5px solid rgba(74, 222, 128, 0.2);
+}
+
+/* Actions inside modal */
+.modal-acciones {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-cancelar-modal {
+  background: none;
+  border: 0.5px solid #2a2a2a;
+  color: #7a7a7a;
+  padding: 10px 20px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-cancelar-modal:hover {
+  border-color: #5a5a5a;
+  color: #c8c4bc;
+}
+
+.btn-enviar-modal {
+  background: #c9a96e;
+  border: none;
+  color: #0a0a0a;
+  padding: 10px 24px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-enviar-modal:hover {
+  background: #b8945a;
 }
