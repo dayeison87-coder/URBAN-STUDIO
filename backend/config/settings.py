@@ -6,12 +6,14 @@ from pathlib import Path
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
-load_dotenv()
 
+# Carga las variables de entorno desde el archivo .env si existe
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+# Se asigna un valor de respaldo por si la variable de entorno no existe localmente
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-urban-studio-clave-desarrollo-12345')
 
 DEBUG = True
 
@@ -35,7 +37,7 @@ INSTALLED_APPS = [
     # Propias
     'users',
     'servicios',
-    'analisis_ia',   # <--- AGREGAR ESTA LÍNEA
+    'analisis_ia',
 ]
 
 # ── Middleware ───────────────────────────────────────────────
@@ -86,12 +88,17 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ── Internacionalización ─────────────────────────────────────
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'es-co'
+TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+# ── Archivos Estáticos y Media ───────────────────────────────
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # ── Usuario personalizado ────────────────────────────────────
 AUTH_USER_MODEL = 'users.Usuario'
@@ -115,10 +122,11 @@ CORS_ALLOWED_ORIGINS = [
 
 # ── JWT ──────────────────────────────────────────────────────
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME':  timedelta(hours=8),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=8),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
+# ── Channels & WebSockets ───────────────────────────────────
 ASGI_APPLICATION = 'config.asgi.application'
 
 CHANNEL_LAYERS = {
@@ -126,10 +134,3 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels.layers.InMemoryChannelLayer'
     }
 }
-import os
-
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -1,3 +1,24 @@
+from django.urls import path, include  # 👈 AQUÍ ESTÁ EL CAMBIO CLAVE (faltaba importar 'path')
+from .views import (
+    BarberoListView,
+    CitaDetailView,
+    PerfilBarberoView,
+    ServicioListCreateView,
+    UsuarioListCreateView,
+    UsuarioDetailView,
+    CitaListCreateView,
+    RegisterView,
+    PerfilView,
+    DisponibilidadView,        
+    DisponibilidadDetailView,  
+    CalificacionBarberoListCreateView,
+    UltimosTestimoniosView
+)
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 urlpatterns = [
     # --- 1. AUTENTICACIÓN Y REGISTRO ---
     path('register/', RegisterView.as_view(), name='register'),
