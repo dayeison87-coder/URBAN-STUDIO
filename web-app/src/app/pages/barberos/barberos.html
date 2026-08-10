@@ -6,27 +6,24 @@
         Hola, <span class="username">{{ nombreUsuario }}</span>
       </div>
     </div>
-
     <ul class="menu">
       <li><a routerLink="/home">Inicio</a></li>
       <li><a routerLink="/servicios">Servicios</a></li>
       <li><a routerLink="/citas">Citas</a></li>
       <li><a routerLink="/barberos">Barberos</a></li>
       <li>
-        <button class="btn-ia" (click)="abrirIA()">
-          ✦ IA Estilo
-        </button>
-      </li>
-      <li><a routerLink="/chat">💬 Chat</a></li>
-      <li>
-        <button class="btn-logout" (click)="logout()">
-          Cerrar Sesión
-        </button>
+        <button routerLink="/gemini" class="btn-ia" (click)="abrirIA()">✦ IA Estilo</button>
+        <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
       </li>
     </ul>
   </nav>
 </header>
 
+<<<<<<< Updated upstream
+=======
+<!-- CONTENIDO -->
+
+>>>>>>> Stashed changes
 <section class="barberos-section">
   <div class="titulo">
     <h1>
@@ -43,9 +40,15 @@
         src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
         alt="Barbero">
 
+<<<<<<< Updated upstream
       <h2>
         {{ barbero.username }}
       </h2>
+=======
+        <h1>
+           Nuestros Barberos
+        </h1>
+>>>>>>> Stashed changes
 
       <div class="estrellas" *ngIf="barbero.promedio_calificacion">
         ⭐ <span>{{ barbero.promedio_calificacion | number:'1.1-1' }}</span>

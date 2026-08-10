@@ -1,222 +1,294 @@
-/* ==============================================================================
-   1. CONFIGURACIÓN GLOBAL
-   ============================================================================== */
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
-}
-body{
-    background:#111;
-    color:white;
-}
-/* ==============================================================================
-   2. NAVBAR
-   ============================================================================== */
-.navbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:20px 80px;
-    background:rgba(0,0,0,.95);
-    position:fixed;
-    width:100%;
-    top:0;
-    left:0;
-    z-index:1000;
-    border-bottom:1px solid rgba(212,175,55,.15);
-}
-.logo{
-    font-size:28px;
-    font-weight:bold;
-    color:#d4af37;
-}
-.brand-container{
-    display:flex;
-    align-items:center;
-    gap:15px;
-}
-.user-greeting{
-    color:#cbd5e1;
-    border-left:1px solid #444;
-    padding-left:15px;
-    font-size:15px;
-}
-.username{
-    color:#d4af37;
-    font-weight:bold;
-}
-.menu{
-    display:flex;
-    list-style:none;
-    align-items:center;
-    gap:30px;
-}
-.menu a{
-    text-decoration:none;
-    color:white;
-    transition:.3s;
-    font-weight:500;
-}
-.menu a:hover{
-    color:#d4af37;
-}
-/* ==============================================================================
-   BOTÓN CERRAR SESIÓN
-   ============================================================================== */
-.btn-logout{
-    background:transparent;
-    color:white;
-    border:1px solid #e63946;
-    border-radius:30px;
-    padding:9px 22px;
-    cursor:pointer;
-    transition:.3s;
-    font-weight:bold;
-}
-.btn-logout:hover{
-    background:#e63946;
-    transform:scale(1.05);
-}
-/* ==============================================================================
-   CONTENIDO
-   ============================================================================== */
-.barberos-section{
-    padding-top:130px;
-    padding-bottom:70px;
-    width:90%;
-    max-width:1400px;
-    margin:auto;
-}
-/* ==============================================================================
-   TÍTULO
-   ============================================================================== */
-.titulo{
-    text-align:center;
-    margin-bottom:60px;
-}
-.titulo h1{
-    color:#d4af37;
-    font-size:55px;
-    margin-bottom:15px;
-}
-.titulo p{
-    color:#cbd5e1;
-    font-size:20px;
-}
-/* ==============================================================================
-   GRID
-   ============================================================================== */
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-    gap:35px;
-}
-/* ==============================================================================
-   TARJETAS
-   ============================================================================== */
-.card{
-    background:#1b1b1b;
-    border-radius:18px;
-    border:1px solid rgba(212,175,55,.15);
-    padding:35px;
-    text-align:center;
-    transition:.35s;
-}
-.card:hover{
-    transform:translateY(-10px);
-    border-color:#d4af37;
-    box-shadow:0 10px 30px rgba(212,175,55,.18);
-}
-/* FOTO */
-.card img{
-    width:130px;
-    height:130px;
-    border-radius:50%;
-    border:4px solid #d4af37;
-    margin-bottom:25px;
-}
-/* NOMBRE */
-.card h2{
-    color:white;
-    margin-bottom:15px;
-    font-size:28px;
-}
-/* ESTRELLAS */
-.estrellas{
-    color:#d4af37;
-    font-size:22px;
-    margin-bottom:18px;
-}
-.estrellas span{
-    color:white;
-    font-size:16px;
-    margin-left:10px;
-}
-/* DESCRIPCIÓN */
-.descripcion{
-    color:#cbd5e1;
-    line-height:1.7;
-    margin-bottom:15px;
-}
-/* CORREO */
-.correo{
-    color:#888;
-    font-size:14px;
-    margin-bottom:25px;
-}
-/* BOTÓN */
-.btn-agendar{
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:30px;
-    background:#d4af37;
-    color:black;
-    cursor:pointer;
-    font-size:17px;
-    font-weight:bold;
-    transition:.3s;
-}
-.btn-agendar:hover{
-    background:#c79d20;
-    transform:scale(1.05);
-}
-/* ==============================================================================
-   RESPONSIVE
-   ============================================================================== */
-@media(max-width:900px){
-    .navbar{
-        flex-direction:column;
-        gap:20px;
-        padding:20px;
-    }
-    .menu{
-        flex-wrap:wrap;
-        justify-content:center;
-    }
-    .titulo h1{
-        font-size:40px;
-    }
-    .titulo p{
-        font-size:17px;
-    }
-}
-.btn-ia {
-  background: linear-gradient(135deg, #c9a96e, #d4af37); /* Degradado dorado elegante */
-  color: #0a0a0a;                                       /* Texto oscuro para contraste */
-  border: none;
-  padding: 8px 18px;                                   /* Tamaño del botón */
-  font-size: 12px;
-  font-weight: 700;                                     /* Negrita */
-  letter-spacing: 1px;                                  /* Espaciado entre letras */
-  cursor: pointer;
-  transition: all 0.3s;                                 /* Suavizado en animaciones */
-  border-radius: 2px;                                   /* Esquinas ligeramente redondeadas */
+/* ============================================================
+   CONFIGURACIÓN GLOBAL
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.btn-ia:hover { 
-  opacity: 0.85;                                        /* Efecto de aclarado al pasar el mouse */
-  transform: scale(1.03);                               /* Pequeño aumento de tamaño al pasar el mouse */
+body {
+  background: #0a0a0a;
+  color: #f0ede8;
+  font-family: 'Montserrat', sans-serif;
+}
+
+
+/* ============================================================
+   NAVBAR — IGUAL AL HOME
+   ============================================================ */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 20px 80px;
+  background: rgba(0, 0, 0, 0.92);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  z-index: 1000;
+
+  border-bottom: 0.5px solid #d4af3722;
+
+  backdrop-filter: blur(10px);
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: #d4af37;
+  cursor: pointer;
+  letter-spacing: 2px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-greeting {
+  color: #7a7a7a;
+  font-size: 12px;
+  border-left: 0.5px solid #2a2a2a;
+  padding-left: 15px;
+  letter-spacing: 1px;
+}
+
+.username {
+  color: #d4af37;
+  font-weight: 600;
+}
+
+.menu {
+  display: flex;
+  list-style: none;
+  align-items: center;
+  gap: 20px;
+}
+
+.menu a {
+  text-decoration: none;
+  color: #aaa;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.3s;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+}
+
+.menu a:hover {
+  color: #d4af37;
+}
+
+
+/* ============================================================
+   BOTÓN IA
+   ============================================================ */
+
+.btn-ia {
+  background: linear-gradient(135deg, #c9a96e, #d4af37);
+  color: #0a0a0a;
+  border: none;
+  padding: 8px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 2px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.btn-ia:hover {
+  opacity: 0.85;
+  transform: scale(1.03);
+}
+
+
+/* ============================================================
+   BOTÓN CERRAR SESIÓN
+   ============================================================ */
+
+.btn-logout {
+  background: transparent;
+  color: #aaa;
+  border: 0.5px solid #3a3a3a;
+  padding: 7px 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-left: 8px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.btn-logout:hover {
+  border-color: #e63946;
+  color: #e63946;
+}
+
+
+/* ============================================================
+   CONTENIDO
+   ============================================================ */
+
+.barberos-section {
+  padding-top: 130px;
+  padding-bottom: 70px;
+  width: 90%;
+  max-width: 1400px;
+  margin: auto;
+}
+
+
+/* ============================================================
+   TÍTULO
+   ============================================================ */
+
+.titulo {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.titulo h1 {
+  color: #d4af37;
+  font-size: 55px;
+  margin-bottom: 15px;
+}
+
+.titulo p {
+  color: #cbd5e1;
+  font-size: 20px;
+}
+
+
+/* ============================================================
+   GRID
+   ============================================================ */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 35px;
+}
+
+
+/* ============================================================
+   TARJETAS
+   ============================================================ */
+
+.card {
+  background: #1b1b1b;
+  border-radius: 18px;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  padding: 35px;
+  text-align: center;
+  transition: 0.35s;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  border-color: #d4af37;
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.18);
+}
+
+.card img {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  border: 4px solid #d4af37;
+  margin-bottom: 25px;
+}
+
+.card h2 {
+  color: white;
+  margin-bottom: 15px;
+  font-size: 28px;
+}
+
+.estrellas {
+  color: #d4af37;
+  font-size: 22px;
+  margin-bottom: 18px;
+}
+
+.estrellas span {
+  color: white;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+.descripcion {
+  color: #cbd5e1;
+  line-height: 1.7;
+  margin-bottom: 15px;
+}
+
+.correo {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+
+/* ============================================================
+   BOTÓN AGENDAR
+   ============================================================ */
+
+.btn-agendar {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 30px;
+  background: #d4af37;
+  color: black;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.btn-agendar:hover {
+  background: #c79d20;
+  transform: scale(1.05);
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+  .navbar {
+    padding: 16px 20px;
+  }
+
+  .menu {
+    gap: 15px;
+  }
+
+  .menu a {
+    font-size: 10px;
+  }
+
+  .titulo h1 {
+    font-size: 40px;
+  }
+
+  .titulo p {
+    font-size: 17px;
+  }
 }
