@@ -19,9 +19,6 @@
 .ia-page {
   padding: 128px 24px 64px;
   position: relative;
-  background-image:
-    linear-gradient(to bottom, rgba(11,10,8,0.88), rgba(11,10,8,0.94) 40%, var(--bg) 85%),
-    url('/assets/images/fondo-madera.jpg');
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
