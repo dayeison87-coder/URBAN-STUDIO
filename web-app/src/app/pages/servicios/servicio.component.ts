@@ -3,7 +3,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 interface Servicio {
   id: number;
@@ -24,7 +24,7 @@ interface Categoria {
 @Component({
   selector: 'app-servicio',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule , RouterLink],
   templateUrl: './servicio.component.html',
   styleUrls: ['./servicio.component.css']
 })
