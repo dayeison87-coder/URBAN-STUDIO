@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Servicio, Usuario, Cita, Disponibilidad  # 👈 agregar Disponibilidad
-
+from rest_framework.validators import UniqueValidator
 
 class ServicioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,7 +34,18 @@ class CitaSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        max_length=150,
+        validators=[
+            UniqueValidator(
+                queryset=Usuario.objects.all(),
+                message='Este nombre de usuario ya está registrado.'
+            )
+        ]
+    )
+
     password = serializers.CharField(write_only=True, min_length=8)
+
 
     class Meta:
         model = Usuario
