@@ -43,6 +43,15 @@ class RegisterSerializer(serializers.ModelSerializer):
             )
         ]
     )
+    
+    email = serializers.EmailField(
+        validators=[
+            UniqueValidator(
+                queryset=Usuario.objects.all(),
+                message='Este correo ya está registrado.'
+            )
+        ]
+    )
 
     password = serializers.CharField(write_only=True, min_length=8)
 

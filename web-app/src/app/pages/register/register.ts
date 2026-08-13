@@ -18,6 +18,7 @@ export class RegisterComponent {
   telefono = '';
   password = '';
   mensaje = '';
+  errorCorreo = '';
 
   get passwordChecks() {
     return {
@@ -38,6 +39,7 @@ export class RegisterComponent {
 
   registrar() {
     this.mensaje = '';
+    this.errorCorreo = '';
 
     if (!this.passwordValida) {
       this.mensaje = 'La contraseña no cumple los requisitos de seguridad.';
@@ -61,7 +63,14 @@ export class RegisterComponent {
       },
       error: (err) => {
         console.error('Error en el registro:', err);
-        this.mensaje = 'Error al crear la cuenta. Inténtalo de nuevo.';
+
+        this.errorCorreo = '';
+
+        if (err.error?.email) {
+          this.errorCorreo = err.error.email[0];
+        } else {
+          this.mensaje = 'Error al crear la cuenta. Inténtalo de nuevo.';
+        }
       }
     });
   }

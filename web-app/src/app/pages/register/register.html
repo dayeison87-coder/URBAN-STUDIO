@@ -29,6 +29,9 @@
                     name="email"
                     required
                 >
+                <div *ngIf="errorCorreo" class="field-error">
+                    {{ errorCorreo }}
+                </div>
             </div>
 
             <div class="input-group">
