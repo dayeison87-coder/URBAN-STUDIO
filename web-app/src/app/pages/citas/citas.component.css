@@ -10,6 +10,8 @@
   padding: 80px 40px 60px;
   max-width: 900px;
   margin: 0 auto;
+  width: 100%;
+  box-shadow: 0 0 0 100vmax #0a0a0a; 
 }
 
 /* ── Header ── */
@@ -45,7 +47,15 @@
 /* ── Secciones paso ── */
 .paso-section { animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.paso-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; letter-spacing: 4px; color: #f0ede8; margin-bottom: 28px; }
+.paso-title { 
+  font-family: 'Cormorant Garamond', 
+  serif; font-size: 28px; 
+  font-weight: 300; 
+  letter-spacing: 4px;
+  color: #f0ede8; 
+  margin-bottom: 28px; 
+  text-align: center;
+  }
 
 /* ── Categorías ── */
 .categoria-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 32px; }
@@ -97,8 +107,13 @@
 
 /* ── Calendario ── */
 .calendario-wrapper {
-  background: #0f0f0f; border: 0.5px solid #2a2a2a;
-  padding: 24px; margin-bottom: 28px;
+  background: #0f0f0f;
+  border: 0.5px solid #2a2a2a;
+  padding: 24px;
+  margin-bottom: 28px;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto; 
 }
 .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 .cal-mes { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; letter-spacing: 4px; color: #f0ede8; text-transform: uppercase; }
