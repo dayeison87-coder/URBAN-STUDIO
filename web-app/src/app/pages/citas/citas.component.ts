@@ -190,6 +190,36 @@ export class CitasComponent implements OnInit {
     return `${y}-${m}-${d}`;
   }
 
+
+calcularHorarios(): void {
+  const citasDelDia = this.citasExistentes.filter(
+    c => c.fecha === this.fechaSeleccionada &&
+         c.barbero === this.barberoSeleccionado?.id &&
+         c.id !== this.editandoId
+  );
+
+  const horasOcupadas = citasDelDia.map((c: any) => c.hora.substring(0, 5));
+
+  // Obtener la fecha de hoy en formato YYYY-MM-DD
+  const ahora = new Date();
+  const fechaHoy = this.formatFecha(ahora);
+
+  // Verificar si la fecha seleccionada es hoy
+  const esHoy = this.fechaSeleccionada === fechaHoy;
+
+  // Hora actual en minutos
+  const minutosActuales = ahora.getHours() * 60 + ahora.getMinutes();
+
+  this.horariosDisponibles = this.horariosBase.map(h => {
+    // Convertir la hora del horario a minutos
+    const [hora, minutos] = h.split(':').map(Number);
+    const minutosHorario = hora * 60 + minutos;
+
+    // La hora ya pasó solamente si estamos reservando para hoy
+    const horaPasada = esHoy && minutosHorario <= minutosActuales;
+
+    return {
+
   calcularHorarios(): void {
     const citasDelDia = this.citasExistentes.filter(
       c => c.fecha === this.fechaSeleccionada &&
@@ -198,10 +228,12 @@ export class CitasComponent implements OnInit {
     );
     const horasOcupadas = citasDelDia.map((c: any) => c.hora.substring(0, 5));
     this.horariosDisponibles = this.horariosBase.map(h => ({
+
       valor: h,
-      ocupado: horasOcupadas.includes(h)
-    }));
-  }
+      ocupado: horasOcupadas.includes(h) || horaPasada
+    };
+  });
+}
 
   tieneTodasHorasOcupadas(dia: Date): boolean {
     const fecha = this.formatFecha(dia);

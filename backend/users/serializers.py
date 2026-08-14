@@ -1,5 +1,7 @@
 from rest_framework import serializers
-# ⬇️ Importamos el nuevo modelo de calificaciones junto a los demás
+
+from .models import Servicio, Usuario, Cita, Disponibilidad
+from rest_framework.validators import UniqueValidator
 from .models import Servicio, Usuario, Cita, Disponibilidad, CalificacionBarbero  
 
 
@@ -38,7 +40,27 @@ class CitaSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        max_length=150,
+        validators=[
+            UniqueValidator(
+                queryset=Usuario.objects.all(),
+                message='Este nombre de usuario ya está registrado.'
+            )
+        ]
+    )
+    
+    email = serializers.EmailField(
+        validators=[
+            UniqueValidator(
+                queryset=Usuario.objects.all(),
+                message='Este correo ya está registrado.'
+            )
+        ]
+    )
+
     password = serializers.CharField(write_only=True, min_length=8)
+
 
     class Meta:
         model = Usuario
