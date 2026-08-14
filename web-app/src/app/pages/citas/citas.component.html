@@ -1,6 +1,6 @@
 <div class="citas-page">
   <div class="citas-volver">
-    <button class="btn-volver" (click)="volverHome()">← Volver</button>
+    <button class="btn-volver" (click)="volverHome()"><i class="bi bi-arrow-left me-1"></i> Volver</button>
   </div>
   <div class="citas-header">
     <p class="citas-eyebrow">Urban Studio</p>
@@ -12,17 +12,26 @@
 
   <div class="stepper" *ngIf="paso > 0">
     <div class="step" [class.active]="paso >= 1" [class.done]="paso > 1">
-      <div class="step-circle">{{ paso > 1 ? '✓' : '1' }}</div>
+      <div class="step-circle">
+        <i *ngIf="paso > 1" class="bi bi-check-lg"></i>
+        <span *ngIf="paso <= 1">1</span>
+      </div>
       <span>Categoría</span>
     </div>
     <div class="step-line" [class.done]="paso > 1"></div>
     <div class="step" [class.active]="paso >= 2" [class.done]="paso > 2">
-      <div class="step-circle">{{ paso > 2 ? '✓' : '2' }}</div>
+      <div class="step-circle">
+        <i *ngIf="paso > 2" class="bi bi-check-lg"></i>
+        <span *ngIf="paso <= 2">2</span>
+      </div>
       <span>Servicio</span>
     </div>
     <div class="step-line" [class.done]="paso > 2"></div>
     <div class="step" [class.active]="paso >= 3" [class.done]="paso > 3">
-      <div class="step-circle">{{ paso > 3 ? '✓' : '3' }}</div>
+      <div class="step-circle">
+        <i *ngIf="paso > 3" class="bi bi-check-lg"></i>
+        <span *ngIf="paso <= 3">3</span>
+      </div>
       <span>Barbero</span>
     </div>
     <div class="step-line" [class.done]="paso > 3"></div>
@@ -32,24 +41,28 @@
     </div>
   </div>
 
+  <!-- PASO 1: CATEGORÍA -->
   <div class="paso-section" *ngIf="paso === 1">
     <h2 class="paso-title">¿Qué tipo de servicio buscas?</h2>
     <div class="categoria-grid">
       <div class="categoria-card" *ngFor="let cat of categorias"
         [class.selected]="categoriaSeleccionada?.id === cat.id"
         (click)="seleccionarCategoria(cat)">
-        <div class="cat-icon">{{ getIconCategoria(cat.slug) }}</div>
+        <div class="cat-icon">
+          <i [ngClass]="getIconCategoria(cat.slug)"></i>
+        </div>
         <h3 class="cat-nombre">{{ cat.nombre }}</h3>
         <p class="cat-desc">{{ cat.descripcion }}</p>
         <span class="cat-count">{{ cat.servicios.length }} servicios</span>
       </div>
     </div>
     <div class="paso-actions">
-      <button class="btn-atras" (click)="resetear()">✕ Cancelar</button>
-      <button class="btn-siguiente" (click)="irPaso(2)" [disabled]="!categoriaSeleccionada">Siguiente →</button>
+      <button class="btn-atras" (click)="resetear()"><i class="bi bi-x-lg me-1"></i> Cancelar</button>
+      <button class="btn-siguiente" (click)="irPaso(2)" [disabled]="!categoriaSeleccionada">Siguiente <i class="bi bi-arrow-right ms-1"></i></button>
     </div>
   </div>
 
+  <!-- PASO 2: SERVICIO -->
   <div class="paso-section" *ngIf="paso === 2">
     <h2 class="paso-title">Elige tu servicio de {{ categoriaSeleccionada?.nombre }}</h2>
     <div class="servicio-list">
@@ -66,14 +79,17 @@
           <span class="badge-no" *ngIf="!srv.disponible">No disponible</span>
         </div>
       </div>
-      <div class="empty" *ngIf="categoriaSeleccionada?.servicios?.length === 0">No hay servicios en esta categoría aún.</div>
+      <div class="empty" *ngIf="categoriaSeleccionada?.servicios?.length === 0">
+        <i class="bi bi-exclamation-circle me-1"></i> No hay servicios en esta categoría aún.
+      </div>
     </div>
     <div class="paso-actions">
-      <button class="btn-atras" (click)="irPaso(1)">← Atrás</button>
-      <button class="btn-siguiente" (click)="irPaso(3)" [disabled]="!servicioSeleccionado">Siguiente →</button>
+      <button class="btn-atras" (click)="irPaso(1)"><i class="bi bi-arrow-left me-1"></i> Atrás</button>
+      <button class="btn-siguiente" (click)="irPaso(3)" [disabled]="!servicioSeleccionado">Siguiente <i class="bi bi-arrow-right ms-1"></i></button>
     </div>
   </div>
 
+  <!-- PASO 3: BARBERO -->
   <div class="paso-section" *ngIf="paso === 3">
     <h2 class="paso-title">Elige tu barbero</h2>
     <div class="barbero-grid">
@@ -84,23 +100,26 @@
         <h3 class="barbero-nombre">{{ b.username }}</h3>
         <p class="barbero-email">{{ b.email }}</p>
       </div>
-      <div class="empty" *ngIf="barberos.length === 0">No hay barberos disponibles.</div>
+      <div class="empty" *ngIf="barberos.length === 0">
+        <i class="bi bi-person-x me-1"></i> No hay barberos disponibles.
+      </div>
     </div>
     <div class="paso-actions">
-      <button class="btn-atras" (click)="irPaso(2)">← Atrás</button>
-      <button class="btn-siguiente" (click)="irPaso(4)" [disabled]="!barberoSeleccionado">Siguiente →</button>
+      <button class="btn-atras" (click)="irPaso(2)"><i class="bi bi-arrow-left me-1"></i> Atrás</button>
+      <button class="btn-siguiente" (click)="irPaso(4)" [disabled]="!barberoSeleccionado">Siguiente <i class="bi bi-arrow-right ms-1"></i></button>
     </div>
   </div>
 
+  <!-- PASO 4: FECHA Y HORA -->
   <div class="paso-section" *ngIf="paso === 4">
     <h2 class="paso-title">Elige fecha y hora</h2>
 
     <div class="calendario-container">
       <div class="calendario-wrapper">
         <div class="cal-nav">
-          <button class="cal-nav-btn" (click)="mesPrevio()">‹</button>
+          <button class="cal-nav-btn" (click)="mesPrevio()"><i class="bi bi-chevron-left"></i></button>
           <span class="cal-mes">{{ nombreMes }} {{ anioActual }}</span>
-          <button class="cal-nav-btn" (click)="mesSiguiente()">›</button>
+          <button class="cal-nav-btn" (click)="mesSiguiente()"><i class="bi bi-chevron-right"></i></button>
         </div>
         <div class="cal-semana">
           <span *ngFor="let d of diasSemana">{{ d }}</span>
@@ -139,18 +158,19 @@
     </div>
 
     <div class="paso-actions">
-      <button class="btn-atras" (click)="irPaso(3)">← Atrás</button>
+      <button class="btn-atras" (click)="irPaso(3)"><i class="bi bi-arrow-left me-1"></i> Atrás</button>
       <button class="btn-confirmar" (click)="confirmarCita()" [disabled]="!fechaSeleccionada || !horaSeleccionada">
-        ✓ {{ editandoId ? 'Guardar Cambios' : 'Confirmar Cita' }}
+        <i class="bi bi-check-lg me-1"></i> {{ editandoId ? 'Guardar Cambios' : 'Confirmar Cita' }}
       </button>
     </div>
   </div>
 
+  <!-- MIS CITAS -->
   <div class="mis-citas">
     <div class="mis-citas-header">
       <h2 class="mis-citas-title">Tus Citas Programadas</h2>
       <button class="btn-nueva" (click)="nuevaCita()" *ngIf="paso === 0">
-        + Nueva Cita
+        <i class="bi bi-plus-lg me-1"></i> Nueva Cita
       </button>
     </div>
 
@@ -164,37 +184,44 @@
         </div>
         <div class="cita-precio">{{ formatPrecio(cita.servicio_precio) }}</div>
         <div class="cita-acciones">
-          <button *ngIf="cita.estado === 'Completada'" class="cita-calificar" (click)="abrirModalCalificar(cita.id)" title="Calificar Barbero">⭐ Calificar</button>
+          <button *ngIf="cita.estado === 'Completada'" class="cita-calificar" (click)="abrirModalCalificar(cita.id)" title="Calificar Barbero">
+            <i class="bi bi-star-fill me-1"></i> Calificar
+          </button>
           
-          <button *ngIf="cita.estado !== 'Completada' && cita.estado !== 'Cancelada'" class="cita-editar" (click)="editarCita(cita)" title="Editar">✎</button>
-          <button *ngIf="cita.estado !== 'Completada' && cita.estado !== 'Cancelada'" class="cita-cancelar" (click)="borrarCita(cita.id)" title="Cancelar">✕</button>
+          <button *ngIf="cita.estado !== 'Completada' && cita.estado !== 'Cancelada'" class="cita-editar" (click)="editarCita(cita)" title="Editar">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button *ngIf="cita.estado !== 'Completada' && cita.estado !== 'Cancelada'" class="cita-cancelar" (click)="borrarCita(cita.id)" title="Cancelar">
+            <i class="bi bi-x-lg"></i>
+          </button>
         </div>
       </div>
     </div>
 
     <div class="empty-citas" *ngIf="listaCitas.length === 0">
       <p>No tienes citas agendadas.</p>
-      <button class="btn-nueva" (click)="nuevaCita()">+ Agendar primera cita</button>
+      <button class="btn-nueva" (click)="nuevaCita()"><i class="bi bi-plus-lg me-1"></i> Agendar primera cita</button>
     </div>
   </div>
 
+  <!-- MODAL CALIFICACIÓN -->
   <div class="modal-calificacion-overlay" *ngIf="citaSeleccionadaId !== null">
     <div class="modal-calificacion-content">
-      <button class="modal-cerrar" (click)="citaSeleccionadaId = null">✕</button>
+      <button class="modal-cerrar" (click)="citaSeleccionadaId = null"><i class="bi bi-x-lg"></i></button>
       
       <h3 class="modal-calificacion-title">Califica tu experiencia</h3>
       <p class="modal-calificacion-sub">¿Cuántas estrellas le das a la atención de tu barbero?</p>
       
       <div class="estrellas-wrapper">
-        <span 
-          *ngFor="let estrella of estrellas"
-          class="estrella-icono"
+        <i *ngFor="let estrella of estrellas"
+          class="bi estrella-icono"
+          [class.bi-star-fill]="estrella <= (votoTemporal || calificacionSeleccionada)"
+          [class.bi-star]="estrella > (votoTemporal || calificacionSeleccionada)"
           [class.activa]="estrella <= (votoTemporal || calificacionSeleccionada)"
           (click)="fijarCalificacion(estrella)"
           (mouseenter)="resaltarEstrellas(estrella)"
           (mouseleave)="limpiarResaltado()">
-          ★
-        </span>
+        </i>
       </div>
 
       <div class="comentario-wrapper">
