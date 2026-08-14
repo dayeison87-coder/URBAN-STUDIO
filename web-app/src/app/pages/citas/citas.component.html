@@ -95,27 +95,26 @@
   <div class="paso-section" *ngIf="paso === 4">
     <h2 class="paso-title">Elige fecha y hora</h2>
 
-    <div class="calendario-wrapper">
-      <div class="cal-nav">
-        <button class="cal-nav-btn" (click)="mesPrevio()">‹</button>
-        <span class="cal-mes">{{ nombreMes }} {{ anioActual }}</span>
-        <button class="cal-nav-btn" (click)="mesSiguiente()">›</button>
-      </div>
-      <div class="cal-semana">
-        <span *ngFor="let d of diasSemana">{{ d }}</span>
-      </div>
-      <div class="cal-dias">
-        <div *ngFor="let dia of diasCalendario" class="cal-dia"
-          [class.vacio]="!dia"
-          [class.pasado]="dia && esPasado(dia)"
-          [class.seleccionado]="dia && fechaSeleccionada === formatFecha(dia)"
-          [class.ocupado]="dia && tieneTodasHorasOcupadas(dia)"
-          (click)="dia && !esPasado(dia) && seleccionarFecha(dia)">
-          {{ dia?.getDate() }}
+    <div class="calendario-container">
+      <div class="calendario-wrapper">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" (click)="mesPrevio()">‹</button>
+          <span class="cal-mes">{{ nombreMes }} {{ anioActual }}</span>
+          <button class="cal-nav-btn" (click)="mesSiguiente()">›</button>
+        </div>
+        <div class="cal-semana">
+          <span *ngFor="let d of diasSemana">{{ d }}</span>
+        </div>
+        <div class="cal-dias">
+          <div *ngFor="let dia of diasCalendario" class="cal-dia" [class.vacio]="!dia" [class.pasado]="dia && esPasado(dia)"
+            [class.seleccionado]="dia && fechaSeleccionada === formatFecha(dia)"
+            [class.ocupado]="dia && tieneTodasHorasOcupadas(dia)" (click)="dia && !esPasado(dia) && seleccionarFecha(dia)">
+            {{ dia?.getDate() }}
+          </div>
         </div>
       </div>
     </div>
-
+    
     <div class="horarios-wrapper" *ngIf="fechaSeleccionada">
       <h3 class="horarios-title">Horarios disponibles</h3>
       <div class="horarios-grid">
