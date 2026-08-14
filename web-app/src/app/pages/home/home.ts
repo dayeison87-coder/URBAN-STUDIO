@@ -204,4 +204,6 @@ export class HomeComponent implements OnInit { // 👈 Implementamos OnInit para
 
     this.mensajeTexto = '';
   }
+
+   
 }

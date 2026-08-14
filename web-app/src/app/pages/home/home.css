@@ -3,6 +3,12 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-serif; }
 
+/* ── REGLA GENERAL DE ICONOS ── */
+i.bi {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 /* ── NAVBAR ── */
 .navbar {
   display: flex; justify-content: space-between; align-items: center;
@@ -12,6 +18,7 @@ body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-seri
   backdrop-filter: blur(10px);
 }
 .logo { font-size: 20px; font-weight: 700; color: #d4af37; cursor: pointer; letter-spacing: 2px; }
+.logo i { margin-right: 6px; color: #d4af37; }
 .brand-container { display: flex; align-items: center; gap: 15px; }
 .user-greeting { color: #7a7a7a; font-size: 12px; border-left: 0.5px solid #2a2a2a; padding-left: 15px; letter-spacing: 1px; }
 .username { color: #d4af37; font-weight: 600; }
@@ -23,6 +30,7 @@ body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-seri
   color: #0a0a0a; border: none; padding: 8px 18px;
   font-size: 11px; font-weight: 700; letter-spacing: 1px;
   cursor: pointer; transition: all 0.3s; border-radius: 2px;
+  display: inline-flex; align-items: center; gap: 6px;
 }
 .btn-ia:hover { opacity: 0.85; transform: scale(1.03); }
 .btn-logout {
@@ -107,7 +115,27 @@ body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-seri
 }
 .servicio-card:hover { background: #141414; }
 .servicio-card.destacado { background: #c9a96e08; }
-.servicio-icon { font-size: 36px; margin-bottom: 20px; }
+
+/* FIX ICONOS DE SERVICIOS */
+.servicio-icon {
+  font-size: 36px;
+  color: #c9a96e;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  transition: transform 0.3s ease;
+}
+.servicio-icon i {
+  color: #c9a96e !important;
+  font-size: 36px;
+  filter: drop-shadow(0 0 6px rgba(201, 169, 110, 0.3));
+}
+.servicio-card:hover .servicio-icon {
+  transform: translateY(-3px) scale(1.05);
+}
+
 .servicio-card h3 {
   font-family: 'Cormorant Garamond', serif;
   font-size: 24px; font-weight: 300; letter-spacing: 4px;
@@ -121,7 +149,22 @@ body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-seri
 .porque-section { background: #060606; border-top: 0.5px solid #1a1a1a; }
 .porque-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
 .porque-item { text-align: center; padding: 32px 20px; }
-.porque-icon { font-size: 32px; margin-bottom: 20px; }
+
+/* FIX ICONOS DE POR QUÉ */
+.porque-icon {
+  font-size: 32px;
+  color: #c9a96e;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+}
+.porque-icon i {
+  color: #c9a96e !important;
+  font-size: 32px;
+}
+
 .porque-item h3 {
   font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
   color: #f0ede8; margin-bottom: 12px; font-weight: 500;
@@ -133,6 +176,7 @@ body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-seri
 .testimonios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #1a1a1a; }
 .testimonio-card { background: #0f0f0f; padding: 40px 32px; }
 .testimonio-stars { color: #c9a96e; font-size: 14px; letter-spacing: 4px; margin-bottom: 20px; }
+.star-icon { color: #c9a96e !important; margin-right: 2px; }
 .testimonio-texto { font-size: 13px; color: #7a7a7a; line-height: 1.8; font-style: italic; margin-bottom: 28px; }
 .testimonio-autor { display: flex; align-items: center; gap: 12px; }
 .testimonio-avatar {
@@ -172,6 +216,7 @@ body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-seri
   padding: 12px 32px; font-size: 10px; letter-spacing: 4px;
   text-transform: uppercase; cursor: pointer; transition: 0.2s;
   font-family: 'Montserrat', sans-serif;
+  display: inline-flex; align-items: center; gap: 8px;
 }
 .btn-gold:hover { background: #c9a96e; color: #0a0a0a; }
 .btn-gold-lg {
@@ -179,6 +224,7 @@ body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-seri
   padding: 18px 56px; font-size: 12px; letter-spacing: 4px;
   text-transform: uppercase; cursor: pointer; transition: 0.2s;
   font-weight: 700; font-family: 'Montserrat', sans-serif;
+  display: inline-flex; align-items: center; gap: 8px;
 }
 .btn-gold-lg:hover { background: #b8945a; }
 
@@ -192,6 +238,7 @@ body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-seri
   padding: 48px 40px; width: 100%; max-width: 420px; text-align: center;
 }
 .modal-icon { font-size: 32px; color: #c9a96e; margin-bottom: 20px; }
+.modal-icon i { color: #c9a96e !important; }
 .modal-title { font-size: 22px; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; color: #f0ede8; margin-bottom: 14px; }
 .modal-desc { font-size: 12px; color: #6b6b6b; letter-spacing: 0.5px; line-height: 1.8; margin-bottom: 28px; }
 .verificando { display: flex; align-items: center; justify-content: center; gap: 12px; color: #7a7a7a; font-size: 12px; letter-spacing: 2px; margin-bottom: 20px; }
@@ -204,7 +251,18 @@ body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-seri
 .btn-cancelar { width: 100%; background: transparent; color: #4a4a4a; border: 0.5px solid #2a2a2a; padding: 12px; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: 0.2s; font-family: 'Montserrat', sans-serif; }
 .btn-cancelar:hover { color: #7a7a7a; border-color: #4a4a4a; }
 
-/* ── RESPONSIVE ── */
+/* ── RESPONSIVE DESIGN ── */
+@media (max-width: 992px) {
+  .navbar {
+    flex-direction: column; gap: 15px;
+    padding: 15px 10px; align-items: center; text-align: center;
+  }
+  .brand-container { flex-direction: column; gap: 5px; align-items: center; }
+  .navbar .menu { flex-wrap: wrap; justify-content: center; gap: 12px; padding: 0; margin: 0; }
+  .navbar .menu li a { font-size: 13px; }
+  .navbar .btn-ia, .navbar .btn-logout { padding: 6px 12px; font-size: 12px; }
+}
+
 @media (max-width: 768px) {
   .navbar { padding: 16px 20px; }
   .hero-content h1 { font-size: 40px; letter-spacing: 4px; }
@@ -214,47 +272,4 @@ body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-seri
   .testimonios-grid { grid-template-columns: 1fr; }
   .hero-stats { display: none; }
   .footer-content { flex-direction: column; text-align: center; }
-}
-
-/* ══════════════════════════════════════════
-   RESPONSIVE DESIGN: NAVBAR
-   ══════════════════════════════════════════ */
-@media (max-width: 992px) {
-  
-  /* 1. Hacemos que la barra se distribuya en columnas para ganar espacio */
-  .navbar {
-    flex-direction: column;
-    gap: 15px;
-    padding: 15px 10px;
-    align-items: center;
-    text-align: center;
-  }
-
-  /* 2. Centramos el logo y el saludo en su propio bloque */
-  .brand-container {
-    flex-direction: column; /* Si se amontonan el logo y el "Hola, pedro", los baja */
-    gap: 5px;
-    align-items: center;
-  }
-
-  /* 3. Ajustamos el menú para que los enlaces no se desborden */
-  .navbar .menu {
-    flex-wrap: wrap;       /* Permite que los elementos bajen de renglón si no caben */
-    justify-content: center;
-    gap: 12px;             /* Reduce un poco la distancia entre opciones */
-    padding: 0;
-    margin: 0;
-  }
-
-  /* 4. Achicamos ligeramente el tamaño del texto y los botones en móvil */
-  .navbar .menu li a {
-    font-size: 13px;       /* Un poco más pequeña la letra para optimizar espacio */
-  }
-
-  /* 5. Los botones de IA y Cerrar Sesión se adaptan mejor */
-  .navbar .btn-ia, 
-  .navbar .btn-logout {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
 }
