@@ -66,7 +66,7 @@ export class CitasComponent implements OnInit {
   horariosBase = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'];
   horariosDisponibles: HoraSlot[] = [];
 
-  // ── 🌟 VARIABLES NUEVAS PARA EL SISTEMA DE CALIFICACIÓN ────────────────────────
+  // ── 🌟 VARIABLES PARA EL SISTEMA DE CALIFICACIÓN ────────────────────────
   citaSeleccionadaId: number | null = null;
   estrellas: number[] = [1, 2, 3, 4, 5];
   calificacionSeleccionada = 0;
@@ -199,22 +199,17 @@ export class CitasComponent implements OnInit {
 
     const horasOcupadas = citasDelDia.map((c: any) => c.hora.substring(0, 5));
 
-    // Obtener la fecha de hoy en formato YYYY-MM-DD
     const ahora = new Date();
     const fechaHoy = this.formatFecha(ahora);
 
-    // Verificar si la fecha seleccionada es hoy
     const esHoy = this.fechaSeleccionada === fechaHoy;
 
-    // Hora actual en minutos desde medianoche
     const minutosActuales = ahora.getHours() * 60 + ahora.getMinutes();
 
     this.horariosDisponibles = this.horariosBase.map(h => {
-      // Convertir la hora del horario a minutos
       const [hora, minutos] = h.split(':').map(Number);
       const minutosHorario = hora * 60 + minutos;
 
-      // La hora ya pasó solamente si estamos reservando para el día de hoy
       const horaPasada = esHoy && minutosHorario <= minutosActuales;
 
       return {
@@ -318,7 +313,7 @@ export class CitasComponent implements OnInit {
     this.http.post(`${this.apiUrl}/calificaciones/`, payload, { headers: this.getHeaders() }).subscribe({
       next: () => {
         this.mensajeCalificacion = '✓ ¡Muchas gracias por calificar!';
-        this.cargarCitas(); // Refresca las citas para reflejar cambios
+        this.cargarCitas();
         setTimeout(() => {
           this.citaSeleccionadaId = null;
         }, 2000);
@@ -336,8 +331,27 @@ export class CitasComponent implements OnInit {
 
   // ── Helpers ───────────────────────────────────────────────
   getIconCategoria(slug: string): string {
-    const iconos: Record<string, string> = { cabello: '✂', barba: '🪒', rostro: '✨', productos: '🛍' };
-    return iconos[slug] ?? '✦';
+    if (!slug) return 'bi bi-scissors';
+
+    const slugLimpio = slug.toLowerCase();
+
+    if (slugLimpio.includes('barba')) {
+      return 'bi bi-person-bounding-box';
+    }
+    if (slugLimpio.includes('corte') || slugLimpio.includes('cabello') || slugLimpio.includes('pelo')) {
+      return 'bi bi-scissors';
+    }
+    if (slugLimpio.includes('rostro') || slugLimpio.includes('facil') || slugLimpio.includes('facial') || slugLimpio.includes('skin')) {
+      return 'bi bi-stars';
+    }
+    if (slugLimpio.includes('producto') || slugLimpio.includes('tienda')) {
+      return 'bi bi-bag-check';
+    }
+    if (slugLimpio.includes('color') || slugLimpio.includes('tint')) {
+      return 'bi bi-paint-bucket';
+    }
+
+    return 'bi bi-scissors';
   }
 
   getInicial(nombre: string): string { return nombre.charAt(0).toUpperCase(); }
