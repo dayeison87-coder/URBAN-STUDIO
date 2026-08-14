@@ -1,7 +1,7 @@
 <header>
   <nav class="navbar">
     <div class="brand-container">
-      <div class="logo" routerLink="/home">✂ urban studio</div>
+      <div class="logo" routerLink="/home"><i class="bi bi-scissors"></i> urban studio</div>
       <div class="user-greeting">
         Hola, <span class="username">{{ nombreUsuario }}</span>
       </div>
@@ -12,7 +12,7 @@
       <li><a routerLink="/citas">Citas</a></li>
       <li><a routerLink="/barberos">Barberos</a></li>
       <li>
-        <button routerLink="/gemini" class="btn-ia" (click)="abrirIA()">✦ IA Estilo</button>
+        <button routerLink="/gemini" class="btn-ia" (click)="abrirIA()"><i class="bi bi-stars"></i> IA Estilo</button>
       </li>
       <li>
         <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
@@ -44,7 +44,7 @@
     </div>
     <div class="stat-divider"></div>
     <div class="stat">
-      <span class="stat-num">4.9★</span>
+      <span class="stat-num">4.9 <i class="bi bi-star-fill star-icon"></i></span>
       <span class="stat-label">Valoración promedio</span>
     </div>
   </div>
@@ -58,32 +58,32 @@
   </div>
   <div class="servicios-grid">
     <div class="servicio-card">
-      <div class="servicio-icon">✂</div>
+      <div class="servicio-icon"><i class="bi bi-scissors"></i></div>
       <h3>Cabello</h3>
       <p>Cortes clásicos, modernos y degradados con técnicas premium.</p>
       <span class="servicio-desde">Desde $20.000</span>
     </div>
     <div class="servicio-card">
-      <div class="servicio-icon">🪒</div>
+      <div class="servicio-icon"><i class="bi bi-person-badge"></i></div>
       <h3>Barba</h3>
       <p>Afeitado clásico, perfilado y diseño de barba a tu medida.</p>
       <span class="servicio-desde">Desde $25.000</span>
     </div>
     <div class="servicio-card">
-      <div class="servicio-icon">✨</div>
+      <div class="servicio-icon"><i class="bi bi-emoji-neutral"></i></div>
       <h3>Rostro</h3>
       <p>Tratamientos faciales, hidratación y cuidado de la piel.</p>
       <span class="servicio-desde">Desde $35.000</span>
     </div>
     <div class="servicio-card destacado">
-      <div class="servicio-icon">🤖</div>
+      <div class="servicio-icon"><i class="bi bi-robot"></i></div>
       <h3>IA Estilo</h3>
       <p>Análisis facial inteligente que recomienda el corte ideal para ti.</p>
       <span class="servicio-desde">Incluido</span>
     </div>
   </div>
   <div class="section-cta">
-    <button class="btn-gold" (click)="irAReservas()">Ver todos los servicios →</button>
+    <button class="btn-gold" (click)="irAReservas()">Ver todos los servicios <i class="bi bi-arrow-right"></i></button>
   </div>
 </section>
 
@@ -94,22 +94,22 @@
   </div>
   <div class="porque-grid">
     <div class="porque-item">
-      <div class="porque-icon">🏆</div>
+      <div class="porque-icon"><i class="bi bi-trophy"></i></div>
       <h3>Barberos expertos</h3>
       <p>Profesionales con años de experiencia y certificaciones internacionales.</p>
     </div>
     <div class="porque-item">
-      <div class="porque-icon">📅</div>
+      <div class="porque-icon"><i class="bi bi-calendar-event"></i></div>
       <h3>Reservas online</h3>
       <p>Agenda tu cita en segundos, elige tu barbero y horario favorito.</p>
     </div>
     <div class="porque-item">
-      <div class="porque-icon">💬</div>
+      <div class="porque-icon"><i class="bi bi-chat-dots"></i></div>
       <h3>Chat directo</h3>
       <p>Habla directamente con tu barbero antes y después de tu cita.</p>
     </div>
     <div class="porque-item">
-      <div class="porque-icon">✦</div>
+      <div class="porque-icon"><i class="bi bi-stars"></i></div>
       <h3>IA personalizada</h3>
       <p>Tecnología de análisis facial para recomendarte el mejor estilo.</p>
     </div>
@@ -125,7 +125,7 @@
   <div class="testimonios-grid" *ngIf="testimonios && testimonios.length > 0; else sinTestimonios">
     <div class="testimonio-card" *ngFor="let cal of testimonios">
       <div class="testimonio-stars">
-        <ng-container *ngFor="let star of [].constructor(cal.estrellas)">⭐</ng-container>
+        <i *ngFor="let star of [].constructor(cal.estrellas)" class="bi bi-star-fill star-icon"></i>
       </div>
       <p class="testimonio-texto">"{{ cal.comentario }}"</p>
       <div class="testimonio-autor">
@@ -142,7 +142,7 @@
 
   <ng-template #sinTestimonios>
     <div style="text-align: center; padding: 2rem; color: #a5a5a5; font-style: italic;">
-      No hay reseñas recientes. ¡Sé el primero en calificar tu cita! ✨
+      No hay reseñas recientes. ¡Sé el primero en calificar tu cita! <i class="bi bi-sparkles star-icon"></i>
     </div>
   </ng-template>
 </section>
@@ -152,14 +152,14 @@
     <p class="section-eyebrow">¿Listo para el cambio?</p>
     <h2>Reserva tu cita hoy</h2>
     <p>Elige tu barbero, servicio y horario en menos de 2 minutos.</p>
-    <button class="btn-gold-lg" (click)="irACitas()">Reservar ahora →</button>
+    <button class="btn-gold-lg" (click)="irACitas()">Reservar ahora <i class="bi bi-arrow-right"></i></button>
   </div>
 </section>
 
 <footer class="footer">
   <div class="footer-content">
     <div class="footer-brand">
-      <span class="logo">✂ urban studio</span>
+      <span class="logo"><i class="bi bi-scissors"></i> urban studio</span>
       <p>Estilo premium para el hombre moderno.</p>
     </div>
     <div class="footer-links">
@@ -173,9 +173,10 @@
   </div>
 </footer>
 
+<!-- Modales -->
 <div class="modal-bg" *ngIf="paso === 1" (click)="cerrarSiOverlay($event)">
   <div class="modal-box">
-    <div class="modal-icon">✦</div>
+    <div class="modal-icon"><i class="bi bi-stars"></i></div>
     <h2 class="modal-title">Urban Studio IA</h2>
     <p class="modal-desc">Análisis facial inteligente para recomendarte el corte y estilo ideal según tu rostro.</p>
     <div class="verificando" *ngIf="verificando">
@@ -183,7 +184,7 @@
       <span>Verificando acceso...</span>
     </div>
     <div class="acceso-ok" *ngIf="!verificando">
-      <span class="check">✓</span>
+      <span class="check"><i class="bi bi-check-lg"></i></span>
       <span>Servicio activo — Acceso verificado</span>
     </div>
     <button class="btn-continuar" (click)="solicitarCamara()" *ngIf="!verificando">Continuar</button>
@@ -193,7 +194,7 @@
 
 <div class="modal-bg" *ngIf="paso === 2" (click)="cerrarSiOverlay($event)">
   <div class="modal-box">
-    <div class="modal-icon">📷</div>
+    <div class="modal-icon"><i class="bi bi-camera"></i></div>
     <h2 class="modal-title">Permiso de Cámara</h2>
     <p class="modal-desc">Para analizar tu rostro necesitamos acceso a tu cámara. Tu privacidad es importante — no guardamos imágenes.</p>
     <button class="btn-continuar" (click)="activarCamara()">Permitir cámara</button>
@@ -205,7 +206,7 @@
   <div class="camara-box">
     <div class="camara-header">
       <span class="camara-titulo">Escaneo Facial</span>
-      <button class="camara-cerrar" (click)="cerrarModal()">✕</button>
+      <button class="camara-cerrar" (click)="cerrarModal()"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="camara-wrapper">
       <video #videoRef autoplay playsinline class="camara-video"></video>
@@ -221,9 +222,9 @@
       <div class="camara-instruccion">Centra tu rostro dentro del marco</div>
     </div>
     <canvas #canvasRef style="display:none"></canvas>
-    <button class="btn-escanear" (click)="escanear()">✦ Escanear rostro</button>
+    <button class="btn-escanear" (click)="escanear()"><i class="bi bi-stars"></i> Escanear rostro</button>
     <div class="captura-ok" *ngIf="capturado">
-      <span class="check">✓</span> Rostro capturado — IA lista para analizar
+      <span class="check"><i class="bi bi-check-lg"></i></span> Rostro capturado — IA lista para analizar
     </div>
   </div>
 </div>

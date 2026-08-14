@@ -4,7 +4,7 @@
   <header>
     <nav class="navbar">
       <div class="brand-container">
-        <div class="logo" routerLink="/home">✂ urban studio</div>
+        <div class="logo" routerLink="/home"><i class="bi bi-scissors"></i> urban studio</div>
       </div>
       <ul class="menu">
         <li><a routerLink="/home">Inicio</a></li>
@@ -40,7 +40,7 @@
         <p class="us-card-number">{{ numeros[i] }}</p>
         <h2 class="us-card-name">{{ cat.nombre }}</h2>
         <p class="us-card-desc">{{ cat.descripcion }}</p>
-        <span class="us-card-cta">Ver servicios →</span>
+        <span class="us-card-cta">Ver servicios <i class="bi bi-arrow-right"></i></span>
       </div>
       <div class="us-card-line"></div>
     </div>
@@ -48,7 +48,7 @@
 
   <!-- SIN CATEGORÍAS -->
   <div class="us-empty" *ngIf="!cargando && categorias.length === 0">
-    <p>No hay servicios disponibles por el momento.</p>
+    <p><i class="bi bi-exclamation-circle me-2"></i> No hay servicios disponibles por el momento.</p>
   </div>
 
   <!-- FOOTER -->
@@ -69,7 +69,7 @@
     <div class="us-modal-header">
       <p class="us-modal-eyebrow">Urban Studio — {{ categoriaActiva.descripcion }}</p>
       <h2 class="us-modal-title">{{ categoriaActiva.nombre }}</h2>
-      <button class="us-modal-close" (click)="cerrarModal()">✕</button>
+      <button class="us-modal-close" (click)="cerrarModal()"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="us-modal-body">
       <ul class="us-service-list" *ngIf="categoriaActiva.servicios.length > 0">
@@ -87,9 +87,11 @@
         </li>
       </ul>
       <div class="us-modal-empty" *ngIf="categoriaActiva.servicios.length === 0">
-        <p>Próximamente servicios en esta categoría.</p>
+        <p><i class="bi bi-clock-history me-1"></i> Próximamente servicios en esta categoría.</p>
       </div>
-      <button class="us-modal-cta" (click)="irACitas()">Reservar cita</button>
+      <button class="us-modal-cta" (click)="irACitas()">
+        Reservar cita <i class="bi bi-calendar-check"></i>
+      </button>
     </div>
   </div>
 </div>
