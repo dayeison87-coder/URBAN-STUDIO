@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 from .views import (
     BarberoListView,
     CitaDetailView,
@@ -41,7 +41,9 @@ urlpatterns = [
     path('disponibilidad/', DisponibilidadView.as_view(), name='disponibilidad'),
     path('disponibilidad/<int:pk>/', DisponibilidadDetailView.as_view(), name='disponibilidad-detail'),
 
+
     # --- 5. CALIFICACIONES Y RESEÑAS ---
     path('calificaciones/', CalificacionBarberoListCreateView.as_view(), name='calificaciones-list-create'),
     path('testimonios/ultimos/', UltimosTestimoniosView.as_view(), name='ultimos-testimonios'), # 👈 2. Ruta para el Home
+      # 👈 Agrega esta línea para incluir las rutas de Gemini
 ]

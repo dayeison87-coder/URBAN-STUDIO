@@ -204,32 +204,6 @@ body { background: #0a0a0a; color: #f0ede8; font-family: 'Montserrat', sans-seri
 .btn-cancelar { width: 100%; background: transparent; color: #4a4a4a; border: 0.5px solid #2a2a2a; padding: 12px; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: 0.2s; font-family: 'Montserrat', sans-serif; }
 .btn-cancelar:hover { color: #7a7a7a; border-color: #4a4a4a; }
 
-/* ── CÁMARA ── */
-.camara-modal { align-items: center; }
-.camara-box { background: #0a0a0a; border: 0.5px solid #2a2a2a; width: 100%; max-width: 500px; overflow: hidden; }
-.camara-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 0.5px solid #1a1a1a; }
-.camara-titulo { font-size: 10px; letter-spacing: 5px; text-transform: uppercase; color: #c9a96e; }
-.camara-cerrar { background: none; border: 0.5px solid #2a2a2a; color: #7a7a7a; width: 30px; height: 30px; cursor: pointer; font-size: 14px; transition: 0.2s; }
-.camara-cerrar:hover { border-color: #c9a96e; color: #c9a96e; }
-.camara-wrapper { position: relative; width: 100%; background: #000; }
-.camara-video { width: 100%; display: block; max-height: 360px; object-fit: cover; transform: scaleX(-1); }
-.scan-frame { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 180px; height: 230px; pointer-events: none; }
-.face-oval { position: absolute; inset: 0; border: 2px solid #c9a96e; border-radius: 50% / 45%; box-shadow: 0 0 0 2000px rgba(0,0,0,0.45); animation: pulseBorder 2s ease-in-out infinite; }
-@keyframes pulseBorder { 0%, 100% { border-color: #c9a96e; } 50% { border-color: #f0d080; } }
-.face-dot { position: absolute; width: 5px; height: 5px; background: #c9a96e; border-radius: 50%; animation: dotPulse 2s ease-in-out infinite; }
-@keyframes dotPulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.4); } }
-.dot-eye-l   { top: 38%; left: 22%; animation-delay: 0s; }
-.dot-eye-r   { top: 38%; right: 22%; animation-delay: 0.2s; }
-.dot-nose    { top: 58%; left: 50%; transform: translateX(-50%); animation-delay: 0.4s; }
-.dot-mouth-l { top: 74%; left: 32%; animation-delay: 0.6s; }
-.dot-mouth-r { top: 74%; right: 32%; animation-delay: 0.8s; }
-.scan-line { position: absolute; left: 5%; right: 5%; height: 1px; background: linear-gradient(to right, transparent, #c9a96e88, #c9a96e, #c9a96e88, transparent); animation: scanMove 2.5s ease-in-out infinite; top: 10%; }
-@keyframes scanMove { 0% { top: 10%; opacity: 0.8; } 50% { top: 88%; opacity: 1; } 100% { top: 10%; opacity: 0.8; } }
-.camara-instruccion { position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.6); text-transform: uppercase; }
-.btn-escanear { width: 100%; background: none; border: none; border-top: 0.5px solid #2a2a2a; color: #c9a96e; padding: 16px; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; font-weight: 600; cursor: pointer; transition: 0.2s; }
-.btn-escanear:hover { background: #c9a96e15; }
-.captura-ok { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; background: #0d1f0d; color: #4ade80; font-size: 11px; letter-spacing: 2px; border-top: 0.5px solid #1a2a1a; }
-
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .navbar { padding: 16px 20px; }

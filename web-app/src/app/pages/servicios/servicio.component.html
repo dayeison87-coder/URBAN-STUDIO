@@ -1,13 +1,24 @@
-<!-- servicio.component.html -->
-
 <div class="us-page">
+
+  <!-- NAVBAR -->
+  <header>
+    <nav class="navbar">
+      <div class="brand-container">
+        <div class="logo" routerLink="/home">✂ urban studio</div>
+      </div>
+      <ul class="menu">
+        <li><a routerLink="/home">Inicio</a></li>
+        <li><a routerLink="/servicios">Servicios</a></li>
+        <li><a routerLink="/citas">Citas</a></li>
+      </ul>
+    </nav>
+  </header>
 
   <!-- HERO -->
   <section class="us-hero">
-  <button class="us-back" (click)="volver()">← Volver</button>  <!-- agrega esta línea -->
-  <p class="us-eyebrow">Urban Studio</p>
-  <h1 class="us-title">Servicios</h1>
-  <p class="us-subtitle">Elige tu experiencia</p>
+    <p class="us-eyebrow">Urban Studio</p>
+    <h1 class="us-title">Servicios</h1>
+    <p class="us-subtitle">Elige tu experiencia</p>
   </section>
 
   <!-- LOADING -->
@@ -25,12 +36,11 @@
     >
       <div class="us-card-bg" [ngClass]="'bg-' + cat.slug"></div>
       <div class="us-card-overlay"></div>
-      <div class="us-card-icon" [innerHTML]="getIcono(cat.slug)"></div>
       <div class="us-card-content">
         <p class="us-card-number">{{ numeros[i] }}</p>
         <h2 class="us-card-name">{{ cat.nombre }}</h2>
         <p class="us-card-desc">{{ cat.descripcion }}</p>
-        <span class="us-card-cta">Ver servicios</span>
+        <span class="us-card-cta">Ver servicios →</span>
       </div>
       <div class="us-card-line"></div>
     </div>
@@ -61,10 +71,7 @@
       <h2 class="us-modal-title">{{ categoriaActiva.nombre }}</h2>
       <button class="us-modal-close" (click)="cerrarModal()">✕</button>
     </div>
-
     <div class="us-modal-body">
-
-      <!-- Servicios disponibles -->
       <ul class="us-service-list" *ngIf="categoriaActiva.servicios.length > 0">
         <li
           class="us-service-item"
@@ -79,15 +86,10 @@
           <span class="us-service-price">{{ formatPrecio(srv.precio) }}</span>
         </li>
       </ul>
-
-      <!-- Sin servicios -->
       <div class="us-modal-empty" *ngIf="categoriaActiva.servicios.length === 0">
         <p>Próximamente servicios en esta categoría.</p>
       </div>
-
-      <button class="us-modal-cta" (click)="irACitas()">
-    Reservar cita
-      </button>
+      <button class="us-modal-cta" (click)="irACitas()">Reservar cita</button>
     </div>
   </div>
 </div>
