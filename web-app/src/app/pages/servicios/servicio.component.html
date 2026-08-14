@@ -1,20 +1,23 @@
 <div class="us-page">
 
-  <!-- NAVBAR -->
+  <!-- NAVBAR UNIFICADO -->
   <header>
     <nav class="navbar">
       <div class="brand-container">
         <div class="logo" routerLink="/home"><i class="bi bi-scissors"></i> urban studio</div>
+        <div class="user-greeting" *ngIf="nombreUsuario">
+          Hola, <span class="username">{{ nombreUsuario }}</span>
+        </div>
       </div>
       <ul class="menu">
         <li><a routerLink="/home">Inicio</a></li>
-        <li><a routerLink="/servicios">Servicios</a></li>
         <li><a routerLink="/citas">Citas</a></li>
+        <li><a routerLink="/barberos">Barberos</a></li>
       </ul>
     </nav>
   </header>
 
-  <!-- HERO -->
+  <!-- HERO SERVICIOS -->
   <section class="us-hero">
     <p class="us-eyebrow">Urban Studio</p>
     <h1 class="us-title">Servicios</h1>
@@ -26,7 +29,7 @@
     <div class="us-spinner"></div>
   </div>
 
-  <!-- GRID -->
+  <!-- GRID DE CATEGORÍAS -->
   <div class="us-grid" *ngIf="!cargando">
     <div
       class="us-card"
@@ -51,14 +54,27 @@
     <p><i class="bi bi-exclamation-circle me-2"></i> No hay servicios disponibles por el momento.</p>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="us-footer">
-    <p class="us-footer-text">Urban Studio — Bogotá, Colombia</p>
+  <!-- FOOTER UNIFICADO -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span class="logo"><i class="bi bi-scissors"></i> urban studio</span>
+        <p>Estilo premium para el hombre moderno.</p>
+      </div>
+      <div class="footer-links">
+        <a routerLink="/servicios">Servicios</a>
+        <a routerLink="/citas">Citas</a>
+        <a routerLink="/barberos">Barberos</a>
+      </div>
+      <div class="footer-copy">
+        <p>© 2026 Urban Studio. Todos los derechos reservados.</p>
+      </div>
+    </div>
   </footer>
 
 </div>
 
-<!-- MODAL -->
+<!-- MODAL SERVICIOS -->
 <div
   class="us-modal-bg"
   [class.open]="categoriaActiva !== null"

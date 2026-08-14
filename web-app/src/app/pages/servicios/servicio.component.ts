@@ -1,5 +1,3 @@
-// servicio.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -24,7 +22,7 @@ interface Categoria {
 @Component({
   selector: 'app-servicio',
   standalone: true,
-  imports: [CommonModule , RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './servicio.component.html',
   styleUrls: ['./servicio.component.css']
 })
@@ -33,6 +31,7 @@ export class ServicioComponent implements OnInit {
   categorias: Categoria[] = [];
   categoriaActiva: Categoria | null = null;
   cargando = true;
+  nombreUsuario: string = '';
 
   // Iconos SVG por categoría
   iconos: Record<string, string> = {
@@ -64,11 +63,19 @@ export class ServicioComponent implements OnInit {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  volver(): void {
-  this.router.navigate(['/home']);
-}
-
   ngOnInit(): void {
+    // 1. Obtener usuario almacenado para mostrar en la Navbar
+    const userStr = localStorage.getItem('usuario') || localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const userObj = JSON.parse(userStr);
+        this.nombreUsuario = userObj.username || userObj.nombre || 'Cliente';
+      } catch (e) {
+        this.nombreUsuario = userStr;
+      }
+    }
+
+    // 2. Cargar categorías de la API en Django
     this.http.get<Categoria[]>('http://localhost:8000/api/categorias/')
       .subscribe({
         next: (data) => {
@@ -82,6 +89,23 @@ export class ServicioComponent implements OnInit {
       });
   }
 
+  // Acciones Navbar
+  abrirIA(): void {
+    this.router.navigate(['/gemini']);
+  }
+
+  logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
+    localStorage.removeItem('user');
+    this.router.navigate(['/login']);
+  }
+
+  volver(): void {
+    this.router.navigate(['/home']);
+  }
+
+  // Modales y utilidades de la vista
   abrirModal(categoria: Categoria): void {
     this.categoriaActiva = categoria;
   }
@@ -102,10 +126,11 @@ export class ServicioComponent implements OnInit {
 
   formatPrecio(precio: string): string {
     const num = parseFloat(precio);
+    if (isNaN(num)) return '$0';
     return '$' + num.toLocaleString('es-CO');
   }
 
-  irACitas() {
+  irACitas(): void {
     this.router.navigate(['/citas']);
   }
 }

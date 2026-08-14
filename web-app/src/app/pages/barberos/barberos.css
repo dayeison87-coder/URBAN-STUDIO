@@ -9,6 +9,12 @@
   box-sizing: border-box;
 }
 
+:host {
+  display: block;
+  background-color: #0a0a0a;
+  min-height: 100vh;
+}
+
 html, body {
   background-color: #0a0a0a !important;
   color: #f0ede8;
@@ -133,7 +139,7 @@ html, body {
    ============================================================================== */
 .barberos-section {
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 120px); /* Ocupa la pantalla sin forzar desbordamiento con el footer */
   background-color: #0a0a0a;
   padding-top: 130px;
   padding-bottom: 70px;
@@ -346,10 +352,10 @@ html, body {
    4. FOOTER
    ============================================================================== */
 .footer {
-  background: #060606;
+  background: #0a0a0a; /* Cambiado a #0a0a0a para empatar exacto con la sección */
   border-top: 0.5px solid #1a1a1a;
   padding: 48px 80px;
-  margin-top: 40px;
+  margin-top: 0; /* Se elimina el margin-top para no generar la separación azul */
   width: 100%;
 }
 
