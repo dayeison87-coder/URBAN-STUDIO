@@ -1,7 +1,8 @@
-import { Component, inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http'; // 👈 Inyección nativa para consumir la API
 
 interface Mensaje {
   usuario: string;
@@ -15,11 +16,13 @@ interface Mensaje {
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit { // 👈 Implementamos OnInit para que cargue al iniciar
 
   private router = inject(Router);
+  private http = inject(HttpClient); // 👈 Inyectamos el servicio HTTP
 
   nombreUsuario: string = 'Usuario';
+  testimonios: any[] = []; // 👈 Array dinámico para almacenar las reseñas del backend
 
   // Flujo IA
   paso: number = 0;
@@ -33,7 +36,6 @@ export class HomeComponent {
   // =======================
   // CHAT
   // =======================
-
   chatAbierto = false;
   mensajes: Mensaje[] = [];
   mensajeTexto = '';
@@ -41,16 +43,28 @@ export class HomeComponent {
 
   constructor() {
     const usuarioGuardado = localStorage.getItem('username');
-
     if (usuarioGuardado) {
       this.nombreUsuario = usuarioGuardado;
     }
   }
 
+  ngOnInit(): void {
+    this.cargarTestimonios(); // 👈 Lanza la petición apenas cargue la landing page
+  }
+
+  // =======================
+  // Cargar Testimonios Reales
+  // =======================
+  cargarTestimonios() {
+    this.http.get<any[]>('http://127.0.0.1:8000/api/testimonios/ultimos/').subscribe({
+      next: (data) => this.testimonios = data,
+      error: (err) => console.error('Error cargando testimonios en Home:', err)
+    });
+  }
+
   // =======================
   // Navegación
   // =======================
-
   irACitas() {
     this.router.navigate(['/citas']);
   }
@@ -63,14 +77,12 @@ export class HomeComponent {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('username');
-
     this.router.navigate(['/login']);
   }
 
   // =======================
   // IA
   // =======================
-
   abrirIA() {
     this.paso = 1;
     this.verificando = true;
@@ -146,12 +158,10 @@ export class HomeComponent {
   // =======================
   // CHAT
   // =======================
-
   abrirChat() {
     this.chatAbierto = true;
 
     if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
-
       this.socket = new WebSocket('ws://localhost:8000/ws/chat/general/');
 
       this.socket.onopen = () => {
@@ -178,7 +188,6 @@ export class HomeComponent {
   }
 
   enviarMensaje() {
-
     if (!this.mensajeTexto.trim()) {
       return;
     }
@@ -195,5 +204,4 @@ export class HomeComponent {
 
     this.mensajeTexto = '';
   }
-
 }
