@@ -7,45 +7,46 @@ from django.core.mail import send_mail
 from analisis_ia.models import CodigoSeguridadIA
 
 
-def generar_codigo_seguridad(usuario):
+def generar_codigo_seguridad(cliente, barbero):
     """
-    Genera un código de seguridad de 6 dígitos,
-    válido durante 4 minutos.
+    Genera un código de seguridad de 6 dígitos para un barbero,
+    válido durante 10 minutos.
     """
 
-    # Invalidar códigos anteriores del usuario
+    # Invalidar códigos anteriores del cliente, incluso los ya validados.
     CodigoSeguridadIA.objects.filter(
-        usuario=usuario,
+        usuario=cliente,
         usado=False,
-        validado=False
+        # Tambien invalidamos codigos previamente validados.
     ).update(usado=True)
 
     # Generar código aleatorio de 6 dígitos
     codigo = str(secrets.randbelow(900000) + 100000)
 
-    # Fecha de expiración: 4 minutos
-    expira_en = timezone.now() + timedelta(minutes=4)
+    # Fecha de expiración: 10 minutos
+    expira_en = timezone.now() + timedelta(minutes=10)
 
     # Guardar código
     codigo_seguridad = CodigoSeguridadIA.objects.create(
-        usuario=usuario,
+        usuario=cliente,
+        barbero=barbero,
         codigo=codigo,
         expira_en=expira_en
     )
 
     # Enviar correo
     send_mail(
-        subject="Código de seguridad - Urban Studio",
-        message=(
-            f"Hola {usuario.username},\n\n"
-            f"Tu código de seguridad para utilizar el análisis con IA es:\n\n"
-            f"{codigo}\n\n"
-            f"Este código vence en 4 minutos.\n\n"
-            f"No compartas este código con nadie."
-        ),
-        from_email=None,
-        recipient_list=[usuario.email],
-        fail_silently=False,
-    )
+    subject="Código de verificación IA - Urban Studio",
+    message=(
+        f"Hola {barbero.username},\n\n"
+        f"El cliente {cliente.username} solicitó acceso a IA Estilo.\n\n"
+        f"{codigo}\n\n"
+        f"Este código vence en 10 minutos.\n\n"
+        f"Compártelo solo si el cliente está presente contigo."
+    ),
+    from_email=None,
+    recipient_list=[barbero.email],
+    fail_silently=False,
+)
 
     return codigo_seguridad

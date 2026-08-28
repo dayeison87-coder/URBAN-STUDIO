@@ -218,3 +218,19 @@ button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+.social-actions { display: grid; gap: 10px; margin-bottom: 20px; }
+.social-button { height: 44px; border: 1px solid rgba(255,255,255,.2); border-radius: 10px; background: rgba(0,0,0,.25); color: #fff; cursor: pointer; font-size: .82rem; font-weight: 600; }
+.social-button i { margin-right: 8px; font-size: 1rem; }
+.social-button:hover { transform: translateY(-1px); border-color: var(--accent); }
+.social-button.google i { color: #ea4335; }
+.social-button.facebook i { color: #4e8cff; }
+.social-divider { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.55); font-size: .7rem; text-align: center; }
+.social-divider::before, .social-divider::after { content: ''; height: 1px; flex: 1; background: rgba(255,255,255,.2); }
+.verification-form { align-items: stretch; text-align: center; }
+.verification-icon { color: var(--accent); font-size: 2.2rem; }
+.verification-form h2 { color: #fff; font-size: 1.35rem; }
+.verification-form p { color: rgba(255,255,255,.75); font-size: .82rem; line-height: 1.5; }
+.verification-form p strong { color: var(--accent); }
+.code-input { height: 64px; border: 1px solid rgba(230,187,63,.55); border-radius: 12px; background: rgba(0,0,0,.3); color: #fff; font-size: 2rem; letter-spacing: 12px; text-align: center; outline: none; padding-left: 12px; }
+.code-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(230,187,63,.2); }

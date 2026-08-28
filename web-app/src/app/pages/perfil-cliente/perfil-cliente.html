@@ -1,0 +1,30 @@
+<main class="perfil-page">
+  <header class="perfil-header">
+    <button class="back-button" (click)="volver()"><i class="bi bi-arrow-left"></i> Volver</button>
+    <p class="eyebrow">Urban Studio / Cuenta</p>
+    <h1>Mi perfil</h1>
+    <p>Administra tus datos personales y preferencias de contacto.</p>
+  </header>
+
+  <section class="perfil-layout">
+    <aside class="perfil-aside">
+      <div class="avatar-wrap">
+        <img *ngIf="fotoPreview" [src]="fotoPreview" alt="Foto de perfil">
+        <span *ngIf="!fotoPreview">{{ (perfil.username || 'C').charAt(0).toUpperCase() }}</span>
+      </div>
+      <h2>{{ perfil.username || 'Cliente' }}</h2>
+      <p>Cliente Urban Studio</p>
+      <label class="photo-button"><i class="bi bi-camera"></i> Cambiar foto<input type="file" accept="image/*" (change)="seleccionarFoto($event)" hidden></label>
+    </aside>
+
+    <form class="perfil-form" (ngSubmit)="guardarPerfil()">
+      <div class="form-heading"><span>Información personal</span><i class="bi bi-person"></i></div>
+      <label>Nombre de usuario<input type="text" [(ngModel)]="perfil.username" name="username" required></label>
+      <label>Correo electrónico<input type="email" [(ngModel)]="perfil.email" name="email" required></label>
+      <label>Teléfono<input type="tel" [(ngModel)]="perfil.telefono" name="telefono" placeholder="Tu número de teléfono"></label>
+      <div class="form-message success" *ngIf="mensaje"><i class="bi bi-check-circle"></i> {{ mensaje }}</div>
+      <div class="form-message error" *ngIf="error"><i class="bi bi-exclamation-circle"></i> {{ error }}</div>
+      <button class="save-button" type="submit" [disabled]="guardando"><i class="bi bi-check2"></i> {{ guardando ? 'Guardando...' : 'Guardar cambios' }}</button>
+    </form>
+  </section>
+</main>

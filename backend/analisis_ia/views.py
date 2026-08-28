@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from servicios.models import Servicio
+from users.models import Usuario
 
 from .models import AnalisisFacial, CodigoSeguridadIA
 from .serializers import AnalisisFacialOutputSerializer
@@ -38,29 +39,37 @@ class SolicitarCodigoIAView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        usuario = request.user
+        cliente = request.user
+        barbero_id = request.data.get("barbero_id")
 
-        if not usuario.email:
+        if not barbero_id:
             return Response(
-                {
-                    "error": (
-                        "Tu usuario no tiene un correo electrónico "
-                        "registrado."
-                    )
-                },
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Debes seleccionar un barbero."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        barbero = Usuario.objects.filter(
+            pk=barbero_id,
+            rol__nombre="Barbero",
+        ).first()
+        if not barbero:
+            return Response(
+                {"error": "El barbero seleccionado no existe."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not barbero.email:
+            return Response(
+                {"error": "El barbero seleccionado no tiene correo registrado."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
-            generar_codigo_seguridad(usuario)
+            generar_codigo_seguridad(cliente, barbero)
 
             return Response(
                 {
-                    "mensaje": (
-                        "Código de seguridad enviado correctamente "
-                        "a tu correo."
-                    ),
-                    "duracion_minutos": 4
+                    "mensaje": "Código enviado al barbero seleccionado.",
+                    "duracion_minutos": 10
                 },
                 status=status.HTTP_200_OK
             )
@@ -95,22 +104,24 @@ class ValidarCodigoIAView(APIView):
     def post(self, request):
 
         codigo = request.data.get("codigo")
-
-        if not codigo:
+        barbero_id = request.data.get("barbero_id")
+        if not codigo or not barbero_id:
             return Response(
-                {
-                    "error": (
-                        "Debes ingresar el código de seguridad."
-                    )
-                },
+                {"error": "Debes ingresar el código y seleccionar un barbero."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         codigo = str(codigo).strip()
+        if len(codigo) != 6 or not codigo.isdigit():
+            return Response(
+                {"error": "El codigo debe tener 6 digitos."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         codigo_seguridad = (
             CodigoSeguridadIA.objects.filter(
                 usuario=request.user,
+                barbero_id=barbero_id,
                 codigo=codigo,
                 usado=False
             )

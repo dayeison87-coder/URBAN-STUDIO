@@ -1,33 +1,103 @@
 <div class="barbero-container">
 
   <nav class="navbar">
-    <a class="logo" routerLink="/home">✂ urban studio</a>
+    <a class="logo" routerLink="/home"><i class="bi bi-scissors"></i> urban studio</a>
     <span class="bienvenida">Hola, <strong>{{ nombreUsuario }}</strong></span>
     <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
   </nav>
 
   <div class="tabs">
-    <button [class.active]="pestanaActiva === 'citas'" (click)="cambiarPestana('citas')">
-      📅 Mis Citas
-    </button>
-    <button [class.active]="pestanaActiva === 'horarios'" (click)="cambiarPestana('horarios')">
-      🕐 Mis Horarios
-    </button>
-    <button [class.active]="pestanaActiva === 'perfil'" (click)="cambiarPestana('perfil')">
-      👤 Mi Perfil
-    </button>
-    <button [class.active]="pestanaActiva === 'chat'" (click)="cambiarPestana('chat')">
-      💬 Chat
-    </button>
+    <button title="Dashboard" [class.active]="pestanaActiva === 'dashboard'" (click)="cambiarPestana('dashboard')"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></button>
+    <button title="Mis clientes" [class.active]="pestanaActiva === 'clientes'" (click)="cambiarPestana('clientes')"><i class="bi bi-people"></i><span>Mis clientes</span></button>
+    <button title="Historial" [class.active]="pestanaActiva === 'historial'" (click)="cambiarPestana('historial')"><i class="bi bi-scissors"></i><span>Historial</span></button>
+    <button title="Ingresos" [class.active]="pestanaActiva === 'ingresos'" (click)="cambiarPestana('ingresos')"><i class="bi bi-wallet2"></i><span>Ingresos</span></button>
+    <button title="Mis citas" [class.active]="pestanaActiva === 'citas'" (click)="cambiarPestana('citas')"><i class="bi bi-calendar3"></i><span>Mis Citas</span></button>
+    <button title="Mis horarios" [class.active]="pestanaActiva === 'horarios'" (click)="cambiarPestana('horarios')"><i class="bi bi-clock"></i><span>Mis Horarios</span></button>
+    <button title="Mi perfil" [class.active]="pestanaActiva === 'perfil'" (click)="cambiarPestana('perfil')"><i class="bi bi-person"></i><span>Mi Perfil</span></button>
+    
   </div>
 
   <div class="contenido">
 
+    <!-- DASHBOARD -->
+    <div *ngIf="pestanaActiva === 'dashboard'" class="dashboard-view">
+      <div class="view-heading"><div><p class="section-kicker">Tu actividad</p><h2>Resumen del negocio</h2></div><button class="btn-refresh" (click)="cargarDashboard(); cargarCitas()"><i>↻</i> Actualizar</button></div>
+      <div class="alert alert-warning" *ngIf="errorDashboard">{{ errorDashboard }}</div>
+      <div class="metric-grid" *ngIf="!cargandoDashboard">
+        <div class="metric-card"><span class="metric-label">Citas</span><strong>{{ dashboardResumen.citas }}</strong><small>Total registrado</small></div>
+        <div class="metric-card"><span class="metric-label">Clientes</span><strong>{{ dashboardResumen.clientes }}</strong><small>Clientes atendidos</small></div>
+        <div class="metric-card"><span class="metric-label">Servicios</span><strong>{{ dashboardResumen.servicios }}</strong><small>Servicios realizados</small></div>
+        <div class="metric-card accent"><span class="metric-label">Valoración</span><strong>{{ dashboardResumen.valoracion | number:'1.1-1' }} <em>★</em></strong><small>{{ dashboardResumen.valoraciones_total }} valoraciones</small></div>
+      </div>
+      <div class="income-strip" *ngIf="!cargandoDashboard">
+        <div><span>Ingresos de hoy</span><strong>{{ formatMoneda(ingresosDiarios.length && ingresosDiarios[0].fecha === fechaHoy ? ingresosDiarios[0].total : 0) }}</strong></div>
+        <div><span>Esta semana</span><strong>{{ formatMoneda(dashboardResumen.ingresos_semana) }}</strong></div>
+        <div><span>Este mes</span><strong>{{ formatMoneda(dashboardResumen.ingresos_mes) }}</strong></div>
+      </div>
+      <div class="dashboard-lower"><div><h3>Últimos cortes</h3><div class="mini-row" *ngFor="let corte of historialCortes | slice:0:5"><span class="mini-avatar">{{ corte.cliente_nombre.charAt(0).toUpperCase() }}</span><span><b>{{ corte.cliente_nombre }}</b><small>{{ corte.servicio_nombre }} · {{ corte.fecha }}</small></span><strong>{{ formatMoneda(+corte.precio) }}</strong></div><p class="vacio" *ngIf="!historialCortes.length">Aún no tienes cortes completados.</p></div><div><h3>Próximas citas</h3><div class="mini-row" *ngFor="let cita of listaCitas | slice:0:5"><span class="mini-avatar">{{ cita.cliente_nombre.charAt(0).toUpperCase() }}</span><span><b>{{ cita.cliente_nombre }}</b><small>{{ cita.fecha }} · {{ cita.hora }}</small></span><span class="badge badge-pendiente">{{ cita.estado }}</span></div></div></div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div *ngIf="pestanaActiva === 'clientes'"><div class="view-heading"><div><p class="section-kicker">Relación profesional</p><h2>Mis clientes</h2></div><span class="horarios-count">{{ listaClientes.length }} clientes</span></div><div class="data-table" *ngIf="listaClientes.length"><div class="table-head"><span>Cliente</span><span>Contacto</span><span>Citas</span><span>Último servicio</span></div><div class="table-row" *ngFor="let cliente of listaClientes"><span class="person-cell"><span class="mini-avatar">{{ cliente.nombre.charAt(0).toUpperCase() }}</span><b>{{ cliente.nombre }}</b></span><span>{{ cliente.email }}<small>{{ cliente.telefono || 'Sin teléfono' }}</small></span><span>{{ cliente.total_citas }}</span><span>{{ cliente.ultimo_servicio }}<small>{{ cliente.ultima_fecha }}</small></span></div></div><div class="vacio" *ngIf="!listaClientes.length">Todavía no tienes clientes registrados.</div></div>
+
+    <!-- INGRESOS -->
+    <div *ngIf="pestanaActiva === 'ingresos'" class="ingresos-view">
+      <div class="view-heading ingresos-heading">
+        <div><p class="section-kicker">Rendimiento</p><h2>Mis ingresos</h2><p class="section-help">Calculados con los servicios completados.</p></div>
+        <span class="income-status"><i class="bi bi-check-circle"></i> Actualizado</span>
+      </div>
+      <div class="income-layout">
+        <div class="income-summary">
+          <div class="income-period income-period-main"><div class="income-period-icon"><i class="bi bi-bar-chart-line"></i></div><span>Acumulado anual</span><strong>{{ formatMoneda(dashboardResumen.ingresos_total) }}</strong><small>Total de servicios completados</small></div>
+          <div class="income-period"><span>Esta semana</span><strong>{{ formatMoneda(dashboardResumen.ingresos_semana) }}</strong><small>Últimos 7 días</small></div>
+          <div class="income-period"><span>Este mes</span><strong>{{ formatMoneda(dashboardResumen.ingresos_mes) }}</strong><small>Desde el día 1</small></div>
+        </div>
+        <div class="income-chart">
+          <div class="section-inline"><div><h3>Tendencia de ingresos</h3><p>Servicios completados por día</p></div><i class="bi bi-graph-up-arrow"></i></div>
+          <div class="chart-canvas" *ngIf="ingresosGrafica.length">
+            <div class="chart-y-axis"><span>{{ formatMoneda(maxIngresoGrafica) }}</span><span>0</span></div>
+            <div class="chart-plot"><div class="chart-gridline"></div><div class="chart-gridline"></div><div class="chart-gridline"></div><div class="chart-bars"><div class="chart-bar-wrap" *ngFor="let ingreso of ingresosGrafica"><div class="chart-bar" [style.height.%]="alturaBarraIngreso(ingreso.total)" [title]="formatMoneda(ingreso.total)"></div><small>{{ ingreso.fecha.substring(5) }}</small></div></div><svg class="chart-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline [attr.points]="puntosGrafica"></polyline></svg></div>
+          </div>
+          <div class="chart-empty" *ngIf="!ingresosGrafica.length"><i class="bi bi-bar-chart"></i><span>Aún no hay datos suficientes para mostrar la tendencia.</span></div>
+        </div>
+      </div>
+      <div class="income-history">
+        <div class="section-inline"><div><h3>Ingresos del día</h3><p>Detalle de tus servicios completados</p></div><span>{{ ingresosDiarios.length }} días registrados</span></div>
+        <div class="data-table" *ngIf="ingresosDiarios.length">
+          <div class="table-head"><span>Fecha</span><span>Total del día</span></div>
+          <div class="table-row income-row" *ngFor="let ingreso of ingresosDiarios"><span><i class="bi bi-calendar3"></i>{{ ingreso.fecha }}</span><strong class="gold-text align-right">{{ formatMoneda(ingreso.total) }}</strong><div class="income-progress"><span [style.width.%]="(ingreso.total / maxIngresoGrafica) * 100"></span></div></div>
+        </div>
+        <div class="income-empty" *ngIf="!ingresosDiarios.length"><i class="bi bi-wallet2"></i><strong>Aún no hay ingresos registrados</strong><span>Completa una cita para ver sus ingresos aquí.</span></div>
+      </div>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div *ngIf="pestanaActiva === 'historial'">
+      <div class="view-heading"><div><p class="section-kicker">Trabajo realizado</p><h2>Historial de cortes</h2></div><span class="horarios-count">{{ historialFiltrado.length }} de {{ historialCortes.length }}</span></div>
+      <div class="list-filters">
+        <label class="filter-search"><i class="bi bi-search"></i><input type="search" [(ngModel)]="filtroHistorial" placeholder="Buscar cliente o servicio"></label>
+        <label class="filter-date"><i class="bi bi-calendar3"></i><input type="date" [(ngModel)]="fechaHistorial"></label>
+        <button class="filter-clear" *ngIf="filtroHistorial || fechaHistorial" (click)="limpiarFiltrosHistorial()" title="Limpiar filtros"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="data-table" *ngIf="historialCortes.length && historialFiltrado.length">
+        <div class="table-head"><span>Cliente</span><span>Servicio</span><span>Fecha</span><span>Valor</span></div>
+        <div class="table-row" *ngFor="let corte of historialFiltrado"><span class="person-cell"><span class="mini-avatar">{{ corte.cliente_nombre.charAt(0).toUpperCase() }}</span><b>{{ corte.cliente_nombre }}</b></span><span>{{ corte.servicio_nombre }}<small>{{ corte.hora }}</small></span><span>{{ corte.fecha }}</span><span class="gold-text">{{ formatMoneda(+corte.precio) }}<small>{{ corte.observaciones || 'Sin observaciones' }}</small></span></div>
+      </div>
+      <div class="vacio" *ngIf="!historialCortes.length">Completa una cita para verla en tu historial.</div>
+      <div class="vacio" *ngIf="historialCortes.length && !historialFiltrado.length">No hay cortes con estos filtros.</div>
+    </div>
+
     <!-- CITAS -->
     <div *ngIf="pestanaActiva === 'citas'">
-      <h2>Citas programadas</h2>
+      <div class="view-heading"><div><p class="section-kicker">Agenda del día</p><h2>Citas programadas</h2></div><span class="horarios-count">{{ citasFiltradas.length }} de {{ listaCitas.length }}</span></div>
+      <div class="list-filters">
+        <label class="filter-search"><i class="bi bi-search"></i><input type="search" [(ngModel)]="filtroCitas" placeholder="Buscar cliente o servicio"></label>
+        <select [(ngModel)]="estadoCitas"><option>Todas</option><option>Pendiente</option><option>Completada</option><option>Cancelada</option></select>
+        <button class="filter-clear" *ngIf="filtroCitas || estadoCitas !== 'Todas'" (click)="limpiarFiltrosCitas()" title="Limpiar filtros"><i class="bi bi-x-lg"></i></button>
+      </div>
       <div *ngIf="listaCitas.length === 0" class="vacio">No tienes citas programadas.</div>
-      <div class="cita-card" *ngFor="let cita of listaCitas">
+      <div *ngIf="listaCitas.length && !citasFiltradas.length" class="vacio">No hay citas con estos filtros.</div>
+      <div class="cita-card" *ngFor="let cita of citasFiltradas">
         <div class="cita-info">
           <span class="cita-cliente">{{ cita.cliente_nombre }}</span>
           <span class="cita-servicio">{{ cita.servicio_nombre }}</span>
@@ -50,21 +120,43 @@
 
     <!-- HORARIOS -->
     <div *ngIf="pestanaActiva === 'horarios'">
-      <h2>Mis horarios de atención</h2>
+      <div class="horarios-heading">
+        <div>
+          <p class="section-kicker">Agenda profesional</p>
+          <h2>Mis horarios de atención</h2>
+          <p class="section-help">Define cuándo pueden reservar tus clientes.</p>
+        </div>
+        <span class="horarios-count">{{ listaHorarios.length }} {{ listaHorarios.length === 1 ? 'jornada' : 'jornadas' }}</span>
+      </div>
       <div class="horario-form">
-        <select [(ngModel)]="horarioForm.dia_semana" name="dia">
-          <option *ngFor="let dia of dias" [value]="dia">{{ dia }}</option>
-        </select>
-        <input type="time" [(ngModel)]="horarioForm.hora_inicio" name="inicio">
-        <input type="time" [(ngModel)]="horarioForm.hora_fin" name="fin">
-        <button class="btn-guardar" (click)="guardarHorario()">+ Agregar</button>
+        <label>
+          <span>Día</span>
+          <select [(ngModel)]="horarioForm.dia_semana" name="dia">
+            <option *ngFor="let dia of dias" [value]="dia">{{ dia }}</option>
+          </select>
+        </label>
+        <label>
+          <span>Desde</span>
+          <input type="time" [(ngModel)]="horarioForm.hora_inicio" name="inicio">
+        </label>
+        <label>
+          <span>Hasta</span>
+          <input type="time" [(ngModel)]="horarioForm.hora_fin" name="fin">
+        </label>
+        <div class="horario-form-actions">
+          <button class="btn-guardar" (click)="guardarHorario()"><span>{{ horarioEditandoId === null ? '+' : '✓' }}</span> {{ horarioEditandoId === null ? 'Agregar jornada' : 'Guardar cambios' }}</button>
+          <button class="btn-cancelar-edicion" *ngIf="horarioEditandoId !== null" (click)="cancelarEdicionHorario()">Cancelar</button>
+        </div>
       </div>
       <div *ngIf="mensaje" class="alert">{{ mensaje }}</div>
       <div *ngIf="listaHorarios.length === 0" class="vacio">No tienes horarios configurados.</div>
       <div class="horario-card" *ngFor="let h of listaHorarios">
         <span class="dia">{{ h.dia_semana }}</span>
-        <span class="horas">{{ h.hora_inicio }} — {{ h.hora_fin }}</span>
-        <button class="btn-cancelar" (click)="eliminarHorario(h.id!)">Eliminar</button>
+        <span class="horas"><i>Horario de atención</i>{{ h.hora_inicio.substring(0, 5) }} — {{ h.hora_fin.substring(0, 5) }}</span>
+        <div class="horario-card-actions">
+          <button class="btn-editar" (click)="editarHorario(h)"><i class="bi bi-pencil"></i> Editar</button>
+          <button class="btn-cancelar" (click)="eliminarHorario(h.id!)">Eliminar</button>
+        </div>
       </div>
     </div>
 
@@ -139,7 +231,7 @@
   <!-- CHAT PRINCIPAL -->
   <div class="chat-main">
     <div class="chat-header-bar">
-      <div class="chat-header-avatar">💬</div>
+      <div class="chat-header-avatar"><i class="bi bi-chat-dots"></i></div>
       <div class="chat-header-info">
         <span class="chat-header-nombre">Chat con clientes</span>
         <span class="chat-header-estado conectado">En línea</span>
@@ -172,7 +264,7 @@
         placeholder="Escribe un mensaje..."
         (keyup.enter)="enviarMensaje()"
       />
-      <button class="chat-send-btn" (click)="enviarMensaje()">➤</button>
+      <button class="chat-send-btn" title="Enviar mensaje" (click)="enviarMensaje()"><i class="bi bi-send"></i></button>
     </div>
   </div>
 

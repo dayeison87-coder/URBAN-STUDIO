@@ -20,6 +20,9 @@ export class RegisterComponent {
   mensaje = '';
   errorCorreo = '';
   errorTelefono = '';
+  codigo = '';
+  pasoVerificacion = false;
+  enviando = false;
 
   get passwordChecks() {
     return {
@@ -65,8 +68,9 @@ export class RegisterComponent {
       return;
     }
 
+    this.enviando = true;
     this.http.post(
-      'http://127.0.0.1:8000/api/register/',
+      'http://127.0.0.1:8000/api/register/request-code/',
       {
         username: this.username,
         email: this.email,
@@ -76,10 +80,9 @@ export class RegisterComponent {
       
     ).subscribe({
       next: () => {
-        this.mensaje = 'Cuenta creada correctamente';
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 1500);
+        this.pasoVerificacion = true;
+        this.enviando = false;
+        this.mensaje = 'Te enviamos un código de 4 dígitos a tu correo.';
       },
       error: (err) => {
         console.error('Error en el registro:', err);
@@ -89,10 +92,44 @@ export class RegisterComponent {
         if (err.error?.email) {
           this.errorCorreo = err.error.email[0];
         } else {
-          this.mensaje = 'Error al crear la cuenta. Inténtalo de nuevo.';
+          this.mensaje = err.error?.detail || 'No se pudo enviar el código. Inténtalo de nuevo.';
         }
+        this.enviando = false;
       }
     });
+  }
+
+  verificarCodigo() {
+    if (!/^\d{4}$/.test(this.codigo)) {
+      this.mensaje = 'Escribe un código válido de 4 dígitos.';
+      return;
+    }
+    this.enviando = true;
+    this.http.post('http://127.0.0.1:8000/api/register/verify/', { email: this.email, codigo: this.codigo }).subscribe({
+      next: () => {
+        this.mensaje = 'Cuenta creada correctamente.';
+        this.enviando = false;
+        setTimeout(() => this.router.navigate(['/login']), 1200);
+      },
+      error: err => {
+        this.mensaje = err.error?.detail || 'Código incorrecto.';
+        this.enviando = false;
+      }
+    });
+  }
+
+  volverDatos() {
+    this.pasoVerificacion = false;
+    this.codigo = '';
+    this.mensaje = '';
+  }
+
+  accesoSocial(proveedor: string) {
+    if (proveedor === 'Google') {
+      window.location.href = 'http://localhost:8000/api/auth/google/';
+      return;
+    }
+    this.mensaje = 'El acceso con Facebook necesita configurar sus credenciales OAuth.';
   }
 
   volverLogin() {

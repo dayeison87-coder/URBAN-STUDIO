@@ -3,14 +3,21 @@ from .views import (
     BarberoListView,
     CitaDetailView,
     PerfilBarberoView,
+    PerfilClienteView,
+    ConfiguracionCuentaView,
     ServicioListCreateView,
     UsuarioListCreateView,
     UsuarioDetailView,
     CitaListCreateView,
     RegisterView,
+    SolicitarRegistroView,
+    VerificarRegistroView,
+    GoogleLoginView,
+    GoogleCallbackView,
     PerfilView,
     DisponibilidadView,        
     DisponibilidadDetailView,  
+    BarberoDashboardView,
     CalificacionBarberoListCreateView,
     UltimosTestimoniosView  # 👈 1. Importamos la vista de testimonios globales
 )
@@ -22,10 +29,16 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     # --- 1. AUTENTICACIÓN Y REGISTRO ---
     path('register/', RegisterView.as_view(), name='register'),
+    path('register/request-code/', SolicitarRegistroView.as_view(), name='register-request-code'),
+    path('register/verify/', VerificarRegistroView.as_view(), name='register-verify'),
+    path('auth/google/', GoogleLoginView.as_view(), name='google-login'),
+    path('auth/google/callback/', GoogleCallbackView.as_view(), name='google-callback'),
     path('login/', TokenObtainPairView.as_view(), name='login'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('perfil/', PerfilView.as_view(), name='perfil'),  
     path('perfil/barbero/', PerfilBarberoView.as_view(), name='perfil-barbero'),
+    path('perfil/cliente/', PerfilClienteView.as_view(), name='perfil-cliente'),
+    path('configuracion/cuenta/', ConfiguracionCuentaView.as_view(), name='configuracion-cuenta'),
 
     # --- 2. SERVICIOS Y USUARIOS ---
     path('servicios/', ServicioListCreateView.as_view(), name='servicios'),
@@ -40,6 +53,7 @@ urlpatterns = [
     path('usuarios/<int:pk>/', UsuarioDetailView.as_view(), name='usuario-detail'),
     path('disponibilidad/', DisponibilidadView.as_view(), name='disponibilidad'),
     path('disponibilidad/<int:pk>/', DisponibilidadDetailView.as_view(), name='disponibilidad-detail'),
+    path('barbero/dashboard/', BarberoDashboardView.as_view(), name='barbero-dashboard'),
 
 
     # --- 5. CALIFICACIONES Y RESEÑAS ---

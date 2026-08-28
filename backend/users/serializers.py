@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Servicio, Usuario, Cita, Disponibilidad
+from .models import Servicio, Usuario, Cita, Disponibilidad, VerificacionRegistro
 from rest_framework.validators import UniqueValidator
 from .models import Servicio, Usuario, Cita, Disponibilidad, CalificacionBarbero  
 
@@ -17,7 +17,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ['id', 'username', 'email', 'telefono', 'rol', 'promedio_calificacion']
+        fields = ['id', 'username', 'email', 'telefono', 'rol', 'promedio_calificacion', 'foto']
 
 
 class CitaSerializer(serializers.ModelSerializer):
@@ -76,6 +76,25 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+class SolicitarRegistroSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150)
+    email = serializers.EmailField()
+    telefono = serializers.CharField(max_length=20)
+    password = serializers.CharField(min_length=8, write_only=True)
+
+    def validate(self, attrs):
+        if Usuario.objects.filter(username=attrs['username']).exists():
+            raise serializers.ValidationError({'username': 'Este nombre de usuario ya está registrado.'})
+        if Usuario.objects.filter(email=attrs['email']).exists():
+            raise serializers.ValidationError({'email': 'Este correo ya está registrado.'})
+        return attrs
+
+
+class VerificarRegistroSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    codigo = serializers.RegexField(regex=r'^\d{4}$')
+
+
 class DisponibilidadSerializer(serializers.ModelSerializer):  
     class Meta:
         model = Disponibilidad
@@ -86,6 +105,33 @@ class PerfilBarberoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
         fields = ['id', 'username', 'email', 'telefono', 'descripcion', 'experiencia', 'foto']
+
+
+class PerfilClienteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Usuario
+        fields = ['id', 'username', 'email', 'telefono', 'foto']
+        read_only_fields = ['id']
+
+
+class ConfiguracionCuentaSerializer(serializers.ModelSerializer):
+    password_actual = serializers.CharField(write_only=True, required=True)
+    password_nueva = serializers.CharField(write_only=True, required=False, min_length=8)
+
+    class Meta:
+        model = Usuario
+        fields = ['id', 'email', 'password_actual', 'password_nueva']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        password_actual = validated_data.pop('password_actual')
+        password_nueva = validated_data.pop('password_nueva', None)
+        if not instance.check_password(password_actual):
+            raise serializers.ValidationError({'password_actual': 'La contraseña actual no es correcta.'})
+        if password_nueva:
+            instance.set_password(password_nueva)
+        instance.save()
+        return instance
 
 
 # ── 🌟 NUEVO SERIALIZER PARA CALIFICACIONES (ACTUALIZADO) ────────────────────────────────────────

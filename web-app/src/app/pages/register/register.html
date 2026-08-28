@@ -5,7 +5,13 @@
             <p class="subtitle">Regístrate para gestionar tus citas y servicios</p>
         </header>
 
-        <form (ngSubmit)="registrar()" #registerForm="ngForm" class="register-form">
+        <div class="social-actions" *ngIf="!pasoVerificacion">
+            <button type="button" class="social-button google" (click)="accesoSocial('Google')"><i class="bi bi-google"></i> Continuar con Google</button>
+            <button type="button" class="social-button facebook" (click)="accesoSocial('Facebook')"><i class="bi bi-facebook"></i> Continuar con Facebook</button>
+            <div class="social-divider"><span>o crea tu cuenta con correo</span></div>
+        </div>
+
+        <form *ngIf="!pasoVerificacion" (ngSubmit)="registrar()" #registerForm="ngForm" class="register-form">
 
             <div class="input-group">
                 <label for="username">Nombre de usuario</label>
@@ -96,7 +102,7 @@
                     type="submit" 
                     class="btn btn-primary" 
                     [disabled]="!passwordValida">
-                    Registrarme
+                    {{ enviando ? 'Enviando código...' : 'Continuar' }}
                 </button>
 
                 <button 
@@ -107,6 +113,15 @@
                 </button>
             </div>
 
+        </form>
+
+        <form *ngIf="pasoVerificacion" (ngSubmit)="verificarCodigo()" class="register-form verification-form">
+            <div class="verification-icon"><i class="bi bi-envelope-check"></i></div>
+            <h2>Verifica tu correo</h2>
+            <p>Enviamos un código de 4 dígitos a <strong>{{ email }}</strong>.</p>
+            <input class="code-input" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" [(ngModel)]="codigo" name="codigo" placeholder="0000" required>
+            <button type="submit" class="btn btn-primary" [disabled]="enviando">{{ enviando ? 'Verificando...' : 'Verificar y crear cuenta' }}</button>
+            <button type="button" class="btn btn-secondary" (click)="volverDatos()">Volver a mis datos</button>
         </form>
     </div>
 </div>

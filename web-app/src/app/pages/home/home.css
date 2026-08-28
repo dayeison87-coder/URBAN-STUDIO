@@ -31,7 +31,7 @@ i.bi {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 80px;
+  padding: 11px 14px 11px 32px;
   background: rgba(10, 10, 10, 0.95);
   position: fixed;
   top: 0;
@@ -838,7 +838,7 @@ i.bi {
 
 @media (max-width: 768px) {
   .navbar {
-    padding: 16px 20px;
+    padding: 9px 16px;
   }
 
   .hero-content h1 {
@@ -869,3 +869,22 @@ i.bi {
     text-align: center;
   }
 }
+
+.account-menu { position: relative; }
+.account-trigger { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; padding: 2px; border: 1px solid #302b21; border-radius: 50%; background: #11100e; color: #ddd; cursor: pointer; font-family: 'Montserrat', sans-serif; }
+.account-trigger:hover, .account-trigger[aria-expanded='true'] { border-color: #c9a96e; }
+.account-avatar { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 42px; width: 42px; height: 42px; border: 1px solid #c9a96e; border-radius: 50%; color: #c9a96e; background: #211b10; font: 500 16px 'Cormorant Garamond', serif; }
+.account-avatar.large { width: 38px; height: 38px; flex-basis: 38px; font-size: 17px; }
+.account-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.account-trigger-info { display: flex; flex-direction: column; align-items: center; }
+.account-trigger-info b, .account-dropdown-header b { color: #f0ede8; font-size: 9px; font-weight: 500; }
+.account-dropdown-header b { font-size: 14px; letter-spacing: 0.5px; font-weight: 600; }
+.account-trigger-info small, .account-dropdown-header small { display: block; margin-top: 3px; color: #9a8254; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; }
+.account-trigger > i { color: #c9a96e; font-size: 8px; }
+.account-dropdown { position: absolute; top: calc(100% + 10px); right: 0; z-index: 120; width: 220px; padding: 8px; background: #11100e; border: 1px solid #3a3225; box-shadow: 0 18px 38px rgba(0,0,0,.45); }
+.account-dropdown-header { display: flex; align-items: center; gap: 10px; padding: 10px; margin-bottom: 5px; border-bottom: 1px solid #29251e; }
+.account-dropdown a, .account-dropdown button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 10px; border: 0; background: transparent; color: #aaa; font: 10px 'Montserrat', sans-serif; text-decoration: none; text-align: left; cursor: pointer; }
+.account-dropdown a:hover, .account-dropdown button:hover { background: #211d16; color: #c9a96e; }
+.account-dropdown i { width: 15px; color: #c9a96e; text-align: center; }
+.account-dropdown .account-logout { margin-top: 5px; border-top: 1px solid #29251e; color: #c77979; }
+.account-dropdown .account-logout i { color: #c77979; }

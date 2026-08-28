@@ -2,14 +2,27 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.db.models import Avg
+from datetime import timedelta
+from django.db.models import Avg, Count, Sum
+from django.utils import timezone
+from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
+from secrets import randbelow
+from urllib.parse import urlencode
+from urllib.request import Request as UrlRequest, urlopen
+from django.conf import settings
+from django.http import HttpResponseRedirect
+from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.tokens import RefreshToken
 # ⬇️ Importamos el nuevo modelo de Calificaciones junto a los demás
-from .models import Servicio, Usuario, Cita, Disponibilidad, CalificacionBarbero
+from .models import Servicio, Usuario, Cita, Disponibilidad, CalificacionBarbero, VerificacionRegistro
 # ⬇️ Importamos el nuevo Serializer de Calificaciones junto a los demás
 from .serializers import (
     ServicioSerializer, UsuarioSerializer, CitaSerializer,
     RegisterSerializer, DisponibilidadSerializer,
-    PerfilBarberoSerializer, CalificacionBarberoSerializer  
+    PerfilBarberoSerializer, CalificacionBarberoSerializer,
+    PerfilClienteSerializer, ConfiguracionCuentaSerializer,
+    SolicitarRegistroSerializer, VerificarRegistroSerializer
 )
 
 
@@ -31,6 +44,118 @@ class RegisterView(generics.CreateAPIView):
     queryset = Usuario.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
+
+
+class SolicitarRegistroView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = SolicitarRegistroSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        datos = serializer.validated_data
+        codigo = f'{randbelow(10000):04d}'
+        VerificacionRegistro.objects.update_or_create(
+            email=datos['email'],
+            defaults={
+                'username': datos['username'], 'telefono': datos['telefono'],
+                'password_hash': make_password(datos['password']), 'codigo': codigo,
+                'creado': timezone.now(), 'intentos': 0,
+            }
+        )
+        send_mail(
+            'Código de verificación | Urban Studio',
+            f'Tu código de verificación es: {codigo}. Válido durante 10 minutos.',
+            None, [datos['email']], fail_silently=False,
+        )
+        return Response({'detail': 'Código enviado al correo.'}, status=status.HTTP_200_OK)
+
+
+class VerificarRegistroView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = VerificarRegistroSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        datos = serializer.validated_data
+        try:
+            pendiente = VerificacionRegistro.objects.get(email=datos['email'])
+        except VerificacionRegistro.DoesNotExist:
+            return Response({'detail': 'No hay un registro pendiente para este correo.'}, status=400)
+        if pendiente.expirado:
+            pendiente.delete()
+            return Response({'detail': 'El código expiró. Solicita uno nuevo.'}, status=400)
+        if pendiente.intentos >= 5 or pendiente.codigo != datos['codigo']:
+            pendiente.intentos += 1
+            pendiente.save(update_fields=['intentos'])
+            return Response({'detail': 'Código incorrecto.'}, status=400)
+        usuario = Usuario.objects.create(
+            username=pendiente.username, email=pendiente.email,
+            telefono=pendiente.telefono, password=pendiente.password_hash,
+        )
+        pendiente.delete()
+        return Response({'detail': 'Cuenta verificada y creada.'}, status=201)
+
+
+class GoogleLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        params = urlencode({
+            'client_id': settings.GOOGLE_CLIENT_ID,
+            'redirect_uri': settings.GOOGLE_REDIRECT_URI,
+            'response_type': 'code',
+            'scope': 'openid email profile',
+            'access_type': 'online',
+            'prompt': 'select_account',
+        })
+        return HttpResponseRedirect(f'https://accounts.google.com/o/oauth2/v2/auth?{params}')
+
+
+class GoogleCallbackView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        code = request.query_params.get('code')
+        if not code:
+            return Response({'detail': 'Google no devolvió un código válido.'}, status=400)
+        try:
+            token_data = urlencode({
+                'code': code,
+                'client_id': settings.GOOGLE_CLIENT_ID,
+                'client_secret': settings.GOOGLE_CLIENT_SECRET,
+                'redirect_uri': settings.GOOGLE_REDIRECT_URI,
+                'grant_type': 'authorization_code',
+            }).encode()
+            token_request = UrlRequest('https://oauth2.googleapis.com/token', data=token_data, method='POST')
+            with urlopen(token_request, timeout=10) as response:
+                tokens = __import__('json').loads(response.read())
+            profile_request = UrlRequest(
+                'https://www.googleapis.com/oauth2/v2/userinfo',
+                headers={'Authorization': f"Bearer {tokens['access_token']}"},
+            )
+            with urlopen(profile_request, timeout=10) as response:
+                profile = __import__('json').loads(response.read())
+            email = profile.get('email')
+            if not email:
+                return Response({'detail': 'Google no entregó un correo.'}, status=400)
+            User = get_user_model()
+            user = User.objects.filter(email__iexact=email).first()
+            if not user:
+                base_username = (profile.get('name') or email.split('@')[0]).replace(' ', '_')[:140]
+                username = base_username
+                suffix = 1
+                while User.objects.filter(username=username).exists():
+                    username = f'{base_username[:135]}_{suffix}'
+                    suffix += 1
+                user = User.objects.create_user(username=username, email=email)
+            refresh = RefreshToken.for_user(user)
+            redirect = 'http://localhost:4200/login?' + urlencode({
+                'access': str(refresh.access_token), 'refresh': str(refresh), 'username': user.username,
+            })
+            return HttpResponseRedirect(redirect)
+        except Exception as error:
+            print(f'Error OAuth Google: {error}')
+            return Response({'detail': 'No se pudo completar el acceso con Google.'}, status=400)
 
 
 class ServicioListCreateView(generics.ListCreateAPIView):
@@ -110,18 +235,92 @@ class DisponibilidadView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        barbero_id = self.request.query_params.get('barbero')
+        if barbero_id:
+            return Disponibilidad.objects.filter(barbero_id=barbero_id)
         return Disponibilidad.objects.filter(barbero=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(barbero=self.request.user)
 
 
-class DisponibilidadDetailView(generics.DestroyAPIView):
+class DisponibilidadDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DisponibilidadSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Disponibilidad.objects.filter(barbero=self.request.user)
+
+
+class BarberoDashboardView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        citas = Cita.objects.filter(barbero=request.user).select_related('cliente', 'servicio')
+        citas_completadas = citas.filter(estado='Completada')
+        hoy = timezone.localdate()
+        inicio_semana = hoy - timedelta(days=hoy.weekday())
+        inicio_mes = hoy.replace(day=1)
+
+        clientes = {}
+        for cita in citas.order_by('-fecha', '-hora'):
+            cliente = clientes.setdefault(cita.cliente_id, {
+                'id': cita.cliente_id,
+                'nombre': cita.cliente.username,
+                'email': cita.cliente.email,
+                'telefono': cita.cliente.telefono or '',
+                'total_citas': 0,
+                'ultimo_servicio': cita.servicio.nombre,
+                'ultima_fecha': str(cita.fecha),
+            })
+            cliente['total_citas'] += 1
+
+        historial = []
+        for cita in citas_completadas.order_by('-fecha', '-hora'):
+            try:
+                observaciones = cita.calificacion.comentario or ''
+            except CalificacionBarbero.DoesNotExist:
+                observaciones = ''
+            historial.append({
+                'id': cita.id,
+                'cliente_nombre': cita.cliente.username,
+                'servicio_nombre': cita.servicio.nombre,
+                'precio': str(cita.servicio.precio),
+                'fecha': str(cita.fecha),
+                'hora': str(cita.hora)[:5],
+                'observaciones': observaciones,
+            })
+
+        def total_desde(fecha):
+            return float(citas_completadas.filter(fecha__gte=fecha).aggregate(
+                total=Sum('servicio__precio'))['total'] or 0)
+
+        ingresos_diarios = citas_completadas.values('fecha').annotate(
+            total=Sum('servicio__precio')
+        ).order_by('-fecha')[:31]
+        ingresos = [{
+            'fecha': str(item['fecha']),
+            'total': float(item['total'] or 0),
+        } for item in ingresos_diarios]
+
+        valoracion = request.user.calificaciones_recibidas.aggregate(
+            promedio=Avg('estrellas'), total=Count('id'))
+
+        return Response({
+            'resumen': {
+                'citas': citas.count(),
+                'clientes': len(clientes),
+                'servicios': citas_completadas.count(),
+                'ingresos_total': total_desde(hoy.replace(day=1, month=1)),
+                'ingresos_semana': total_desde(inicio_semana),
+                'ingresos_mes': total_desde(inicio_mes),
+                'valoracion': round(float(valoracion['promedio'] or 0), 1),
+                'valoraciones_total': valoracion['total'] or 0,
+            },
+            'clientes': list(clientes.values()),
+            'historial': historial,
+            'ingresos': ingresos,
+        })
     
 
 class PerfilBarberoView(generics.RetrieveUpdateAPIView):
@@ -130,6 +329,22 @@ class PerfilBarberoView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user    
+
+
+class PerfilClienteView(generics.RetrieveUpdateAPIView):
+    serializer_class = PerfilClienteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
+class ConfiguracionCuentaView(generics.UpdateAPIView):
+    serializer_class = ConfiguracionCuentaSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
 
 
 # ── 🌟 NUEVA VISTA PARA CREAR Y LISTAR CALIFICACIONES ────────────────────────

@@ -10,6 +10,7 @@ export class GeminiService {
   private apiUrl = 'http://127.0.0.1:8000/api/servicios/analizar-rostro/';
   private solicitarCodigoUrl = 'http://127.0.0.1:8000/api/solicitar-codigo-ia/';
   private validarCodigoUrl = 'http://127.0.0.1:8000/api/validar-codigo-ia/';
+  private barberosUrl = 'http://127.0.0.1:8000/api/usuarios/barberos/';
 
   constructor(private http: HttpClient) {}
 
@@ -34,7 +35,13 @@ export class GeminiService {
   }
 
   // Solicitar código para utilizar la IA
-  solicitarCodigoIA(): Observable<any> {
+  obtenerBarberos(): Observable<any[]> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.get<any[]>(this.barberosUrl, { headers });
+  }
+
+  solicitarCodigoIA(barberoId: number): Observable<any> {
     const token = localStorage.getItem('access_token');
 
     const headers = new HttpHeaders({
@@ -43,13 +50,13 @@ export class GeminiService {
 
     return this.http.post<any>(
       this.solicitarCodigoUrl,
-      {},
+      { barbero_id: barberoId },
       { headers }
     );
   }
 
   // Validar código de seguridad
-  validarCodigoIA(codigo: string): Observable<any> {
+  validarCodigoIA(codigo: string, barberoId: number): Observable<any> {
     const token = localStorage.getItem('access_token');
 
     const headers = new HttpHeaders({
@@ -58,7 +65,7 @@ export class GeminiService {
 
     return this.http.post<any>(
       this.validarCodigoUrl,
-      { codigo },
+      { codigo, barbero_id: barberoId },
       { headers }
     );
   }

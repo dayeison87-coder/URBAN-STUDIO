@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface Servicio {
   id: number;
@@ -31,6 +31,12 @@ interface HoraSlot {
   ocupado: boolean;
 }
 
+interface Disponibilidad {
+  dia_semana: string;
+  hora_inicio: string;
+  hora_fin: string;
+}
+
 @Component({
   selector: 'app-citas',
   standalone: true,
@@ -42,6 +48,7 @@ export class CitasComponent implements OnInit {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8000/api';
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   paso = 0; // 0 = oculto (solo muestra mis citas)
   editandoId: number | null = null;
@@ -65,6 +72,7 @@ export class CitasComponent implements OnInit {
   meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   horariosBase = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'];
   horariosDisponibles: HoraSlot[] = [];
+  disponibilidades: Disponibilidad[] = [];
 
   // ── 🌟 VARIABLES PARA EL SISTEMA DE CALIFICACIÓN ────────────────────────
   citaSeleccionadaId: number | null = null;
@@ -87,13 +95,36 @@ export class CitasComponent implements OnInit {
     this.cargarBarberos();
     this.cargarCitas();
     this.generarCalendario();
+    this.route.queryParams.subscribe(params => {
+      const categoriaId = Number(params['categoria']);
+      const servicioId = Number(params['servicio']);
+      if (categoriaId && servicioId) {
+        this.preseleccionarServicio(categoriaId, servicioId);
+      }
+    });
   }
 
   cargarCategorias(): void {
     this.http.get<Categoria[]>(`${this.apiUrl}/categorias/`).subscribe({
-      next: (data) => this.categorias = data,
+      next: (data) => {
+        this.categorias = data;
+        const params = this.route.snapshot.queryParams;
+        const categoriaId = Number(params['categoria']);
+        const servicioId = Number(params['servicio']);
+        if (categoriaId && servicioId) this.preseleccionarServicio(categoriaId, servicioId);
+      },
       error: (err) => console.error(err)
     });
+  }
+
+  private preseleccionarServicio(categoriaId: number, servicioId: number): void {
+    const categoria = this.categorias.find(cat => cat.id === categoriaId);
+    const servicio = categoria?.servicios.find(srv => srv.id === servicioId && srv.disponible);
+    if (categoria && servicio) {
+      this.categoriaSeleccionada = categoria;
+      this.servicioSeleccionado = servicio;
+      this.paso = 3;
+    }
   }
 
   cargarBarberos(): void {
@@ -135,6 +166,7 @@ export class CitasComponent implements OnInit {
         }
       }
       this.barberoSeleccionado = this.barberos.find(b => b.id === cita.barbero) || null;
+      if (this.barberoSeleccionado) this.cargarDisponibilidad(this.barberoSeleccionado.id);
       this.fechaSeleccionada = cita.fecha;
       this.horaSeleccionada = cita.hora?.substring(0, 5);
       if (this.fechaSeleccionada) this.calcularHorarios();
@@ -143,7 +175,20 @@ export class CitasComponent implements OnInit {
 
   seleccionarCategoria(cat: Categoria): void { this.categoriaSeleccionada = cat; this.servicioSeleccionado = null; }
   seleccionarServicio(srv: Servicio): void { this.servicioSeleccionado = srv; }
-  seleccionarBarbero(b: Barbero): void { this.barberoSeleccionado = b; this.fechaSeleccionada = ''; this.horaSeleccionada = ''; }
+  seleccionarBarbero(b: Barbero): void {
+    this.barberoSeleccionado = b;
+    this.fechaSeleccionada = '';
+    this.horaSeleccionada = '';
+    this.horariosDisponibles = [];
+    this.cargarDisponibilidad(b.id);
+  }
+
+  private cargarDisponibilidad(barberoId: number): void {
+    this.http.get<Disponibilidad[]>(`${this.apiUrl}/disponibilidad/?barbero=${barberoId}`, { headers: this.getHeaders() }).subscribe({
+      next: (data) => this.disponibilidades = data,
+      error: (err) => console.error('Error cargando disponibilidad:', err)
+    });
+  }
 
   seleccionarFecha(dia: Date): void {
     this.fechaSeleccionada = this.formatFecha(dia);
@@ -206,7 +251,11 @@ export class CitasComponent implements OnInit {
 
     const minutosActuales = ahora.getHours() * 60 + ahora.getMinutes();
 
-    this.horariosDisponibles = this.horariosBase.map(h => {
+    const diaSemana = this.diaSemana(this.fechaSeleccionada);
+    const jornada = this.disponibilidades.find(h => this.normalizarDia(h.dia_semana) === diaSemana);
+    const horariosDeJornada = jornada ? this.generarFranjas(jornada.hora_inicio, jornada.hora_fin) : [];
+
+    this.horariosDisponibles = horariosDeJornada.map(h => {
       const [hora, minutos] = h.split(':').map(Number);
       const minutosHorario = hora * 60 + minutos;
 
@@ -221,10 +270,34 @@ export class CitasComponent implements OnInit {
 
   tieneTodasHorasOcupadas(dia: Date): boolean {
     const fecha = this.formatFecha(dia);
+    const diaSemana = this.diaSemana(fecha);
+    const jornada = this.disponibilidades.find(h => this.normalizarDia(h.dia_semana) === diaSemana);
+    const horariosDeJornada = jornada ? this.generarFranjas(jornada.hora_inicio, jornada.hora_fin) : [];
     const citasDelDia = this.citasExistentes.filter(
       c => c.fecha === fecha && c.barbero === this.barberoSeleccionado?.id
     );
-    return citasDelDia.length >= this.horariosBase.length;
+    return horariosDeJornada.length > 0 && citasDelDia.length >= horariosDeJornada.length;
+  }
+
+  private diaSemana(fecha: string): string {
+    const [año, mes, dia] = fecha.split('-').map(Number);
+    return ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'][new Date(año, mes - 1, dia).getDay()];
+  }
+
+  private normalizarDia(dia: string): string {
+    return dia.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  private generarFranjas(inicio: string, fin: string): string[] {
+    const [horaInicio, minutoInicio] = inicio.substring(0, 5).split(':').map(Number);
+    const [horaFin, minutoFin] = fin.substring(0, 5).split(':').map(Number);
+    const inicioMinutos = horaInicio * 60 + minutoInicio;
+    const finMinutos = horaFin * 60 + minutoFin;
+    const franjas: string[] = [];
+    for (let minutos = inicioMinutos; minutos + 30 <= finMinutos; minutos += 30) {
+      franjas.push(`${String(Math.floor(minutos / 60)).padStart(2, '0')}:${String(minutos % 60).padStart(2, '0')}`);
+    }
+    return franjas;
   }
 
   confirmarCita(): void {

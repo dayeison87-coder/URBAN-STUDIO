@@ -100,14 +100,18 @@
             <span class="us-badge" *ngIf="!srv.disponible">No disponible</span>
           </div>
           <span class="us-service-price">{{ formatPrecio(srv.precio) }}</span>
+          <button
+            class="us-service-book"
+            *ngIf="srv.disponible"
+            (click)="irACitas(srv, categoriaActiva); $event.stopPropagation()"
+          >
+            Reservar <i class="bi bi-calendar-check"></i>
+          </button>
         </li>
       </ul>
       <div class="us-modal-empty" *ngIf="categoriaActiva.servicios.length === 0">
         <p><i class="bi bi-clock-history me-1"></i> Próximamente servicios en esta categoría.</p>
       </div>
-      <button class="us-modal-cta" (click)="irACitas()">
-        Reservar cita <i class="bi bi-calendar-check"></i>
-      </button>
     </div>
   </div>
 </div>

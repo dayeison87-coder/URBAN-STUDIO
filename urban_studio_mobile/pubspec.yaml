@@ -1,0 +1,27 @@
+name: urban_studio_mobile
+description: "A new Flutter project."
+publish_to: 'none'
+
+environment:
+  sdk: '^3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  image_picker: ^1.1.2
+  shared_preferences: ^2.2.3
+  cached_network_image: ^3.3.1
+  camera: ^0.11.0+2
+  google_mlkit_face_detection: ^0.13.1
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/img/cabello.jpg
+    - assets/img/barba.jpg
+    - assets/img/rostro.jpg
+    - assets/img/productos.jpg

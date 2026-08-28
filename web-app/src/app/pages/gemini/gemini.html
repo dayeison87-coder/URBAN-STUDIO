@@ -474,6 +474,34 @@
     <!-- CAJA DE CÓDIGO DE SEGURIDAD -->
     <!-- ===================================================== -->
 
+    <div class="codigo-overlay" *ngIf="mostrarSelectorBarbero">
+
+      <div class="codigo-card">
+        <div class="codigo-icono">✂</div>
+        <p class="codigo-eyebrow">IA Estilo</p>
+        <h2 class="codigo-titulo">Elige tu barbero</h2>
+        <p class="codigo-descripcion">
+          El código será enviado únicamente al correo del barbero que elijas.
+        </p>
+
+        <select class="barbero-select" [(ngModel)]="barberoSeleccionado" [disabled]="validandoCodigo">
+          <option [ngValue]="null">Selecciona un barbero</option>
+          <option *ngFor="let barbero of barberos" [ngValue]="barbero.id">
+            {{ barbero.username }}{{ barbero.experiencia ? ' · ' + barbero.experiencia + ' años' : '' }}
+          </option>
+        </select>
+
+        <button class="btn-gold codigo-btn" (click)="solicitarCodigo()" [disabled]="validandoCodigo || barberos.length === 0">
+          <span *ngIf="!validandoCodigo">Enviar código al barbero</span>
+          <span *ngIf="validandoCodigo" class="btn-loading"><span class="spinner"></span> Enviando…</span>
+        </button>
+        <button class="btn-text codigo-cancelar" (click)="mostrarSelectorBarbero = false" [disabled]="validandoCodigo">
+          Cancelar
+        </button>
+      </div>
+
+    </div>
+
     <div class="codigo-overlay" *ngIf="mostrarCodigo">
 
       <div class="codigo-card">

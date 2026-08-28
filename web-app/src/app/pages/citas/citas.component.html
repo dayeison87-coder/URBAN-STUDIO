@@ -145,6 +145,9 @@
           {{ hora.valor }}
         </button>
       </div>
+      <p class="sin-horarios" *ngIf="horariosDisponibles.length === 0">
+        Este barbero no tiene jornada configurada para este día.
+      </p>
     </div>
 
     <div class="resumen" *ngIf="fechaSeleccionada && horaSeleccionada">
