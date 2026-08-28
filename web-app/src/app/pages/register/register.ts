@@ -18,6 +18,8 @@ export class RegisterComponent {
   telefono = '';
   password = '';
   mensaje = '';
+  errorCorreo = '';
+  errorTelefono = '';
 
   get passwordChecks() {
     return {
@@ -33,11 +35,30 @@ export class RegisterComponent {
     return c.minLength && c.hasUpper && c.hasNumber && c.hasSymbol;
   }
 
+    validarTelefono() {
+    if (!/^[0-9]*$/.test(this.telefono)) {
+      this.errorTelefono = 'El teléfono solo puede contener números.';
+    } else if (this.telefono.length > 10) {
+      this.errorTelefono = 'El teléfono debe tener máximo 10 números.';
+    } else if (this.telefono.length > 0 && this.telefono.length < 10) {
+      this.errorTelefono = 'El teléfono debe tener 10 números.';
+    } else {
+      this.errorTelefono = '';
+    }
+  }
+
   private http = inject(HttpClient);
   private router = inject(Router);
 
   registrar() {
     this.mensaje = '';
+    this.errorCorreo = '';
+
+    this.validarTelefono();
+
+    if (this.errorTelefono) {
+      return;
+    }
 
     if (!this.passwordValida) {
       this.mensaje = 'La contraseña no cumple los requisitos de seguridad.';
@@ -52,6 +73,7 @@ export class RegisterComponent {
         telefono: this.telefono,
         password: this.password
       }
+      
     ).subscribe({
       next: () => {
         this.mensaje = 'Cuenta creada correctamente';
@@ -61,7 +83,14 @@ export class RegisterComponent {
       },
       error: (err) => {
         console.error('Error en el registro:', err);
-        this.mensaje = 'Error al crear la cuenta. Inténtalo de nuevo.';
+
+        this.errorCorreo = '';
+
+        if (err.error?.email) {
+          this.errorCorreo = err.error.email[0];
+        } else {
+          this.mensaje = 'Error al crear la cuenta. Inténtalo de nuevo.';
+        }
       }
     });
   }

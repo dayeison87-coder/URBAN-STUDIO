@@ -1,6 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600&display=swap');
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+}
 
 .citas-page {
   background: #0a0a0a;
@@ -10,6 +14,8 @@
   padding: 80px 40px 60px;
   max-width: 900px;
   margin: 0 auto;
+  width: 100%;
+  box-shadow: 0 0 0 100vmax #0a0a0a; 
 }
 
 /* ── Header ── */
@@ -17,7 +23,6 @@
 .citas-eyebrow { font-size: 10px; letter-spacing: 6px; color: #c9a96e; text-transform: uppercase; margin-bottom: 12px; }
 .citas-title { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; letter-spacing: 10px; text-transform: uppercase; color: #f0ede8; margin-bottom: 10px; }
 .citas-sub { font-size: 10px; letter-spacing: 3px; color: #4a4a4a; text-transform: uppercase; }
-
 
 /* ── Stepper ── */
 .stepper {
@@ -45,21 +50,48 @@
 /* ── Secciones paso ── */
 .paso-section { animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.paso-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; letter-spacing: 4px; color: #f0ede8; margin-bottom: 28px; }
+.paso-title { 
+  font-family: 'Cormorant Garamond', serif; 
+  font-size: 28px; 
+  font-weight: 300; 
+  letter-spacing: 4px;
+  color: #f0ede8; 
+  margin-bottom: 28px; 
+  text-align: center;
+}
 
 /* ── Categorías ── */
 .categoria-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 32px; }
 .categoria-card {
   background: #0f0f0f; border: 0.5px solid #2a2a2a;
-  padding: 28px 24px; cursor: pointer;
+  padding: 28px 24px; cursor: pointer; text-align: center;
   transition: all 0.25s ease;
 }
 .categoria-card:hover { border-color: #c9a96e44; }
 .categoria-card.selected { border-color: #c9a96e; background: #c9a96e08; }
-.cat-icon { font-size: 28px; margin-bottom: 12px; }
+.cat-icon { margin-bottom: 12px; }
 .cat-nombre { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; letter-spacing: 3px; text-transform: uppercase; color: #f0ede8; margin-bottom: 6px; }
 .cat-desc { font-size: 10px; color: #5a5a5a; letter-spacing: 1px; margin-bottom: 10px; }
 .cat-count { font-size: 9px; letter-spacing: 2px; color: #c9a96e; text-transform: uppercase; }
+
+/* ── 🎨 ESTILOS Y COLOR DORADO PREMIUM DE ICONOS ── */
+.cat-icon i,
+.bi {
+  color: #c5a059 !important; 
+  font-size: 2.2rem;
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+  pointer-events: none; /* Previene interrupciones en la selección de la tarjeta */
+  filter: drop-shadow(0px 0px 6px rgba(197, 160, 89, 0.35));
+  transition: transform 0.3s ease, color 0.3s ease, filter 0.3s ease;
+}
+
+.categoria-card:hover .cat-icon i {
+  transform: scale(1.1);
+  color: #e5c158 !important;
+  filter: drop-shadow(0px 0px 10px rgba(229, 193, 88, 0.6));
+}
 
 /* ── Servicios ── */
 .servicio-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
@@ -97,8 +129,13 @@
 
 /* ── Calendario ── */
 .calendario-wrapper {
-  background: #0f0f0f; border: 0.5px solid #2a2a2a;
-  padding: 24px; margin-bottom: 28px;
+  background: #0f0f0f;
+  border: 0.5px solid #2a2a2a;
+  padding: 24px;
+  margin-bottom: 28px;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto; 
 }
 .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 .cal-mes { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; letter-spacing: 4px; color: #f0ede8; text-transform: uppercase; }
@@ -152,7 +189,8 @@
 
 /* ── Mis Citas ── */
 .mis-citas { border-top: 0.5px solid #1a1a1a; padding-top: 48px; }
-.mis-citas-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; letter-spacing: 4px; color: #f0ede8; margin-bottom: 24px; }
+.mis-citas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.mis-citas-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; letter-spacing: 4px; color: #f0ede8; }
 .citas-grid { display: flex; flex-direction: column; gap: 8px; }
 .cita-card { display: flex; align-items: center; gap: 16px; background: #0f0f0f; border: 0.5px solid #2a2a2a; padding: 16px 20px; }
 .cita-estado { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 10px; border: 0.5px solid; }
@@ -166,17 +204,7 @@
 .cita-precio { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: #c9a96e; }
 .cita-cancelar { background: none; border: 0.5px solid #2a2a2a; color: #7a7a7a; width: 28px; height: 28px; cursor: pointer; font-size: 12px; transition: 0.2s; }
 .cita-cancelar:hover { border-color: #e63946; color: #e63946; }
-.empty { text-align: center; padding: 40px; font-size: 11px; letter-spacing: 2px; color: #3a3a3a; text-transform: uppercase; }
 
-@media (max-width: 600px) {
-  .citas-page { padding: 80px 20px 40px; }
-  .categoria-grid { grid-template-columns: 1fr; }
-  .barbero-grid { grid-template-columns: repeat(2, 1fr); }
-  .citas-title { font-size: 32px; letter-spacing: 6px; }
-}
-
-/* ── Nueva cita / editar ── */
-.mis-citas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .btn-nueva {
   background: none; border: 0.5px solid #c9a96e; color: #c9a96e;
   padding: 10px 24px; font-size: 10px; letter-spacing: 3px;
@@ -184,7 +212,7 @@
 }
 .btn-nueva:hover { background: #c9a96e; color: #0a0a0a; }
 
-.cita-acciones { display: flex; gap: 6px; }
+.cita-acciones { display: flex; gap: 6px; align-items: center; }
 .cita-editar {
   background: none; border: 0.5px solid #2a2a2a;
   color: #c9a96e; width: 28px; height: 28px;
@@ -194,7 +222,6 @@
 
 .empty-citas { text-align: center; padding: 60px 40px; }
 .empty-citas p { font-size: 11px; letter-spacing: 2px; color: #3a3a3a; text-transform: uppercase; margin-bottom: 20px; }
-
 
 .citas-volver { margin-bottom: 16px; }
 .btn-volver {
@@ -212,4 +239,195 @@
   border-color: #c9a96e;
   background: #c9a96e;
   color: #0a0a0a;
+}
+
+/* ── 🌟 SISTEMA DE CALIFICACIONES (ESTRELLAS) ── */
+.cita-calificar {
+  background: none;
+  border: 0.5px solid #c9a96e;
+  color: #c9a96e;
+  padding: 6px 14px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cita-calificar:hover {
+  background: #c9a96e;
+  color: #0a0a0a;
+  box-shadow: 0 0 10px rgba(201, 169, 110, 0.3);
+}
+
+/* Modal Overlay */
+.modal-calificacion-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.25s ease forwards;
+}
+
+/* Modal Content Box */
+.modal-calificacion-content {
+  background: #0f0f0f;
+  border: 0.5px solid #2a2a2a;
+  padding: 40px 32px;
+  max-width: 450px;
+  width: 90%;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+}
+
+.modal-cerrar {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: none; border: none;
+  color: #5a5a5a; font-size: 16px;
+  cursor: pointer; transition: color 0.2s;
+}
+.modal-cerrar:hover { color: #e63946; }
+
+.modal-calificacion-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #f0ede8;
+  margin-bottom: 8px;
+}
+
+.modal-calificacion-sub {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #5a5a5a;
+  margin-bottom: 24px;
+}
+
+/* Stars Group */
+.estrellas-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.estrella-icono {
+  font-size: 36px;
+  color: #2a2a2a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.estrella-icono.activa {
+  color: #c9a96e;
+  text-shadow: 0 0 12px rgba(201, 169, 110, 0.5);
+}
+
+/* Comment Box */
+.comentario-wrapper {
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.comentario-wrapper label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #4a4a4a;
+  margin-bottom: 8px;
+}
+
+.comentario-wrapper textarea {
+  width: 100%;
+  height: 80px;
+  background: #0a0a0a;
+  border: 0.5px solid #2a2a2a;
+  border-radius: 0;
+  color: #f0ede8;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  padding: 12px;
+  resize: none;
+  transition: border-color 0.2s;
+}
+
+.comentario-wrapper textarea:focus {
+  outline: none;
+  border-color: #c9a96e;
+}
+
+/* Alertas internas */
+.mensaje-alerta-modal {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #e63946;
+  background: rgba(230, 57, 70, 0.05);
+  border: 0.5px solid rgba(230, 57, 70, 0.2);
+  padding: 10px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.mensaje-alerta-modal.exito {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.05);
+  border: 0.5px solid rgba(74, 222, 128, 0.2);
+}
+
+/* Actions inside modal */
+.modal-acciones {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-cancelar-modal {
+  background: none;
+  border: 0.5px solid #2a2a2a;
+  color: #7a7a7a;
+  padding: 10px 20px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-cancelar-modal:hover {
+  border-color: #5a5a5a;
+  color: #c8c4bc;
+}
+
+.btn-enviar-modal {
+  background: #c9a96e;
+  border: none;
+  color: #0a0a0a;
+  padding: 10px 24px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-enviar-modal:hover {
+  background: #b8945a;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .citas-page { padding: 80px 20px 40px; }
+  .categoria-grid { grid-template-columns: 1fr; }
+  .barbero-grid { grid-template-columns: repeat(2, 1fr); }
+  .citas-title { font-size: 32px; letter-spacing: 6px; }
 }

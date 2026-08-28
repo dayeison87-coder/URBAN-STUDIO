@@ -4,10 +4,14 @@ Django settings for config project.
 
 from pathlib import Path
 from datetime import timedelta
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-+%65^7a3jnb2+9e&luc2ta@mm6fp&oy18b&a!41i$s1p_7c)gr'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
@@ -31,6 +35,7 @@ INSTALLED_APPS = [
     # Propias
     'users',
     'servicios',
+    'analisis_ia',   # <--- AGREGAR ESTA LÍNEA
 ]
 
 # ── Middleware ───────────────────────────────────────────────
@@ -128,3 +133,19 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ── Configuración de correo ─────────────────────────────────
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+
+EMAIL_PORT = 587
+
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

@@ -1,222 +1,439 @@
 /* ==============================================================================
-   1. CONFIGURACIÓN GLOBAL
+   1. CONFIGURACIÓN GLOBAL Y RESET DE FONDO
    ============================================================================== */
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-body{
-    background:#111;
-    color:white;
+
+:host {
+  display: block;
+  background-color: #0a0a0a;
+  min-height: 100vh;
 }
+
+html, body {
+  background-color: #0a0a0a !important;
+  color: #f0ede8;
+  font-family: 'Montserrat', sans-serif;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
 /* ==============================================================================
    2. NAVBAR
    ============================================================================== */
-.navbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:20px 80px;
-    background:rgba(0,0,0,.95);
-    position:fixed;
-    width:100%;
-    top:0;
-    left:0;
-    z-index:1000;
-    border-bottom:1px solid rgba(212,175,55,.15);
-}
-.logo{
-    font-size:28px;
-    font-weight:bold;
-    color:#d4af37;
-}
-.brand-container{
-    display:flex;
-    align-items:center;
-    gap:15px;
-}
-.user-greeting{
-    color:#cbd5e1;
-    border-left:1px solid #444;
-    padding-left:15px;
-    font-size:15px;
-}
-.username{
-    color:#d4af37;
-    font-weight:bold;
-}
-.menu{
-    display:flex;
-    list-style:none;
-    align-items:center;
-    gap:30px;
-}
-.menu a{
-    text-decoration:none;
-    color:white;
-    transition:.3s;
-    font-weight:500;
-}
-.menu a:hover{
-    color:#d4af37;
-}
-/* ==============================================================================
-   BOTÓN CERRAR SESIÓN
-   ============================================================================== */
-.btn-logout{
-    background:transparent;
-    color:white;
-    border:1px solid #e63946;
-    border-radius:30px;
-    padding:9px 22px;
-    cursor:pointer;
-    transition:.3s;
-    font-weight:bold;
-}
-.btn-logout:hover{
-    background:#e63946;
-    transform:scale(1.05);
-}
-/* ==============================================================================
-   CONTENIDO
-   ============================================================================== */
-.barberos-section{
-    padding-top:130px;
-    padding-bottom:70px;
-    width:90%;
-    max-width:1400px;
-    margin:auto;
-}
-/* ==============================================================================
-   TÍTULO
-   ============================================================================== */
-.titulo{
-    text-align:center;
-    margin-bottom:60px;
-}
-.titulo h1{
-    color:#d4af37;
-    font-size:55px;
-    margin-bottom:15px;
-}
-.titulo p{
-    color:#cbd5e1;
-    font-size:20px;
-}
-/* ==============================================================================
-   GRID
-   ============================================================================== */
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-    gap:35px;
-}
-/* ==============================================================================
-   TARJETAS
-   ============================================================================== */
-.card{
-    background:#1b1b1b;
-    border-radius:18px;
-    border:1px solid rgba(212,175,55,.15);
-    padding:35px;
-    text-align:center;
-    transition:.35s;
-}
-.card:hover{
-    transform:translateY(-10px);
-    border-color:#d4af37;
-    box-shadow:0 10px 30px rgba(212,175,55,.18);
-}
-/* FOTO */
-.card img{
-    width:130px;
-    height:130px;
-    border-radius:50%;
-    border:4px solid #d4af37;
-    margin-bottom:25px;
-}
-/* NOMBRE */
-.card h2{
-    color:white;
-    margin-bottom:15px;
-    font-size:28px;
-}
-/* ESTRELLAS */
-.estrellas{
-    color:#d4af37;
-    font-size:22px;
-    margin-bottom:18px;
-}
-.estrellas span{
-    color:white;
-    font-size:16px;
-    margin-left:10px;
-}
-/* DESCRIPCIÓN */
-.descripcion{
-    color:#cbd5e1;
-    line-height:1.7;
-    margin-bottom:15px;
-}
-/* CORREO */
-.correo{
-    color:#888;
-    font-size:14px;
-    margin-bottom:25px;
-}
-/* BOTÓN */
-.btn-agendar{
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:30px;
-    background:#d4af37;
-    color:black;
-    cursor:pointer;
-    font-size:17px;
-    font-weight:bold;
-    transition:.3s;
-}
-.btn-agendar:hover{
-    background:#c79d20;
-    transform:scale(1.05);
-}
-/* ==============================================================================
-   RESPONSIVE
-   ============================================================================== */
-@media(max-width:900px){
-    .navbar{
-        flex-direction:column;
-        gap:20px;
-        padding:20px;
-    }
-    .menu{
-        flex-wrap:wrap;
-        justify-content:center;
-    }
-    .titulo h1{
-        font-size:40px;
-    }
-    .titulo p{
-        font-size:17px;
-    }
-}
-.btn-ia {
-  background: linear-gradient(135deg, #c9a96e, #d4af37); /* Degradado dorado elegante */
-  color: #0a0a0a;                                       /* Texto oscuro para contraste */
-  border: none;
-  padding: 8px 18px;                                   /* Tamaño del botón */
-  font-size: 12px;
-  font-weight: 700;                                     /* Negrita */
-  letter-spacing: 1px;                                  /* Espaciado entre letras */
-  cursor: pointer;
-  transition: all 0.3s;                                 /* Suavizado en animaciones */
-  border-radius: 2px;                                   /* Esquinas ligeramente redondeadas */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 80px;
+  background: rgba(10, 10, 10, 0.95);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  border-bottom: 0.5px solid rgba(212, 175, 55, 0.15);
+  backdrop-filter: blur(10px);
 }
 
-.btn-ia:hover { 
-  opacity: 0.85;                                        /* Efecto de aclarado al pasar el mouse */
-  transform: scale(1.03);                               /* Pequeño aumento de tamaño al pasar el mouse */
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: #d4af37;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo i {
+  color: #c5a059;
+  font-size: 1.3rem;
+}
+
+.user-greeting {
+  color: #7a7a7a;
+  font-size: 12px;
+  border-left: 0.5px solid #2a2a2a;
+  padding-left: 15px;
+  letter-spacing: 1px;
+}
+
+.username {
+  color: #d4af37;
+  font-weight: 600;
+}
+
+.menu {
+  display: flex;
+  list-style: none;
+  align-items: center;
+  gap: 20px;
+}
+
+.menu a {
+  text-decoration: none;
+  color: #aaa;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.menu a i {
+  font-size: 1rem;
+  color: #7a7a7a;
+  transition: color 0.3s ease;
+}
+
+.menu a:hover,
+.menu a.active {
+  color: #d4af37;
+}
+
+.menu a:hover i,
+.menu a.active i {
+  color: #d4af37;
+}
+
+.btn-logout {
+  background: transparent;
+  color: #aaa;
+  border: 0.5px solid #3a3a3a;
+  padding: 8px 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 11px;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.btn-logout:hover {
+  border-color: #e63946;
+  color: #e63946;
+}
+
+/* ==============================================================================
+   3. SECCIÓN BARBEROS (ANCHO COMPLETO DE PANTALLA)
+   ============================================================================== */
+.barberos-section {
+  width: 100%;
+  min-height: calc(100vh - 120px); /* Ocupa la pantalla sin forzar desbordamiento con el footer */
+  background-color: #0a0a0a;
+  padding-top: 130px;
+  padding-bottom: 70px;
+}
+
+/* CONTENEDOR INTERNO DE LA SECCIÓN (LIMITA ANCHO A 1200PX) */
+.barberos-section .titulo,
+.barberos-section .grid {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* TÍTULO */
+.titulo {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.titulo h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px;
+  font-weight: 300;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: #f0ede8;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.titulo h1 i {
+  color: #c5a059;
+  font-size: 2.5rem;
+  filter: drop-shadow(0 0 8px rgba(197, 160, 89, 0.3));
+}
+
+.titulo p {
+  font-size: 12px;
+  color: #7a7a7a;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 35px;
+}
+
+/* TARJETAS */
+.card {
+  background: #0f0f0f;
+  border-radius: 12px;
+  border: 0.5px solid #2a2a2a;
+  padding: 35px 24px;
+  text-align: center;
+  transition: all 0.35s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  border-color: #c9a96e;
+  box-shadow: 0 10px 30px rgba(201, 169, 110, 0.12);
+}
+
+/* AVATAR Y IMAGEN */
+.avatar-container {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 20px;
+}
+
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid #c9a96e;
+  padding: 3px;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #1a1a1a;
+  border: 1px solid #c9a96e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-placeholder i {
+  font-size: 3rem;
+  color: #c9a96e;
+}
+
+/* NOMBRE */
+.card h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #f0ede8;
+  margin-bottom: 10px;
+}
+
+/* ESTRELLAS Y REVIEWS */
+.estrellas {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  min-height: 24px;
+}
+
+.estrellas i {
+  color: #c5a059;
+  font-size: 1.1rem;
+}
+
+.estrellas .puntuacion {
+  color: #c8c4bc;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.badge-nuevo {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #c9a96e;
+  text-transform: uppercase;
+  border: 0.5px solid rgba(201, 169, 110, 0.3);
+  padding: 2px 10px;
+  border-radius: 12px;
+  background: rgba(201, 169, 110, 0.05);
+}
+
+/* DESCRIPCIÓN */
+.descripcion {
+  font-size: 11px;
+  color: #5a5a5a;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  margin-bottom: 15px;
+  flex-grow: 1;
+}
+
+/* CORREO */
+.correo {
+  margin-bottom: 25px;
+}
+
+.correo a {
+  color: #7a7a7a;
+  font-size: 11px;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: color 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.correo a:hover {
+  color: #c9a96e;
+}
+
+/* BOTÓN AGENDAR */
+.btn-agendar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 24px;
+  border: 0.5px solid #c9a96e;
+  border-radius: 4px;
+  background: transparent;
+  color: #c9a96e;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.btn-agendar:hover {
+  background: #c9a96e;
+  color: #0a0a0a;
+  box-shadow: 0 0 15px rgba(201, 169, 110, 0.3);
+}
+
+/* ==============================================================================
+   4. FOOTER
+   ============================================================================== */
+.footer {
+  background: #0a0a0a; /* Cambiado a #0a0a0a para empatar exacto con la sección */
+  border-top: 0.5px solid #1a1a1a;
+  padding: 48px 80px;
+  margin-top: 0; /* Se elimina el margin-top para no generar la separación azul */
+  width: 100%;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-brand .logo {
+  font-size: 16px;
+}
+
+.footer-brand p {
+  font-size: 11px;
+  color: #4a4a4a;
+  margin-top: 8px;
+  letter-spacing: 1px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-links a {
+  text-decoration: none;
+  font-size: 11px;
+  color: #5a5a5a;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: #c9a96e;
+}
+
+.footer-copy p {
+  font-size: 10px;
+  color: #3a3a3a;
+  letter-spacing: 1px;
+}
+
+/* ==============================================================================
+   5. RESPONSIVE
+   ============================================================================== */
+@media(max-width: 900px) {
+  .navbar {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+
+  .barberos-section {
+    padding-top: 180px;
+  }
+
+  .menu {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .titulo h1 {
+    font-size: 32px;
+    letter-spacing: 4px;
+  }
+
+  .footer {
+    padding: 40px 20px;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
 }
