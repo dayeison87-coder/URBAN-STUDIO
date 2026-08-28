@@ -61,14 +61,13 @@ export const routes: Routes = [
   // ==========================================
   // SOLO BARBERO
   // ==========================================
-  { 
-    path: 'barbero', 
-    component: BarberoComponent, 
-    canActivate: [authGuard],
-    data: {
-      roles: ['Barbero']
-    }
-  },
+{
+  path: 'barberos',
+  loadComponent: () =>
+    import('./pages/barberos/barberos')
+      .then(m => m.Barberos),
+  canActivate: [authGuard]
+},
   { 
     path: 'chat', 
     component: ChatComponent, 
