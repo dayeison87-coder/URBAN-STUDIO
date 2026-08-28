@@ -82,9 +82,13 @@
   display: inline-block;
   line-height: 1;
   vertical-align: middle;
-  pointer-events: none; /* Previene interrupciones en la selección de la tarjeta */
   filter: drop-shadow(0px 0px 6px rgba(197, 160, 89, 0.35));
   transition: transform 0.3s ease, color 0.3s ease, filter 0.3s ease;
+}
+
+/* Solo los iconos de las categorías ignoran los clics */
+.cat-icon i {
+  pointer-events: none;
 }
 
 .categoria-card:hover .cat-icon i {
@@ -431,3 +435,4 @@
   .barbero-grid { grid-template-columns: repeat(2, 1fr); }
   .citas-title { font-size: 32px; letter-spacing: 6px; }
 }
+
