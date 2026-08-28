@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './services/auth-guard';
+
 // Componentes
 import { AdminComponent } from './pages/admin/admin';
 import { HomeComponent } from './pages/home/home';
@@ -10,7 +11,6 @@ import { ServicioComponent } from './pages/servicios/servicio.component';
 import { BarberoComponent } from './pages/barbero/barbero';
 import { ChatComponent } from './pages/chat/chat';
 import { AnalisisRostroComponent } from './pages/gemini/geminis';
-
 
 export const routes: Routes = [
   { 
@@ -59,15 +59,16 @@ export const routes: Routes = [
     }
   },
   // ==========================================
-  // SOLO BARBERO
+  // VISTA BARBERO (SINGULAR - Panel del Barbero)
   // ==========================================
-{
-  path: 'barberos',
-  loadComponent: () =>
-    import('./pages/barberos/barberos')
-      .then(m => m.Barberos),
-  canActivate: [authGuard]
-},
+  { 
+    path: 'barbero', 
+    component: BarberoComponent, 
+    canActivate: [authGuard],
+    data: {
+      roles: ['Barbero', 'Admin']
+    }
+  },
   { 
     path: 'chat', 
     component: ChatComponent, 
@@ -79,8 +80,7 @@ export const routes: Routes = [
     canActivate: [authGuard] 
   },
   // ==========================================
-  // BARBEROS
-  // Solo Barbero y Admin
+  // VISTA BARBEROS (PLURAL - Lista/Gestión)
   // ==========================================
   { 
     path: 'barberos', 
