@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './services/auth-guard';
-
 // Componentes
 import { AdminComponent } from './pages/admin/admin';
 import { HomeComponent } from './pages/home/home';
@@ -12,29 +11,93 @@ import { BarberoComponent } from './pages/barbero/barbero';
 import { ChatComponent } from './pages/chat/chat';
 import { AnalisisRostroComponent } from './pages/gemini/geminis';
 
+
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-
-  // Rutas públicas
-  { path: 'login',    component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-
-  // Rutas protegidas
-  { path: 'home',      component: HomeComponent,      canActivate: [authGuard] },
-  { path: 'servicios', component: ServicioComponent,  canActivate: [authGuard] },
-  { path: 'citas',     component: CitasComponent,     canActivate: [authGuard] },
-  { path: 'admin',     component: AdminComponent,     canActivate: [authGuard] },
-  { path: 'barbero',   component: BarberoComponent,   canActivate: [authGuard] },
-  { path: 'chat',      component: ChatComponent,      canActivate: [authGuard] },
-  { path: 'gemini',    component: AnalisisRostroComponent, canActivate: [authGuard] },
-  
-  // Ruta con Lazy Loading
   { 
-    path: 'barberos', 
-    loadComponent: () => import('./pages/barberos/barberos').then(m => m.Barberos), 
+    path: '', 
+    redirectTo: 'login', 
+    pathMatch: 'full' 
+  },
+  // ==========================================
+  // RUTAS PÚBLICAS
+  // ==========================================
+  { 
+    path: 'login', 
+    component: LoginComponent 
+  },
+  { 
+    path: 'register', 
+    component: RegisterComponent 
+  },
+  // ==========================================
+  // RUTAS PROTEGIDAS
+  // ==========================================
+  { 
+    path: 'home', 
+    component: HomeComponent, 
     canActivate: [authGuard] 
   },
-
-  // Comodín para rutas no existentes
-  { path: '**', redirectTo: 'login' },
+  { 
+    path: 'servicios', 
+    component: ServicioComponent, 
+    canActivate: [authGuard] 
+  },
+  { 
+    path: 'citas', 
+    component: CitasComponent, 
+    canActivate: [authGuard] 
+  },
+  // ==========================================
+  // SOLO ADMIN
+  // ==========================================
+  { 
+    path: 'admin', 
+    component: AdminComponent, 
+    canActivate: [authGuard],
+    data: {
+      roles: ['Admin']
+    }
+  },
+  // ==========================================
+  // SOLO BARBERO
+  // ==========================================
+  { 
+    path: 'barbero', 
+    component: BarberoComponent, 
+    canActivate: [authGuard],
+    data: {
+      roles: ['Barbero']
+    }
+  },
+  { 
+    path: 'chat', 
+    component: ChatComponent, 
+    canActivate: [authGuard] 
+  },
+  { 
+    path: 'gemini', 
+    component: AnalisisRostroComponent, 
+    canActivate: [authGuard] 
+  },
+  // ==========================================
+  // BARBEROS
+  // Solo Barbero y Admin
+  // ==========================================
+  { 
+    path: 'barberos', 
+    loadComponent: () => 
+      import('./pages/barberos/barberos')
+        .then(m => m.Barberos), 
+    canActivate: [authGuard],
+    data: {
+      roles: ['Barbero', 'Admin']
+    }
+  },
+  // ==========================================
+  // COMODÍN
+  // ==========================================
+  { 
+    path: '**', 
+    redirectTo: 'login' 
+  }
 ];
