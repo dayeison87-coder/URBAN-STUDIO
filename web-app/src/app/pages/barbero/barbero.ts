@@ -201,19 +201,21 @@ export class BarberoComponent implements OnInit {
   // ───────────── PERFIL ─────────────
 
   cargarPerfil(): void {
-    this.http.get<Perfil>(`${this.apiUrl}/perfil/barbero/`, {
-      headers: this.getHeaders()
-    }).subscribe({
-      next: (data) => {
-        this.perfil = data;
-        this.fotoPreview = data.foto
-          ? `http://localhost:8000${data.foto}`
-          : null;
-      },
-      error: (err) => console.error(err)
-    });
-  }
-
+  this.http.get<Perfil>(`${this.apiUrl}/perfil/barbero/`, {
+    headers: this.getHeaders()
+  }).subscribe({
+    next: (data) => {
+      this.perfil = data;
+      console.log('🔍 DATA COMPLETA DEL PERFIL:', data);
+      console.log('🔍 VALOR DE data.foto:', data.foto);
+      this.fotoPreview = data.foto
+  ? (data.foto.startsWith('http') ? data.foto : `http://localhost:8000${data.foto}`)
+  : null;
+      console.log('🔍 fotoPreview FINAL:', this.fotoPreview);
+    },
+    error: (err) => console.error(err)
+  });
+}
   onFotoSeleccionada(event: Event): void {
     const input = event.target as HTMLInputElement;
 
@@ -230,29 +232,34 @@ export class BarberoComponent implements OnInit {
     }
   }
 
-  guardarPerfil(): void {
-    const formData = new FormData();
+ guardarPerfil(): void {
+  const formData = new FormData();
 
-    formData.append('descripcion', this.perfil.descripcion || '');
-    formData.append('experiencia', String(this.perfil.experiencia || 0));
-    formData.append('telefono', this.perfil.telefono || '');
+  formData.append('descripcion', this.perfil.descripcion || '');
+  formData.append('experiencia', String(this.perfil.experiencia || 0));
+  formData.append('telefono', this.perfil.telefono || '');
 
-    if (this.fotoArchivo) {
-      formData.append('foto', this.fotoArchivo);
-    }
-
-    this.http.patch(
-      `${this.apiUrl}/perfil/barbero/`,
-      formData,
-      { headers: this.getHeadersMultipart() }
-    ).subscribe({
-      next: () => {
-        this.mensaje = 'Perfil actualizado correctamente.';
-        setTimeout(() => this.mensaje = '', 3000);
-      },
-      error: (err) => console.error(err)
-    });
+  if (this.fotoArchivo) {
+    formData.append('foto', this.fotoArchivo);
   }
+
+  this.http.patch(
+    `${this.apiUrl}/perfil/barbero/`,
+    formData,
+    { headers: this.getHeadersMultipart() }
+  ).subscribe({
+    next: () => {
+      this.mensaje = 'Perfil actualizado correctamente.';
+      this.fotoArchivo = null;
+      this.cargarPerfil();
+      setTimeout(() => this.mensaje = '', 3000);
+    },
+    error: (err) => {
+      console.error('Error guardando perfil:', err);
+      this.mensaje = `❌ Error al guardar: ${err.status} - ${JSON.stringify(err.error)}`;
+    }
+  });
+}
 
   // ───────────── CHAT ─────────────
 

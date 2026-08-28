@@ -59,10 +59,12 @@ class CitaListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_staff or (user.rol and user.rol.nombre in ['Admin', 'Barbero']):
+        if user.is_staff or (user.rol and user.rol.nombre == 'Admin'):
             return Cita.objects.all()
+        if user.rol and user.rol.nombre == 'Barbero':
+            return Cita.objects.filter(barbero=user)
         return Cita.objects.filter(cliente=user)
-
+    
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
