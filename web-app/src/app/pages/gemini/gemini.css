@@ -595,3 +595,298 @@
   .mirror img { width: 100%; }
   .particle-face, .camera-wrapper, .preview-elegida { height: 300px; }
 }
+/* =====================================================
+   CÓDIGO DE SEGURIDAD
+===================================================== */
+
+.codigo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(201, 166, 92, 0.08),
+      transparent 45%
+    ),
+    rgba(0, 0, 0, 0.82);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+
+/* =====================================================
+   TARJETA
+===================================================== */
+
+.codigo-card {
+  position: relative;
+
+  width: min(430px, 100%);
+
+  padding: 46px 42px 38px;
+
+  text-align: center;
+
+  background:
+    linear-gradient(
+      145deg,
+      #151515,
+      #0c0c0c
+    );
+
+  border: 1px solid rgba(201, 166, 92, 0.28);
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(201, 166, 92, 0.06);
+
+  border-radius: 22px;
+
+  animation: codigoEntrada 0.35s ease-out;
+}
+
+
+@keyframes codigoEntrada {
+
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+}
+
+
+/* =====================================================
+   ICONO
+===================================================== */
+
+.codigo-icono {
+  width: 54px;
+  height: 54px;
+
+  margin: 0 auto 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  color: #c9a65c;
+
+  font-size: 23px;
+
+  border: 1px solid rgba(201, 166, 92, 0.35);
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(201, 166, 92, 0.13),
+      rgba(201, 201, 166, 92, 0)
+    );
+
+  box-shadow:
+    0 0 30px rgba(201, 166, 92, 0.08);
+}
+
+
+/* =====================================================
+   TEXTOS
+===================================================== */
+
+.codigo-eyebrow {
+  margin: 0 0 9px;
+
+  color: #c9a65c;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+}
+
+
+.codigo-titulo {
+  margin: 0;
+
+  color: #f5f2ea;
+
+  font-family: "Playfair Display", serif;
+
+  font-size: 30px;
+  font-weight: 500;
+
+  letter-spacing: -0.3px;
+}
+
+
+.codigo-descripcion {
+  max-width: 330px;
+
+  margin: 15px auto 30px;
+
+  color: rgba(255, 255, 255, 0.55);
+
+  font-family: "Inter", sans-serif;
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+
+/* =====================================================
+   INPUTS OTP
+===================================================== */
+
+.codigo-input-container {
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  gap: 9px;
+
+  margin: 0 auto 28px;
+}
+
+
+.codigo-input {
+  width: 48px;
+  height: 58px;
+
+  padding: 0;
+
+  border-radius: 10px;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  background: rgba(255, 255, 255, 0.035);
+
+  color: #f5f2ea;
+
+  font-family: "Inter", sans-serif;
+
+  font-size: 22px;
+  font-weight: 600;
+
+  text-align: center;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.codigo-input:hover {
+  border-color: rgba(201, 166, 92, 0.4);
+}
+
+
+.codigo-input:focus {
+  border-color: #c9a65c;
+
+  background: rgba(201, 166, 92, 0.07);
+
+  box-shadow:
+    0 0 0 3px rgba(201, 166, 92, 0.08),
+    0 0 18px rgba(201, 166, 92, 0.12);
+
+  transform: translateY(-2px);
+}
+
+
+.codigo-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   BOTÓN
+===================================================== */
+
+.codigo-btn {
+  width: 100%;
+
+  min-height: 50px;
+
+  margin-top: 2px;
+
+  border-radius: 10px;
+
+  letter-spacing: 0.5px;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   CANCELAR
+===================================================== */
+
+.codigo-cancelar {
+  display: block;
+
+  margin: 19px auto 0;
+
+  color: rgba(255, 255, 255, 0.45);
+
+  font-size: 12px;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.codigo-cancelar:hover {
+  color: #c9a65c;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 480px) {
+
+  .codigo-card {
+    padding: 38px 22px 30px;
+
+    border-radius: 18px;
+  }
+
+  .codigo-titulo {
+    font-size: 26px;
+  }
+
+  .codigo-input-container {
+    gap: 6px;
+  }
+
+  .codigo-input {
+    width: 42px;
+    height: 52px;
+
+    font-size: 20px;
+  }
+
+}
