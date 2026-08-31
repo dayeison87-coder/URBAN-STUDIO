@@ -34,7 +34,12 @@
         </select>
 
         <input [(ngModel)]="servicioForm.nombre"      placeholder="Nombre del servicio" />
-        <input [(ngModel)]="servicioForm.precio"      placeholder="Precio ($)"  type="number" />
+        <input 
+          [(ngModel)]="servicioForm.precio" 
+          (input)="formatearPrecioInput($event)" 
+          placeholder="Precio ($)" 
+          type="text" 
+            />
       </div>
 
       <textarea [(ngModel)]="servicioForm.descripcion" placeholder="Descripción del servicio"></textarea>
@@ -87,7 +92,7 @@
             <td><span class="badge-cat">{{ getNombreCategoria(s.categoria) }}</span></td>
             <td>{{ s.nombre }}</td>
             <td>{{ s.descripcion }}</td>
-            <td class="gold">${{ s.precio }}</td>
+            <td class="gold">{{ s.precio | currency:'COP':'symbol-narrow':'1.0-0' }}</td>
             <td>
               <span class="estado" [class.on]="s.disponible">
                 {{ s.disponible ? 'Sí' : 'No' }}
