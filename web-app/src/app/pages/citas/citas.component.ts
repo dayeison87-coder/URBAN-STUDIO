@@ -129,7 +129,15 @@ export class CitasComponent implements OnInit {
 
   cargarBarberos(): void {
     this.http.get<Barbero[]>(`${this.apiUrl}/usuarios/barberos/`, { headers: this.getHeaders() }).subscribe({
-      next: (data) => this.barberos = data,
+      next: (data) => {
+        this.barberos = data;
+        const barberoId = Number(this.route.snapshot.queryParams['barberoId']);
+        const barbero = this.barberos.find(item => item.id === barberoId);
+        if (barbero) {
+          this.seleccionarBarbero(barbero);
+          if (!this.route.snapshot.queryParams['servicio']) this.paso = 1;
+        }
+      },
       error: (err) => console.error(err)
     });
   }
@@ -199,6 +207,10 @@ export class CitasComponent implements OnInit {
   seleccionarHora(hora: string): void { this.horaSeleccionada = hora; }
 
   irPaso(n: number): void { this.paso = n; this.mensaje = ''; }
+
+  siguienteDesdeServicio(): void {
+    this.paso = this.barberoSeleccionado ? 4 : 3;
+  }
 
   generarCalendario(): void {
     const año = this.mesActual.getFullYear();

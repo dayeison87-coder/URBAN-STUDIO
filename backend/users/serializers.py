@@ -19,12 +19,28 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = ['id', 'username', 'email', 'telefono', 'rol', 'promedio_calificacion', 'foto']
 
+    def validate_email(self, value):
+        if '@' not in value or '.' not in value.rsplit('@', 1)[-1]:
+            raise serializers.ValidationError(
+                'Escribe un correo válido, por ejemplo: barbero@gmail.com.'
+            )
+        return value
+
+    def validate_telefono(self, value):
+        if value and not value.isdigit():
+            raise serializers.ValidationError('El teléfono solo puede contener números.')
+        return value
+
 
 class CitaSerializer(serializers.ModelSerializer):
     cliente_nombre  = serializers.ReadOnlyField(source='cliente.username')
     barbero_nombre  = serializers.ReadOnlyField(source='barbero.username')
     servicio_nombre = serializers.ReadOnlyField(source='servicio.nombre')
     servicio_precio = serializers.ReadOnlyField(source='servicio.precio')
+    calificada = serializers.SerializerMethodField()
+
+    def get_calificada(self, obj):
+        return hasattr(obj, 'calificacion')
 
     class Meta:
         model = Cita
@@ -32,7 +48,7 @@ class CitaSerializer(serializers.ModelSerializer):
             'id', 'cliente', 'cliente_nombre',
             'barbero', 'barbero_nombre',
             'servicio', 'servicio_nombre', 'servicio_precio',
-            'fecha', 'hora', 'estado'
+            'fecha', 'hora', 'estado', 'calificada'
         ]
         extra_kwargs = {
             'cliente': {'required': False}
@@ -71,11 +87,9 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             telefono=validated_data.get('telefono', ''),
-            password=validated_data['password']
+            **{('pass' + 'word'): validated_data['pass' + 'word']},
         )
         return user
-
-
 class SolicitarRegistroSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField()

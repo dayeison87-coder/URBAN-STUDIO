@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/api_constants.dart';
+import '../citas/citas_screen.dart';
 
 const _gold = Color(0xFFc9a96e);
 const _bg = Color(0xFF0a0a0a);
@@ -151,7 +152,7 @@ class _BarberosScreenState extends State<BarberosScreen> {
               child: ClipOval(
                 child: foto != null && foto.toString().isNotEmpty
                   ? Image.network(
-                      'http://10.237.179.62:8000$foto',
+                      _fotoUrl(foto),
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Center(
                         child: Text(inicial, style: const TextStyle(
@@ -211,8 +212,13 @@ class _BarberosScreenState extends State<BarberosScreen> {
                     width: double.infinity,
                     child: OutlinedButton(
                       onPressed: () {
-                        // Navegar a citas con este barbero preseleccionado
                         Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CitasScreen(barberoInicial: barbero),
+                          ),
+                        );
                       },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: _gold,
@@ -232,5 +238,19 @@ class _BarberosScreenState extends State<BarberosScreen> {
         ),
       ),
     );
+  }
+
+  String _fotoUrl(dynamic foto) {
+    final value = foto.toString();
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+    final origin = Uri.parse(ApiConstants.baseUrl);
+    return Uri(
+      scheme: origin.scheme,
+      host: origin.host,
+      port: origin.hasPort ? origin.port : null,
+      path: value.startsWith('/') ? value : '/$value',
+    ).toString();
   }
 }

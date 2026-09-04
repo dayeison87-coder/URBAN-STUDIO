@@ -18,6 +18,7 @@ export class RegisterComponent {
   telefono = '';
   password = '';
   mensaje = '';
+  errorUsuario = '';
   errorCorreo = '';
   errorTelefono = '';
   codigo = '';
@@ -55,7 +56,9 @@ export class RegisterComponent {
 
   registrar() {
     this.mensaje = '';
+    this.errorUsuario = '';
     this.errorCorreo = '';
+    this.errorTelefono = '';
 
     this.validarTelefono();
 
@@ -87,12 +90,20 @@ export class RegisterComponent {
       error: (err) => {
         console.error('Error en el registro:', err);
 
+        this.errorUsuario = err.error?.username?.[0] || '';
         this.errorCorreo = '';
+        this.errorTelefono = err.error?.telefono?.[0] || '';
 
         if (err.error?.email) {
           this.errorCorreo = err.error.email[0];
+        } else if (err.error?.password) {
+          this.mensaje = err.error.password[0];
+        } else if (err.error?.detail) {
+          this.mensaje = err.error.detail;
+        } else if (this.errorUsuario || this.errorTelefono) {
+          this.mensaje = 'Revisa los datos marcados e inténtalo de nuevo.';
         } else {
-          this.mensaje = err.error?.detail || 'No se pudo enviar el código. Inténtalo de nuevo.';
+          this.mensaje = 'No se pudo enviar el código. Inténtalo de nuevo.';
         }
         this.enviando = false;
       }

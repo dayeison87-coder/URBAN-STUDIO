@@ -85,7 +85,7 @@
     </div>
     <div class="paso-actions">
       <button class="btn-atras" (click)="irPaso(1)"><i class="bi bi-arrow-left me-1"></i> Atrás</button>
-      <button class="btn-siguiente" (click)="irPaso(3)" [disabled]="!servicioSeleccionado">Siguiente <i class="bi bi-arrow-right ms-1"></i></button>
+      <button class="btn-siguiente" (click)="siguienteDesdeServicio()" [disabled]="!servicioSeleccionado">Siguiente <i class="bi bi-arrow-right ms-1"></i></button>
     </div>
   </div>
 
@@ -187,7 +187,10 @@
         </div>
         <div class="cita-precio">{{ formatPrecio(cita.servicio_precio) }}</div>
         <div class="cita-acciones">
-          <button *ngIf="cita.estado === 'Completada'" class="cita-calificar" (click)="abrirModalCalificar(cita.id)" title="Calificar Barbero">
+          <span *ngIf="cita.calificada" class="cita-calificada">
+            <i class="bi bi-check-circle me-1"></i> Calificado
+          </span>
+          <button *ngIf="cita.estado === 'Completada' && !cita.calificada" class="cita-calificar" (click)="abrirModalCalificar(cita.id)" title="Calificar Barbero">
             <i class="bi bi-star-fill me-1"></i> Calificar
           </button>
           

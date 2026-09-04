@@ -1,6 +1,9 @@
+import 'dart:async';
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import '../../core/network/auth_service.dart';
 import '../home/home_screen.dart';
+import '../barbero/barbero_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,10 +18,73 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
-  
+
   // Estado para saber si estamos en Login (true) o en Registro (false)
   bool _isLogin = true;
   bool _obscurePassword = true;
+  StreamSubscription<Uri>? _linkSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    final links = AppLinks();
+    links.getInitialLink().then(_handleGoogleLink);
+    _linkSubscription = links.uriLinkStream.listen(_handleGoogleLink);
+  }
+
+  Future<void> _handleGoogleLink(Uri? uri) async {
+    if (uri == null) return;
+    if (uri.scheme != 'urbanstudio' || uri.host != 'auth') return;
+    try {
+      if (await _authService.handleGoogleCallback(uri) && mounted) {
+        final role = await _authService.getRole();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => role?.toLowerCase() == 'barbero'
+                ? const BarberoDashboardScreen()
+                : const HomeScreen(),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted)
+        _showFeedback(
+          'No se pudo completar el acceso con Google.',
+          isError: true,
+        );
+    }
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleGoogleLogin() async {
+    try {
+      await _authService.loginWithGoogle();
+      if (!mounted) return;
+      final role = await _authService.getRole();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => role?.toLowerCase() == 'barbero'
+              ? const BarberoDashboardScreen()
+              : const HomeScreen(),
+        ),
+      );
+    } catch (e) {
+      _showFeedback(
+        e.toString().replaceFirst('Bad state: ', ''),
+        isError: true,
+      );
+    }
+  }
 
   void _handleSubmit() async {
     final username = _usernameController.text.trim();
@@ -37,14 +103,20 @@ class _LoginScreenState extends State<LoginScreen> {
         bool success = await _authService.login(username, password);
         if (success) {
           _showFeedback('¡Se ha iniciado sesión correctamente!');
-          
-          // Navegación limpia al Home para que el usuario no pueda regresar al login con el botón atrás
+          final role = await _authService.getRole();
+          final destination = role?.toLowerCase() == 'barbero'
+              ? const BarberoDashboardScreen()
+              : const HomeScreen();
+
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => destination),
           );
         } else {
-          _showFeedback('No se ha podido iniciar sesión. Verifica tus credenciales.', isError: true);
+          _showFeedback(
+            'No se ha podido iniciar sesión. Verifica tus credenciales.',
+            isError: true,
+          );
         }
       } else {
         // Lógica de Registro
@@ -54,18 +126,26 @@ class _LoginScreenState extends State<LoginScreen> {
           _usernameController.clear();
           _emailController.clear();
           _passwordController.clear();
-          
+
           setState(() {
-            _isLogin = true; 
+            _isLogin = true;
           });
-          
-          _showFeedback('¡Se ha creado tu cuenta con éxito! Ya puedes iniciar sesión.');
+
+          _showFeedback(
+            '¡Se ha creado tu cuenta con éxito! Ya puedes iniciar sesión.',
+          );
         } else {
-          _showFeedback('No se ha podido crear la cuenta. Inténtalo de nuevo.', isError: true);
+          _showFeedback(
+            'No se ha podido crear la cuenta. Inténtalo de nuevo.',
+            isError: true,
+          );
         }
       }
     } catch (e) {
-      _showFeedback('Error de conexión con el servidor.', isError: true);
+      _showFeedback(
+        e.toString().replaceFirst('Bad state: ', ''),
+        isError: true,
+      );
     }
   }
 
@@ -85,16 +165,15 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         children: [
           // Fondo oscuro de barbería
-          Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFF1A1A1A),
-            ),
-          ),
-          
+          Container(decoration: const BoxDecoration(color: Color(0xFF1A1A1A))),
+
           // Contenedor principal centrado
           Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 24.0,
+              ),
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 420),
                 padding: const EdgeInsets.all(32.0),
@@ -130,7 +209,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _isLogin ? 'Gestión inteligente para barberías' : 'Únete a Urban Studio',
+                      _isLogin
+                          ? 'Gestión inteligente para barberías'
+                          : 'Únete a Urban Studio',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
@@ -154,22 +235,36 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _usernameController,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        hintText: _isLogin ? 'Ingresa tu usuario' : 'Elige un nombre de usuario',
-                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
-                        prefixIcon: const Icon(Icons.person_outline, color: Colors.white70),
+                        hintText: _isLogin
+                            ? 'Ingresa tu usuario'
+                            : 'Elige un nombre de usuario',
+                        hintStyle: TextStyle(
+                          color: Colors.white.withOpacity(0.4),
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.person_outline,
+                          color: Colors.white70,
+                        ),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.05),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.2),
+                          ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.2),
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.amber, width: 1.5),
+                          borderSide: const BorderSide(
+                            color: Colors.amber,
+                            width: 1.5,
+                          ),
                         ),
                       ),
                     ),
@@ -193,21 +288,33 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           hintText: 'tucorreo@email.com',
-                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
-                          prefixIcon: const Icon(Icons.email_outlined, color: Colors.white70),
+                          hintStyle: TextStyle(
+                            color: Colors.white.withOpacity(0.4),
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.email_outlined,
+                            color: Colors.white70,
+                          ),
                           filled: true,
                           fillColor: Colors.white.withOpacity(0.05),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                            borderSide: BorderSide(
+                              color: Colors.white.withOpacity(0.2),
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                            borderSide: BorderSide(
+                              color: Colors.white.withOpacity(0.2),
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.amber, width: 1.5),
+                            borderSide: const BorderSide(
+                              color: Colors.amber,
+                              width: 1.5,
+                            ),
                           ),
                         ),
                       ),
@@ -231,11 +338,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: '••••••••',
-                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
-                        prefixIcon: const Icon(Icons.lock_outline, color: Colors.white70),
+                        hintStyle: TextStyle(
+                          color: Colors.white.withOpacity(0.4),
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.lock_outline,
+                          color: Colors.white70,
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                             color: Colors.white70,
                           ),
                           onPressed: () {
@@ -248,15 +362,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         fillColor: Colors.white.withOpacity(0.05),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.2),
+                          ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                          borderSide: BorderSide(
+                            color: Colors.white.withOpacity(0.2),
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.amber, width: 1.5),
+                          borderSide: const BorderSide(
+                            color: Colors.amber,
+                            width: 1.5,
+                          ),
                         ),
                       ),
                     ),
@@ -291,6 +412,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 15),
 
+                    if (_isLogin) ...[
+                      OutlinedButton.icon(
+                        onPressed: _handleGoogleLogin,
+                        icon: const Icon(Icons.account_circle_outlined),
+                        label: const Text('Continuar con Google'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: BorderSide(
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                    ],
+
                     // Botón alternar
                     OutlinedButton(
                       onPressed: () {
@@ -307,7 +447,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       child: Text(
-                        _isLogin ? 'Crear cuenta' : '¿Ya tienes cuenta? Inicia sesión',
+                        _isLogin
+                            ? 'Crear cuenta'
+                            : '¿Ya tienes cuenta? Inicia sesión',
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -331,7 +473,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.shield_outlined, size: 12, color: Colors.greenAccent),
+                        const Icon(
+                          Icons.shield_outlined,
+                          size: 12,
+                          color: Colors.greenAccent,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           'Conexión segura • Tus datos están protegidos',

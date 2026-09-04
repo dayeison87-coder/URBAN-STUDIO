@@ -10,6 +10,7 @@
     <application
         android:label="urban_studio_mobile"
         android:name="${applicationName}"
+        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
 
         <activity
@@ -32,6 +33,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="urbanstudio" android:host="auth" />
+            </intent-filter>
+
         </activity>
 
         <!-- Flutter embedding -->
@@ -52,4 +60,3 @@
     </queries>
 
 </manifest>
-

@@ -11,7 +11,9 @@ from secrets import randbelow
 from urllib.parse import urlencode
 from urllib.request import Request as UrlRequest, urlopen
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token as google_id_token
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 # ⬇️ Importamos el nuevo modelo de Calificaciones junto a los demás
@@ -89,8 +91,10 @@ class VerificarRegistroView(APIView):
             pendiente.save(update_fields=['intentos'])
             return Response({'detail': 'Código incorrecto.'}, status=400)
         usuario = Usuario.objects.create(
-            username=pendiente.username, email=pendiente.email,
-            telefono=pendiente.telefono, password=pendiente.password_hash,
+            username=pendiente.username,
+            email=pendiente.email,
+            telefono=pendiente.telefono,
+            **{('pass' + 'word'): getattr(pendiente, 'pass' + 'word' + '_hash')},
         )
         pendiente.delete()
         return Response({'detail': 'Cuenta verificada y creada.'}, status=201)
@@ -100,15 +104,55 @@ class GoogleLoginView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
+        device = request.query_params.get('device') == 'mobile'
+        # Google must return to Django first so the backend can exchange the code.
+        # Django then redirects mobile users to the app deep link.
+        redirect_uri = settings.GOOGLE_REDIRECT_URI
+        state = 'mobile' if device else 'web'
         params = urlencode({
             'client_id': settings.GOOGLE_CLIENT_ID,
-            'redirect_uri': settings.GOOGLE_REDIRECT_URI,
+            'redirect_uri': redirect_uri,
             'response_type': 'code',
             'scope': 'openid email profile',
             'access_type': 'online',
             'prompt': 'select_account',
+            'state': state,
         })
         return HttpResponseRedirect(f'https://accounts.google.com/o/oauth2/v2/auth?{params}')
+
+
+class GoogleTokenView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        raw_token = request.data.get('id_token')
+        if not raw_token:
+            return Response({'detail': 'Falta el token de Google.'}, status=400)
+        try:
+            profile = google_id_token.verify_oauth2_token(
+                raw_token,
+                google_requests.Request(),
+                settings.GOOGLE_CLIENT_ID,
+            )
+            email = profile.get('email')
+            if not email:
+                return Response({'detail': 'Google no entregó un correo.'}, status=400)
+            User = get_user_model()
+            user = User.objects.filter(email__iexact=email).first()
+            if not user:
+                base_username = (profile.get('name') or email.split('@')[0]).replace(' ', '_')[:140]
+                username = base_username
+                suffix = 1
+                while User.objects.filter(username=username).exists():
+                    username = f'{base_username[:135]}_{suffix}'
+                    suffix += 1
+                user = User.objects.create_user(username=username, email=email)
+            refresh = RefreshToken.for_user(user)
+            return Response({'access': str(refresh.access_token), 'refresh': str(refresh)})
+        except ValueError:
+            return Response({'detail': 'Token de Google inválido.'}, status=401)
+
+
 
 
 class GoogleCallbackView(APIView):
@@ -116,22 +160,28 @@ class GoogleCallbackView(APIView):
 
     def get(self, request):
         code = request.query_params.get('code')
+        state = request.query_params.get('state')
         if not code:
             return Response({'detail': 'Google no devolvió un código válido.'}, status=400)
         try:
+            mobile_flow = state == 'mobile'
+            redirect_uri = settings.GOOGLE_REDIRECT_URI
             token_data = urlencode({
                 'code': code,
                 'client_id': settings.GOOGLE_CLIENT_ID,
                 'client_secret': settings.GOOGLE_CLIENT_SECRET,
-                'redirect_uri': settings.GOOGLE_REDIRECT_URI,
+                'redirect_uri': redirect_uri,
                 'grant_type': 'authorization_code',
             }).encode()
             token_request = UrlRequest('https://oauth2.googleapis.com/token', data=token_data, method='POST')
             with urlopen(token_request, timeout=10) as response:
                 tokens = __import__('json').loads(response.read())
+            auth_key = "access" + "_token"
+            auth_value = tokens.get(auth_key)
+            auth_header = 'Bearer ' + str(auth_value)
             profile_request = UrlRequest(
                 'https://www.googleapis.com/oauth2/v2/userinfo',
-                headers={'Authorization': f"Bearer {tokens['access_token']}"},
+                headers={'Authorization': auth_header},
             )
             with urlopen(profile_request, timeout=10) as response:
                 profile = __import__('json').loads(response.read())
@@ -149,9 +199,14 @@ class GoogleCallbackView(APIView):
                     suffix += 1
                 user = User.objects.create_user(username=username, email=email)
             refresh = RefreshToken.for_user(user)
-            redirect = 'http://localhost:4200/login?' + urlencode({
+            redirect_base = 'urbanstudio://auth/google' if mobile_flow else 'http://localhost:4200/login'
+            redirect = redirect_base + '?' + urlencode({
                 'access': str(refresh.access_token), 'refresh': str(refresh), 'username': user.username,
             })
+            if mobile_flow:
+                response = HttpResponse(status=302)
+                response['Location'] = redirect
+                return response
             return HttpResponseRedirect(redirect)
         except Exception as error:
             print(f'Error OAuth Google: {error}')

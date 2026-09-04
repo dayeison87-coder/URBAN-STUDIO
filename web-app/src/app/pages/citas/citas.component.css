@@ -287,6 +287,15 @@
   box-shadow: 0 0 10px rgba(201, 169, 110, 0.3);
 }
 
+.cita-calificada {
+ color: #4ade80;
+ border: 0.5px solid #4ade8044;
+ padding: 6px 8px;
+ font-size: 10px;
+ letter-spacing: 0.5px;
+ white-space: nowrap;
+}
+
 /* Modal Overlay */
 .modal-calificacion-overlay {
   position: fixed;
@@ -473,4 +482,3 @@
   .cita-acciones { grid-column: 1 / -1; width: 100%; justify-content: flex-end; padding-top: 8px; border-top: 1px solid #1a1a1a; }
   .paso-actions { margin-bottom: 36px; }
 }
-

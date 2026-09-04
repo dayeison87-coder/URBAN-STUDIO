@@ -146,6 +146,13 @@ export class AdminComponent implements OnInit {
     }
   }
 
+  formatMoneda(valor: number | string): string {
+    const numero = Number(valor);
+    return `$${(Number.isFinite(numero) ? numero : 0).toLocaleString('es-CO', {
+      maximumFractionDigits: 0
+    })}`;
+  }
+
   editarServicio(s: Servicio): void {
     this.editandoServicio = true;
     this.servicioForm = {
@@ -205,6 +212,7 @@ export class AdminComponent implements OnInit {
   guardarBarbero(): void {
     // Caso 1: Editar información básica de un barbero existente
     if (this.editandoBarbero && this.barberoForm.id) {
+      if (!this.validarDatosBarbero()) return;
       const payload = {
         username: this.barberoForm.username,
         email:    this.barberoForm.email,
@@ -215,13 +223,14 @@ export class AdminComponent implements OnInit {
         error: (err) => console.error(err)
       });
     } 
+
     // Caso 2: Promover o asignar un nuevo usuario como barbero
     else {
       if (!this.usuarioSeleccionadoId) {
         this.mensaje = 'Selecciona un usuario para asignarlo como barbero.';
         return;
       }
-      
+
       // ⬇️ CAMBIO AQUÍ: Enviamos el ID del Rol como número. 
       // Si el ID de Barbero en tu DB no es 3, cámbialo por el número correcto (ej: 2, 4)
       const payload = {
@@ -281,6 +290,28 @@ export class AdminComponent implements OnInit {
     this.usuarioSeleccionadoId = '';
     this.barberoForm = { id: null, username: '', email: '', telefono: '' };
     setTimeout(() => this.mensaje = '', 3000);
+  }
+
+  private validarDatosBarbero(): boolean {
+    const email = this.barberoForm.email.trim();
+    const telefono = this.barberoForm.telefono.trim();
+
+    if (!/^[^\s@]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      this.mensaje = 'Escribe un correo válido, por ejemplo: barbero@gmail.com.';
+      return false;
+    }
+    if (telefono && !/^\d+$/.test(telefono)) {
+      this.mensaje = 'El teléfono solo puede contener números.';
+      return false;
+    }
+    return true;
+  }
+
+  validarTelefono(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const telefono = input.value.replace(/\D/g, '');
+    input.value = telefono;
+    this.barberoForm.telefono = telefono;
   }
 
   logout(): void {

@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/api_constants.dart';
 
 /// Maneja login, registro y sesión del usuario.
@@ -8,9 +11,11 @@ class AuthService {
   static const _keyAccessToken = 'access_token';
   static const _keyRefreshToken = 'refresh_token';
   static const _keyUsername = 'username';
+  static const _keyRole = 'role';
 
   /// URL que actualmente está funcionando.
   String? _activeBaseUrl;
+  static bool _googleInitialized = false;
 
   /// Obtiene una URL funcional del backend.
   Future<String?> _getWorkingBaseUrl() async {
@@ -58,6 +63,65 @@ class AuthService {
   // REGISTRO
   // ============================================================
 
+  Future<void> loginWithGoogle() async {
+    if (!kIsWeb) {
+      if (!_googleInitialized) {
+        await GoogleSignIn.instance.initialize(
+          serverClientId:
+              '859928071675-tc4ffh2kt8bor4h44tka3smmas1vr1or.apps.googleusercontent.com',
+        );
+        _googleInitialized = true;
+      }
+      final account = await GoogleSignIn.instance.authenticate();
+      final idToken = account.authentication.idToken;
+      if (idToken == null) throw StateError('Google no devolvió un token.');
+      final response = await http.post(
+        Uri.parse(ApiConstants.googleTokenEndpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'id_token': idToken}),
+      );
+      if (response.statusCode != 200) {
+        throw StateError('Django rechazó el acceso con Google.');
+      }
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_keyAccessToken, data['access'] as String);
+      await prefs.setString(_keyRefreshToken, data['refresh'] as String);
+      await _guardarPerfil(
+        data['access'] as String,
+        _activeBaseUrl ?? ApiConstants.baseUrl,
+        fallbackUsername: account.email,
+      );
+      return;
+    }
+    final baseUrl = await _getWorkingBaseUrl();
+    if (baseUrl == null) throw StateError('No hay conexión con Django.');
+    final uri = Uri.parse(
+      '$baseUrl/auth/google/${kIsWeb ? '' : '?device=mobile'}',
+    );
+    if (!await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw StateError('No se pudo abrir Google.');
+    }
+  }
+
+  Future<bool> handleGoogleCallback(Uri uri) async {
+    final access = uri.queryParameters['access'];
+    final refresh = uri.queryParameters['refresh'];
+    if (access == null || refresh == null) return false;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyAccessToken, access);
+    await prefs.setString(_keyRefreshToken, refresh);
+    await _guardarPerfil(
+      access,
+      _activeBaseUrl ?? ApiConstants.baseUrl,
+      fallbackUsername: uri.queryParameters['username'] ?? 'Usuario',
+    );
+    return true;
+  }
+
   Future<bool> register(
     String username,
     String email,
@@ -90,10 +154,28 @@ class AuthService {
         '${response.statusCode} - ${response.body}',
       );
 
-      return response.statusCode == 201;
+      if (response.statusCode == 201) return true;
+
+      final data = _intentarDecodificar(response.body);
+      final error = data?['detail'] ??
+          data?['username']?.first ??
+          data?['email']?.first ??
+          data?['password']?.first;
+      throw StateError(
+        error?.toString() ?? 'El servidor rechazó los datos del registro.',
+      );
     } catch (e) {
       print('Error registrando usuario: $e');
-      return false;
+      rethrow;
+    }
+  }
+
+  Map<String, dynamic>? _intentarDecodificar(String body) {
+    try {
+      final decoded = jsonDecode(body);
+      return decoded is Map<String, dynamic> ? decoded : null;
+    } catch (_) {
+      return null;
     }
   }
 
@@ -145,6 +227,7 @@ class AuthService {
       }
 
       final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_keyRole);
 
       await prefs.setString(
         _keyAccessToken,
@@ -205,6 +288,11 @@ class AuthService {
           _keyUsername,
           nombre.toString(),
         );
+        final rol = data['rol'];
+        final roleName = rol is Map ? rol['nombre'] : rol;
+        if (roleName != null) {
+          await prefs.setString(_keyRole, roleName.toString());
+        }
 
         return;
       }
@@ -235,6 +323,11 @@ class AuthService {
     return prefs.getString(_keyUsername) ?? 'Usuario';
   }
 
+  Future<String?> getRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyRole);
+  }
+
   Future<bool> isLoggedIn() async {
     final token = await getAccessToken();
 
@@ -247,5 +340,6 @@ class AuthService {
     await prefs.remove(_keyAccessToken);
     await prefs.remove(_keyRefreshToken);
     await prefs.remove(_keyUsername);
+    await prefs.remove(_keyRole);
   }
 }

@@ -17,6 +17,7 @@ class CitasScreen extends StatefulWidget {
   final dynamic servicioInicial;
   final dynamic servicioPreseleccionado;
   final dynamic categoriaPreseleccionada;
+  final dynamic barberoInicial;
 
   const CitasScreen({
     super.key,
@@ -24,6 +25,7 @@ class CitasScreen extends StatefulWidget {
     this.servicioInicial,
     this.servicioPreseleccionado,
     this.categoriaPreseleccionada,
+    this.barberoInicial,
   });
 
   @override
@@ -96,13 +98,20 @@ class _CitasScreenState extends State<CitasScreen> {
   void initState() {
     super.initState();
     _generarCalendario();
-    _cargarDatos().then((_) {
+    _cargarDatos().then((_) async {
       if (widget.servicioPreseleccionado != null) {
         setState(() {
           servicioSeleccionado = widget.servicioPreseleccionado;
           categoriaSeleccionada = widget.categoriaPreseleccionada;
           paso = 2;
         });
+      }
+      if (widget.barberoInicial != null && mounted) {
+        setState(() {
+          barberoSeleccionado = widget.barberoInicial;
+          paso = widget.servicioPreseleccionado != null ? 2 : 1;
+        });
+        await _cargarDisponibilidad(widget.barberoInicial['id']);
       }
     });
   }
@@ -139,7 +148,15 @@ class _CitasScreenState extends State<CitasScreen> {
         headers: headers,
       );
       if (res.statusCode == 200) {
-        setState(() => barberos = jsonDecode(res.body));
+        final loaded = jsonDecode(res.body) as List;
+        setState(() => barberos = loaded);
+        if (widget.barberoInicial != null && barberoSeleccionado == null) {
+          final id = widget.barberoInicial['id'];
+          final match = loaded.cast<dynamic>().where((b) => b['id'] == id);
+          if (match.isNotEmpty) {
+            setState(() => barberoSeleccionado = match.first);
+          }
+        }
       }
     } catch (e) {
       debugPrint('Error barberos: $e');

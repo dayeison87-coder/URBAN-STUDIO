@@ -102,7 +102,7 @@
           <span class="cita-cliente">{{ cita.cliente_nombre }}</span>
           <span class="cita-servicio">{{ cita.servicio_nombre }}</span>
           <span class="cita-fecha">{{ cita.fecha }} — {{ cita.hora }}</span>
-          <span class="cita-precio">${{ cita.servicio_precio }}</span>
+          <span class="cita-precio">{{ formatMoneda(+cita.servicio_precio) }}</span>
         </div>
         <div class="cita-acciones">
           <span class="badge" [ngClass]="{
