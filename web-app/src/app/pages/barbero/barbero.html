@@ -7,6 +7,7 @@
   </nav>
 
   <div class="tabs">
+<<<<<<< HEAD
     <button title="Dashboard" [class.active]="pestanaActiva === 'dashboard'" (click)="cambiarPestana('dashboard')"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></button>
     <button title="Mis clientes" [class.active]="pestanaActiva === 'clientes'" (click)="cambiarPestana('clientes')"><i class="bi bi-people"></i><span>Mis clientes</span></button>
     <button title="Historial" [class.active]="pestanaActiva === 'historial'" (click)="cambiarPestana('historial')"><i class="bi bi-scissors"></i><span>Historial</span></button>
@@ -14,6 +15,17 @@
     <button title="Mis citas" [class.active]="pestanaActiva === 'citas'" (click)="cambiarPestana('citas')"><i class="bi bi-calendar3"></i><span>Mis Citas</span></button>
     <button title="Mis horarios" [class.active]="pestanaActiva === 'horarios'" (click)="cambiarPestana('horarios')"><i class="bi bi-clock"></i><span>Mis Horarios</span></button>
     <button title="Mi perfil" [class.active]="pestanaActiva === 'perfil'" (click)="cambiarPestana('perfil')"><i class="bi bi-person"></i><span>Mi Perfil</span></button>
+=======
+    <button [class.active]="pestanaActiva === 'citas'" (click)="cambiarPestana('citas')">
+      📅 Mis Citas
+    </button>
+    <button [class.active]="pestanaActiva === 'horarios'" (click)="cambiarPestana('horarios')">
+      🕐 Mis Horarios
+    </button>
+    <button [class.active]="pestanaActiva === 'perfil'" (click)="cambiarPestana('perfil')">
+      👤 Mi Perfil
+    </button>
+>>>>>>> origin/main
     
   </div>
 

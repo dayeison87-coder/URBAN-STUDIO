@@ -22,6 +22,10 @@ import { ConfiguracionCuentaComponent } from './pages/configuracion-cuenta/confi
 // RUTAS
 // ==========================================
 
+// ==========================================
+// RUTAS
+// ==========================================
+
 export const routes: Routes = [
 
   // ==========================================
@@ -70,6 +74,7 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
+<<<<<<< HEAD
   {
     path: 'perfil',
     component: PerfilClienteComponent,
@@ -82,6 +87,8 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
+=======
+>>>>>>> origin/main
   // ==========================================
   // SOLO ADMIN
   // ==========================================

@@ -5,6 +5,9 @@ from .models import Categoria, Servicio
 
 
 class ServicioSerializer(serializers.ModelSerializer):
+    # Forzar que el precio se entregue como Integer al JSON (evita strings como "25000.00")
+    precio = serializers.IntegerField()
+
     class Meta:
         model  = Servicio
         fields = ['id', 'nombre', 'descripcion', 'precio', 'disponible', 'categoria']

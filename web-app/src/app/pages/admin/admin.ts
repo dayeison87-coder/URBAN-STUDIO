@@ -1,7 +1,7 @@
 // admin.ts
 
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -16,7 +16,7 @@ interface Servicio {
   id: number;
   nombre: string;
   descripcion: string;
-  precio: string;
+  precio: string | number;
   disponible: boolean;
   categoria: number;
 }
@@ -32,7 +32,7 @@ interface Barbero {
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, CurrencyPipe],
   templateUrl: './admin.html',
   styleUrl: './admin.css'
 })
@@ -91,6 +91,19 @@ export class AdminComponent implements OnInit {
     this.mensaje = '';
   }
 
+  // ── Formateo de Precio en Input ─────────────────────────
+  formatearPrecioInput(event: any): void {
+    let valorLimpio = event.target.value.replace(/\D/g, '');
+
+    if (valorLimpio) {
+      const formateado = new Intl.NumberFormat('es-CO').format(parseInt(valorLimpio, 10));
+      event.target.value = formateado;
+      this.servicioForm.precio = formateado;
+    } else {
+      this.servicioForm.precio = '';
+    }
+  }
+
   // ── Categorías ──────────────────────────────────────────
   cargarCategorias(): void {
     this.http.get<Categoria[]>(`${this.apiUrl}/categorias/`).subscribe({
@@ -125,10 +138,13 @@ export class AdminComponent implements OnInit {
       return;
     }
 
+    // Se eliminan los puntos antes de convertir a número para la API
+    const precioNumerico = Number(String(this.servicioForm.precio).replace(/\./g, ''));
+
     const payload = {
       nombre:      this.servicioForm.nombre,
       descripcion: this.servicioForm.descripcion,
-      precio:      Number(this.servicioForm.precio),
+      precio:      precioNumerico,
       disponible:  this.servicioForm.disponible,
       categoria:   Number(this.servicioForm.categoria),
     };
@@ -155,11 +171,16 @@ export class AdminComponent implements OnInit {
 
   editarServicio(s: Servicio): void {
     this.editandoServicio = true;
+
+    // Se formatea el precio proveniente del servidor para visualización en el input
+    const precioLimpio = String(s.precio).replace(/\D/g, '');
+    const precioFormateado = precioLimpio ? new Intl.NumberFormat('es-CO').format(parseInt(precioLimpio, 10)) : '';
+
     this.servicioForm = {
       id:          s.id,
       nombre:      s.nombre,
       descripcion: s.descripcion,
-      precio:      s.precio,
+      precio:      precioFormateado,
       disponible:  s.disponible,
       categoria:   s.categoria,
     };
@@ -189,7 +210,6 @@ export class AdminComponent implements OnInit {
     this.http.get<Barbero[]>(`${this.apiUrl}/usuarios/barberos/`, { headers: this.getHeaders() }).subscribe({
       next:  (data) => {
         this.listaBarberos = data;
-        // Cargamos y filtramos usuarios comunes una vez obtenidos los barberos
         this.cargarUsuariosComunes();
       },
       error: (err)  => console.error('Error barberos:', err)
@@ -199,7 +219,6 @@ export class AdminComponent implements OnInit {
   cargarUsuariosComunes(): void {
     this.http.get<any[]>(`${this.apiUrl}/usuarios/`, { headers: this.getHeaders() }).subscribe({
       next:  (data) => {
-        // Excluye a barberos activos y al usuario administrador actual logueado
         this.listaUsuariosComunes = data.filter(u => 
           !this.listaBarberos.some(b => b.id === u.id) && 
           u.username.toLowerCase() !== this.nombreUsuario.toLowerCase()
@@ -210,7 +229,6 @@ export class AdminComponent implements OnInit {
   }
 
   guardarBarbero(): void {
-    // Caso 1: Editar información básica de un barbero existente
     if (this.editandoBarbero && this.barberoForm.id) {
       if (!this.validarDatosBarbero()) return;
       const payload = {
@@ -223,18 +241,25 @@ export class AdminComponent implements OnInit {
         error: (err) => console.error(err)
       });
     } 
+<<<<<<< HEAD
 
     // Caso 2: Promover o asignar un nuevo usuario como barbero
+=======
+>>>>>>> origin/main
     else {
       if (!this.usuarioSeleccionadoId) {
         this.mensaje = 'Selecciona un usuario para asignarlo como barbero.';
         return;
       }
+<<<<<<< HEAD
 
       // ⬇️ CAMBIO AQUÍ: Enviamos el ID del Rol como número. 
       // Si el ID de Barbero en tu DB no es 3, cámbialo por el número correcto (ej: 2, 4)
+=======
+      
+>>>>>>> origin/main
       const payload = {
-        rol: 2 // 👈 Cambia este número por el ID real de tu rol Barbero
+        rol: 2
       };
 
       this.http.patch(`${this.apiUrl}/usuarios/${this.usuarioSeleccionadoId}/`, payload, { headers: this.getHeaders() }).subscribe({
@@ -262,8 +287,6 @@ export class AdminComponent implements OnInit {
 
   eliminarBarbero(id: number): void {
     if (confirm('¿Quitar el rol de barbero a este usuario?')) {
-      
-      // ⬇️ CAMBIO AQUÍ: Coloca el ID correspondiente al rol de Cliente común (suele ser 1 o 2)
       const payload = { 
         rol: 1 
       };
