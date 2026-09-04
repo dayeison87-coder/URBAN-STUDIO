@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600&display=swap');
+
+* { box-sizing: border-box; }
+.perfil-page { min-height: 100vh; padding: 34px 7%; color: #f0ede8; background: radial-gradient(circle at 70% 0, #211c14, #090909 42%); font-family: 'Montserrat', sans-serif; }
+.perfil-header { max-width: 1020px; margin: 0 auto 38px; border-bottom: 1px solid #29251e; padding-bottom: 26px; }
+.back-button { border: 1px solid #342e24; background: transparent; color: #c9a96e; padding: 9px 14px; margin-bottom: 32px; cursor: pointer; }
+.eyebrow { color: #c9a96e; font-size: 9px; letter-spacing: 4px; text-transform: uppercase; }
+.perfil-header h1 { margin: 8px 0; font: 300 54px 'Cormorant Garamond', serif; letter-spacing: 5px; text-transform: uppercase; }
+.perfil-header > p:last-child { color: #777; font-size: 11px; letter-spacing: 1px; }
+.perfil-layout { max-width: 1020px; display: grid; grid-template-columns: 280px 1fr; gap: 24px; margin: auto; }
+.perfil-aside, .perfil-form { border: 1px solid #28251f; background: rgba(15,15,15,.84); padding: 30px; }
+.perfil-aside { text-align: center; height: fit-content; }
+.avatar-wrap { width: 132px; height: 132px; margin: 0 auto 20px; border: 1px solid #c9a96e; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; color: #c9a96e; background: #18140e; font: 400 56px 'Cormorant Garamond', serif; }
+.avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.perfil-aside h2 { font: 400 25px 'Cormorant Garamond', serif; letter-spacing: 2px; }
+.perfil-aside p { color: #666; font-size: 10px; letter-spacing: 1px; margin: 6px 0 24px; }
+.photo-button { display: inline-flex; gap: 8px; align-items: center; border: 1px solid #c9a96e; color: #c9a96e; padding: 10px 14px; font-size: 10px; cursor: pointer; }
+.photo-button:hover { background: #c9a96e; color: #0a0a0a; }
+.perfil-form { display: grid; gap: 15px; }
+.form-heading { display: flex; justify-content: space-between; color: #c9a96e; border-bottom: 1px solid #28251f; padding-bottom: 12px; margin-bottom: 4px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
+.form-heading i { font-size: 15px; }
+.password-heading { margin-top: 12px; }
+.perfil-form label { display: grid; gap: 7px; color: #888; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+.perfil-form input { width: 100%; height: 42px; padding: 0 13px; border: 1px solid #302d27; outline: none; background: #0a0a0a; color: #f0ede8; font: 12px 'Montserrat', sans-serif; }
+.perfil-form input:focus { border-color: #c9a96e; }
+.perfil-form input:disabled { color: #555; }
+.save-button { height: 44px; border: 0; background: #c9a96e; color: #0a0a0a; cursor: pointer; font: 600 10px 'Montserrat', sans-serif; letter-spacing: 2px; text-transform: uppercase; }
+.save-button:disabled { opacity: .5; cursor: wait; }
+.form-message { padding: 11px; font-size: 11px; }
+.form-message.success { color: #58c68a; background: #58c68a10; border: 1px solid #58c68a44; }
+.form-message.error { color: #e97575; background: #e9757510; border: 1px solid #e9757544; }
+@media (max-width: 700px) { .perfil-page { padding: 22px 16px 40px; } .perfil-header h1 { font-size: 42px; } .perfil-layout { grid-template-columns: 1fr; } .perfil-aside { padding: 24px; } }

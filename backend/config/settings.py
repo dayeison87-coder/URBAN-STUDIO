@@ -15,8 +15,13 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '192.168.1.9',
+    '10.237.179.62',
+    '10.203.146.62',
+]
 
 # ── Apps ────────────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -108,9 +113,12 @@ REST_FRAMEWORK = {
 
 # ── CORS ─────────────────────────────────────────────────────
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:4200',
-    'http://localhost:55773',
-    'http://127.0.0.1:55773',
+    'http://localhost:4200',  # tu web Angular
+]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r'^http://localhost:\d+$',   # cualquier puerto de localhost (Flutter Web, etc.)
+    r'^http://127\.0\.0\.1:\d+$',
 ]
 
 # ── JWT ──────────────────────────────────────────────────────
@@ -149,3 +157,7 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')

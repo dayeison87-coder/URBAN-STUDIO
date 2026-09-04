@@ -1,0 +1,49 @@
+class ApiConstants {
+  // IP actual del PC en la red Wi-Fi compartida con el celular
+  static const String baseUrl = 'http://10.203.146.62:8000/api';
+
+  // Se mantiene para que AuthService siga funcionando
+  static const List<String> baseUrls = [baseUrl];
+
+  // =========================
+  // AUTENTICACIÓN
+  // =========================
+
+  static const String loginEndpoint = '$baseUrl/login/';
+  static const String googleTokenEndpoint = '$baseUrl/auth/google/token/';
+  static const String registerEndpoint = '$baseUrl/register/';
+  static const String perfilEndpoint = '$baseUrl/perfil/';
+
+  // =========================
+  // SERVICIOS
+  // =========================
+
+  static const String serviciosEndpoint = '$baseUrl/categorias/';
+
+  // =========================
+  // CITAS
+  // =========================
+
+  static const String citasEndpoint = '$baseUrl/citas/';
+
+  // =========================
+  // BARBEROS
+  // =========================
+
+  static const String barberosEndpoint = '$baseUrl/usuarios/barberos/';
+
+  static const String disponibilidadEndpoint = '$baseUrl/disponibilidad/';
+
+  // =========================
+  // TESTIMONIOS
+  // =========================
+
+  static const String testimoniosEndpoint = '$baseUrl/testimonios/ultimos/';
+
+  // =========================
+  // IA
+  // =========================
+
+  static const String facialAnalysisEndpoint =
+      '$baseUrl/servicios/analizar-rostro/';
+}

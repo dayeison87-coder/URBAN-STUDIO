@@ -22,6 +22,8 @@ export class HomeComponent implements OnInit { // 👈 Implementamos OnInit para
   private http = inject(HttpClient); // 👈 Inyectamos el servicio HTTP
 
   nombreUsuario: string = 'Usuario';
+  fotoUsuario: string | null = null;
+  cuentaAbierta = false;
   testimonios: any[] = []; // 👈 Array dinámico para almacenar las reseñas del backend
 
   // Flujo IA
@@ -50,6 +52,20 @@ export class HomeComponent implements OnInit { // 👈 Implementamos OnInit para
 
   ngOnInit(): void {
     this.cargarTestimonios(); // 👈 Lanza la petición apenas cargue la landing page
+    this.cargarFotoUsuario();
+  }
+
+  cargarFotoUsuario(): void {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+    this.http.get<{ foto: string | null }>('http://localhost:8000/api/perfil/cliente/', {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: perfil => this.fotoUsuario = perfil.foto
+        ? (perfil.foto.startsWith('http') ? perfil.foto : `http://localhost:8000${perfil.foto}`)
+        : null,
+      error: err => console.error('Error cargando foto de usuario:', err)
+    });
   }
 
   // =======================
@@ -78,6 +94,10 @@ export class HomeComponent implements OnInit { // 👈 Implementamos OnInit para
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('username');
     this.router.navigate(['/login']);
+  }
+
+  cambiarCuenta() {
+    this.logout();
   }
 
   // =======================

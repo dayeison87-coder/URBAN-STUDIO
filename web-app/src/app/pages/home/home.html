@@ -14,9 +14,17 @@
         <button routerLink="/gemini" class="btn-ia" (click)="abrirIA()"><i class="bi bi-stars"></i> IA Estilo</button>
       </li>
       <li>
-        <button type="button" class="btn-logout" (click)="logout()" role="menuitem">
-          <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-        </button>
+        <div class="account-menu">
+          <button type="button" class="account-trigger" (click)="cuentaAbierta = !cuentaAbierta" [attr.aria-expanded]="cuentaAbierta">
+            <span class="account-avatar"><img *ngIf="fotoUsuario" [src]="fotoUsuario" alt="Foto de perfil"><span *ngIf="!fotoUsuario">{{ nombreUsuario.charAt(0).toUpperCase() }}</span></span>
+          </button>
+          <div class="account-dropdown" *ngIf="cuentaAbierta">
+            <div class="account-dropdown-header"><span class="account-avatar large"><img *ngIf="fotoUsuario" [src]="fotoUsuario" alt="Foto de perfil"><span *ngIf="!fotoUsuario">{{ nombreUsuario.charAt(0).toUpperCase() }}</span></span><span><b>{{ nombreUsuario }}</b><small>Cuenta profesional</small></span></div>
+            <a routerLink="/perfil" (click)="cuentaAbierta = false"><i class="bi bi-person"></i> Perfil</a>
+            <a routerLink="/configuracion-cuenta" (click)="cuentaAbierta = false"><i class="bi bi-gear"></i> Configuración de cuenta</a>
+            <button type="button" class="account-logout" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</button>
+          </div>
+        </div>
       </li>
     </ul>
   </nav>

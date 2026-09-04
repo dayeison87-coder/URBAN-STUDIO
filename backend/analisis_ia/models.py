@@ -154,6 +154,14 @@ class CodigoSeguridadIA(models.Model):
         related_name="codigos_seguridad_ia"
     )
 
+    barbero = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="codigos_ia_recibidos",
+        null=True,
+        blank=True,
+    )
+
     codigo = models.CharField(
         max_length=6
     )

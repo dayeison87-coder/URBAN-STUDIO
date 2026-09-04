@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -18,6 +18,30 @@ export class LoginComponent {
 
   private http = inject(HttpClient);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params['access'] && params['refresh']) {
+        localStorage.setItem('access_token', params['access']);
+        localStorage.setItem('refresh_token', params['refresh']);
+        localStorage.setItem('username', params['username'] || 'Usuario');
+        this.cargarPerfilYEntrar(params['access']);
+      }
+    });
+  }
+
+  private cargarPerfilYEntrar(accessToken: string) {
+    const headers = new HttpHeaders({ Authorization: `Bearer ${accessToken}` });
+    this.http.get<any>('http://127.0.0.1:8000/api/perfil/', { headers }).subscribe({
+      next: perfil => {
+        localStorage.setItem('user_id', String(perfil.id));
+        localStorage.setItem('rol', perfil.rol?.nombre || 'Cliente');
+        this.router.navigate([perfil.rol?.nombre === 'Barbero' ? '/barbero' : '/home']);
+      },
+      error: () => this.mensaje = 'No se pudo cargar el perfil de Google.'
+    });
+  }
 
   login() {
     this.mensaje = '';

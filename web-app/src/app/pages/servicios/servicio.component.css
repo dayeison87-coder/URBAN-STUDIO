@@ -256,16 +256,16 @@ i.bi {
 
 /* Rutas de imágenes de fondo */
 .bg-cabello {
-  background-image: url('../../../assets/img/cabello.jpg');
+  background-image: url('/assets/img/cabello.jpg');
 }
 .bg-barba {
-  background-image: url('../../../assets/img/barba.jpg');
+  background-image: url('/assets/img/barba.jpg');
 }
 .bg-rostro {
-  background-image: url('../../../assets/img/rostro.jpg');
+  background-image: url('/assets/img/rostro.jpg');
 }
 .bg-productos {
-  background-image: url('../../../assets/img/productos.jpg');
+  background-image: url('/assets/img/productos.jpg');
 }
 
 .us-card-overlay {
@@ -498,9 +498,14 @@ i.bi {
 .us-service-item {
   display: flex; 
   justify-content: space-between; 
-  align-items: baseline;
+  align-items: center;
   padding: 14px 0; 
   border-bottom: 0.5px solid #1a1a1a;
+}
+
+.us-service-item > div {
+  flex: 1;
+  min-width: 0;
 }
 
 .us-service-item:last-child { 
@@ -546,6 +551,30 @@ i.bi {
   margin-left: 20px;
 }
 
+.us-service-book {
+  flex: 0 0 auto;
+  margin-left: 20px;
+  border: 0.5px solid #c9a96e;
+  background: transparent;
+  color: #c9a96e;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 9px 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.us-service-book:hover {
+  background: #c9a96e;
+  color: #0a0a0a;
+}
+
+.us-service-book i {
+  margin-left: 4px;
+}
+
 .us-modal-empty {
   text-align: center; 
   padding: 40px 0;
@@ -582,6 +611,12 @@ i.bi {
 .us-modal-cta:hover { 
   background: #c9a96e; 
   color: #0a0a0a; 
+}
+
+.us-modal-cta:disabled {
+  border-color: #2a2a2a;
+  color: #5a5a5a;
+  cursor: not-allowed;
 }
 
 /* ── RESPONSIVE ── */

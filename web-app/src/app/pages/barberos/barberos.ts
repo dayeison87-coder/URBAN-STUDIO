@@ -34,7 +34,12 @@ export class Barberos implements OnInit {
 
   cargarBarberos() {
     this.barberosService.obtenerBarberos().subscribe({
-      next: (data) => this.barberos = data,
+      next: (data) => this.barberos = data.map(barbero => ({
+        ...barbero,
+        avatarUrl: barbero.foto
+          ? (barbero.foto.startsWith('http') ? barbero.foto : `http://localhost:8000${barbero.foto}`)
+          : null
+      })),
       error: (err) => console.error(err)
     });
   }

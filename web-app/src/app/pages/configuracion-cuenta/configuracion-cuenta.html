@@ -1,0 +1,37 @@
+<main class="config-page">
+  <header class="config-header">
+    <button class="back-button" (click)="volver()"><i class="bi bi-arrow-left"></i> Volver</button>
+    <p class="eyebrow">Urban Studio / Seguridad</p>
+    <h1>Configuración de cuenta</h1>
+    <p>Controla la seguridad y las preferencias de tu experiencia.</p>
+  </header>
+
+  <section class="config-grid">
+    <article class="config-card security-card">
+      <div class="card-title"><span><i class="bi bi-shield-lock"></i> Seguridad</span><small>Protege tu cuenta</small></div>
+      <form (ngSubmit)="cambiarPassword()">
+        <label>Contraseña actual<div class="password-input"><input [type]="mostrarActual ? 'text' : 'password'" [(ngModel)]="passwordActual" name="passwordActual" placeholder="Escribe tu contraseña actual"><button type="button" (click)="mostrarActual = !mostrarActual"><i class="bi" [class.bi-eye]="!mostrarActual" [class.bi-eye-slash]="mostrarActual"></i></button></div></label>
+        <label>Nueva contraseña<div class="password-input"><input [type]="mostrarNueva ? 'text' : 'password'" [(ngModel)]="passwordNueva" name="passwordNueva" placeholder="Mínimo 8 caracteres"><button type="button" (click)="mostrarNueva = !mostrarNueva"><i class="bi" [class.bi-eye]="!mostrarNueva" [class.bi-eye-slash]="mostrarNueva"></i></button></div></label>
+        <label>Confirmar nueva contraseña<div class="password-input"><input [type]="mostrarConfirmacion ? 'text' : 'password'" [(ngModel)]="passwordConfirmacion" name="passwordConfirmacion" placeholder="Repite la nueva contraseña"><button type="button" (click)="mostrarConfirmacion = !mostrarConfirmacion"><i class="bi" [class.bi-eye]="!mostrarConfirmacion" [class.bi-eye-slash]="mostrarConfirmacion"></i></button></div></label>
+        <p class="security-note"><i class="bi bi-info-circle"></i> Usa una contraseña diferente a las anteriores.</p>
+        <button class="primary-button" type="submit" [disabled]="guardando"><i class="bi bi-lock"></i> {{ guardando ? 'Actualizando...' : 'Actualizar contraseña' }}</button>
+      </form>
+    </article>
+
+    <article class="config-card preferences-card">
+      <div class="card-title"><span><i class="bi bi-sliders"></i> Preferencias</span><small>Personaliza tu cuenta</small></div>
+      <label class="toggle-row"><span><b>Notificaciones</b><small>Recibir novedades de Urban Studio</small></span><input type="checkbox" [(ngModel)]="notificaciones"><i class="toggle"></i></label>
+      <label class="toggle-row"><span><b>Recordatorios</b><small>Avisos antes de tus citas</small></span><input type="checkbox" [(ngModel)]="recordatorios"><i class="toggle"></i></label>
+      <label class="toggle-row"><span><b>Perfil visible</b><small>Permitir que el estudio te identifique</small></span><input type="checkbox" [(ngModel)]="perfilVisible"><i class="toggle"></i></label>
+      <button class="secondary-button" (click)="guardarPreferencias()"><i class="bi bi-check2"></i> Guardar preferencias</button>
+    </article>
+
+    <article class="config-card account-card">
+      <div class="card-title"><span><i class="bi bi-person-badge"></i> Cuenta</span><small>Acciones importantes</small></div>
+      <button class="account-action" (click)="volver()"><i class="bi bi-person"></i><span><b>Editar perfil</b><small>Nombre, correo, teléfono y foto</small></span><i class="bi bi-chevron-right"></i></button>
+      <button class="account-action danger" (click)="cerrarSesion()"><i class="bi bi-box-arrow-right"></i><span><b>Cerrar sesión</b><small>Salir de esta cuenta</small></span><i class="bi bi-chevron-right"></i></button>
+    </article>
+  </section>
+  <div class="form-message success" *ngIf="mensaje"><i class="bi bi-check-circle"></i> {{ mensaje }}</div>
+  <div class="form-message error" *ngIf="error"><i class="bi bi-exclamation-circle"></i> {{ error }}</div>
+</main>

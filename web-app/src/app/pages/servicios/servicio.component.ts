@@ -130,7 +130,11 @@ export class ServicioComponent implements OnInit {
     return '$' + num.toLocaleString('es-CO');
   }
 
-  irACitas(): void {
-    this.router.navigate(['/citas']);
+  irACitas(servicio: Servicio, categoria: Categoria | null): void {
+    if (!categoria || !servicio) return;
+    this.cerrarModal();
+    this.router.navigate(['/citas'], {
+      queryParams: { categoria: categoria.id, servicio: servicio.id }
+    });
   }
-}
+}9

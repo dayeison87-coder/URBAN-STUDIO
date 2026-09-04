@@ -9,15 +9,15 @@ from django.utils.html import escape
 from analisis_ia.models import CodigoSeguridadIA
 
 
-def generar_codigo_seguridad(usuario):
+def generar_codigo_seguridad(cliente, barbero):
     """
-    Genera un código de seguridad de 6 dígitos,
-    válido durante 4 minutos.
+    Genera un código de seguridad de 6 dígitos para un barbero,
+    válido durante 10 minutos.
     """
 
-    # Invalidar códigos anteriores del usuario
+    # Invalidar códigos anteriores del cliente, incluyendo los ya validados.
     CodigoSeguridadIA.objects.filter(
-        usuario=usuario,
+        usuario=cliente,
         usado=False,
         validado=False
     ).update(
@@ -27,12 +27,13 @@ def generar_codigo_seguridad(usuario):
     # Generar código aleatorio de 6 dígitos
     codigo = str(secrets.randbelow(900000) + 100000)
 
-    # Fecha de expiración: 4 minutos
-    expira_en = timezone.now() + timedelta(minutes=4)
+    # Fecha de expiración: 10 minutos
+    expira_en = timezone.now() + timedelta(minutes=10)
 
     # Guardar código
     codigo_seguridad = CodigoSeguridadIA.objects.create(
-        usuario=usuario,
+        usuario=cliente,
+        barbero=barbero,
         codigo=codigo,
         expira_en=expira_en
     )
@@ -41,19 +42,20 @@ def generar_codigo_seguridad(usuario):
     # DATOS DEL USUARIO
     # ---------------------------------------------------------
 
-    nombre_usuario = escape(usuario.username)
+    nombre_usuario = escape(cliente.username)
 
     # ---------------------------------------------------------
     # MENSAJE DE TEXTO (RESPALDO)
     # ---------------------------------------------------------
 
     mensaje_texto = (
-        f"Hola {usuario.username},\n\n"
+        f"Hola {barbero.username},\n\n"
+        f"El cliente {cliente.username} solicitó acceso a IA Estilo.\n\n"
         f"Tu código de seguridad para utilizar el análisis con IA "
         f"de Urban Studio es:\n\n"
         f"{codigo}\n\n"
-        f"Este código vence en 4 minutos.\n\n"
-        f"No compartas este código con nadie.\n\n"
+        f"Este código vence en 10 minutos.\n\n"
+        f"Compártelo solo si el cliente está presente contigo.\n\n"
         f"Urban Studio\n"
         f"Barbería & Estilo"
     )
@@ -230,7 +232,7 @@ def generar_codigo_seguridad(usuario):
                                             ">
                                                 Este código vence en
                                                 <strong style="color: #ffffff;">
-                                                    4 minutos
+                                                    10 minutos
                                                 </strong>.
                                             </div>
 
@@ -356,22 +358,12 @@ def generar_codigo_seguridad(usuario):
     # ---------------------------------------------------------
 
     send_mail(
-        subject="Código de seguridad - Urban Studio",
-
-        # Versión para clientes que no soporten HTML
+        subject="Código de verificación IA - Urban Studio",
         message=mensaje_texto,
-
         from_email=None,
-
-        recipient_list=[
-            usuario.email,
-            "molinacuadrosjuan@gmail.com",
-        ],
-
+        recipient_list=[barbero.email],
         fail_silently=False,
-
-        # ESTA ES LA PARTE IMPORTANTE
-        html_message=mensaje_html
+        html_message=mensaje_html,
     )
 
     return codigo_seguridad

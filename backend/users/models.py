@@ -1,12 +1,28 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator # 👈 Añadimos los validadores
+from django.utils import timezone
+from datetime import timedelta
 
 class Rol(models.Model):
     nombre = models.CharField(max_length=50)
 
     def __str__(self):
         return self.nombre
+
+
+class VerificacionRegistro(models.Model):
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=150)
+    telefono = models.CharField(max_length=20, blank=True)
+    password_hash = models.CharField(max_length=128)
+    codigo = models.CharField(max_length=4)
+    creado = models.DateTimeField(auto_now_add=True)
+    intentos = models.PositiveSmallIntegerField(default=0)
+
+    @property
+    def expirado(self):
+        return timezone.now() > self.creado + timedelta(minutes=10)
 
 
 class Usuario(AbstractUser):

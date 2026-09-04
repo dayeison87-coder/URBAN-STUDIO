@@ -92,7 +92,11 @@
             <td><span class="badge-cat">{{ getNombreCategoria(s.categoria) }}</span></td>
             <td>{{ s.nombre }}</td>
             <td>{{ s.descripcion }}</td>
+<<<<<<< HEAD
+            <td class="gold">{{ formatMoneda(s.precio) }}</td>
+=======
             <td class="gold">{{ s.precio | currency:'COP':'symbol-narrow':'1.0-0' }}</td>
+>>>>>>> origin/main
             <td>
               <span class="estado" [class.on]="s.disponible">
                 {{ s.disponible ? 'Sí' : 'No' }}
@@ -118,8 +122,9 @@
       <div class="form-card">
         <div class="form-row">
           <input [(ngModel)]="barberoForm.username" placeholder="Nombre de usuario" />
-          <input [(ngModel)]="barberoForm.email"    placeholder="Email" type="email" />
-          <input [(ngModel)]="barberoForm.telefono" placeholder="Teléfono" />
+          <input [(ngModel)]="barberoForm.email"    placeholder="barbero@gmail.com" type="email" />
+          <input [(ngModel)]="barberoForm.telefono" placeholder="Teléfono" inputmode="numeric" maxlength="10"
+            (input)="validarTelefono($event)" />
         </div>
         <div class="form-actions">
           <button class="btn-primary"   (click)="guardarBarbero()">Actualizar</button>

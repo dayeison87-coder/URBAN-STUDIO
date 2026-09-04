@@ -15,6 +15,12 @@ import { ServicioComponent } from './pages/servicios/servicio.component';
 import { BarberoComponent } from './pages/barbero/barbero';
 import { ChatComponent } from './pages/chat/chat';
 import { AnalisisRostroComponent } from './pages/gemini/geminis';
+import { PerfilClienteComponent } from './pages/perfil-cliente/perfil-cliente';
+import { ConfiguracionCuentaComponent } from './pages/configuracion-cuenta/configuracion-cuenta';
+
+// ==========================================
+// RUTAS
+// ==========================================
 
 // ==========================================
 // RUTAS
@@ -68,6 +74,21 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
+<<<<<<< HEAD
+  {
+    path: 'perfil',
+    component: PerfilClienteComponent,
+    canActivate: [authGuard]
+  },
+
+  {
+    path: 'configuracion-cuenta',
+    component: ConfiguracionCuentaComponent,
+    canActivate: [authGuard]
+  },
+
+=======
+>>>>>>> origin/main
   // ==========================================
   // SOLO ADMIN
   // ==========================================

@@ -4,6 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { GeminiService } from '../../services/gemini';
 
+interface Barbero {
+  id: number;
+  username: string;
+  experiencia?: number | null;
+}
+
 @Component({
   selector: 'app-analisis-rostro',
   standalone: true,
@@ -37,6 +43,10 @@ export class AnalisisRostroComponent implements OnDestroy {
   codigoInputs = [0, 1, 2, 3, 4, 5];
   codigoEnviado = false;
   validandoCodigo = false;
+  mostrarSelectorBarbero = false;
+  cargandoBarberos = false;
+  barberos: Barbero[] = [];
+  barberoSeleccionado: number | null = null;
 
   // Indica si el usuario ya validó correctamente
   // el código y puede utilizar la IA.
@@ -86,7 +96,18 @@ export class AnalisisRostroComponent implements OnDestroy {
     this.errorMensaje = '';
 
     // Solicitar código al correo
-    this.solicitarCodigo();
+    this.cargandoBarberos = true;
+    this.geminiService.obtenerBarberos().subscribe({
+      next: (barberos) => {
+        this.barberos = barberos;
+        this.cargandoBarberos = false;
+        this.mostrarSelectorBarbero = true;
+      },
+      error: () => {
+        this.cargandoBarberos = false;
+        this.errorMensaje = 'No fue posible cargar los barberos disponibles.';
+      }
+    });
   }
 
   // ==========================================
@@ -404,11 +425,16 @@ export class AnalisisRostroComponent implements OnDestroy {
 
   solicitarCodigo() {
 
+    if (this.barberoSeleccionado === null) {
+      this.errorMensaje = 'Debes seleccionar un barbero.';
+      return;
+    }
+
     this.errorMensaje = '';
     this.validandoCodigo = true;
 
     this.geminiService
-      .solicitarCodigoIA()
+      .solicitarCodigoIA(this.barberoSeleccionado)
       .subscribe({
 
         next: () => {
@@ -416,6 +442,7 @@ export class AnalisisRostroComponent implements OnDestroy {
           this.validandoCodigo = false;
 
           this.mostrarCodigo = true;
+          this.mostrarSelectorBarbero = false;
           this.codigoEnviado = true;
 
         },
@@ -545,8 +572,14 @@ export class AnalisisRostroComponent implements OnDestroy {
     this.errorMensaje = '';
     this.validandoCodigo = true;
 
+    if (this.barberoSeleccionado === null) {
+      this.validandoCodigo = false;
+      this.errorMensaje = 'Debes seleccionar un barbero.';
+      return;
+    }
+
     this.geminiService
-      .validarCodigoIA(this.codigo.trim())
+      .validarCodigoIA(this.codigo.trim(), this.barberoSeleccionado)
       .subscribe({
 
         next: () => {
