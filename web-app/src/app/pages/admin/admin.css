@@ -109,16 +109,27 @@ textarea {
   color: #f0ede8;
   font-size: 13px;
   transition: border-color 0.2s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 .select-cat {
   cursor: pointer;
-  appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23c9a96e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 32px;
 }
-.select-cat option { background: #0f0f0f; }
+
+.select-cat option {
+  background-color: #0a0a0a !important;
+  color: #f0ede8 !important;
+  padding: 10px;
+}
+
+.select-cat option[disabled] {
+  color: #555555 !important;
+}
 
 textarea {
   width: 100%;
@@ -127,11 +138,37 @@ textarea {
   margin-bottom: 12px;
   flex: none;
 }
+
+/* ── QUITAR BORDE AZUL Y MANTENER BORDE DORADO ── */
 .form-row input:focus,
+.form-row input:focus-visible,
+.form-row input:active,
 .select-cat:focus,
-textarea:focus {
-  outline: none;
-  border-color: #c9a96e;
+.select-cat:focus-visible,
+.select-cat:active,
+textarea:focus,
+textarea:focus-visible,
+textarea:active,
+button:focus,
+button:focus-visible {
+  outline: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: #c9a96e !important;
+}
+
+/* Quitar resplandor azul en autocompletado del navegador */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f0ede8 !important;
+  -webkit-box-shadow: 0 0 0px 1000px #0a0a0a inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+  border-color: #c9a96e !important;
 }
 
 .check-label {
