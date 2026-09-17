@@ -134,24 +134,8 @@ REST_FRAMEWORK = {
 }
 
 # ── CORS ──────────────────────────────────────────────────────
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:4200',
-    'http://localhost:4200',
-]
-
-FRONTEND_URL = os.getenv('FRONTEND_URL')
-if FRONTEND_URL:
-    CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
-
-VERCEL_URL = os.getenv('VERCEL_URL')
-if VERCEL_URL:
-    CORS_ALLOWED_ORIGINS.append(VERCEL_URL)
-
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r'^http://localhost:\d+$',
-    r'^http://127\.0\.0\.1:\d+$',
-    r'^https://[a-z0-9-]+\.vercel\.app$',
-]
+# ── CORS ──────────────────────────────────────────────────────
+CORS_ALLOW_ALL_ORIGINS = True
 
 # ── JWT ───────────────────────────────────────────────────────
 SIMPLE_JWT = {
