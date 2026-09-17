@@ -187,7 +187,7 @@ export class AnalisisRostroComponent implements OnDestroy {
             // análisis se hacen solos para no pedir un segundo clic al usuario.
             // No esperamos eventos de video: algunos navegadores no los emiten
             // aunque el stream esté activo, lo que dejaba el escáner bloqueado.
-            this.iniciarVideoYEsperarListo(video);
+            this.programarCapturaAutomatica();
 
             console.log('✅ Cámara reproduciendo');
 
@@ -274,6 +274,17 @@ export class AnalisisRostroComponent implements OnDestroy {
     this.errorMensaje =
       'La cámara no entregó imagen. Revisa el permiso de cámara del navegador y vuelve a intentarlo.';
     this.detenerCamara();
+  }
+
+  private programarCapturaAutomatica() {
+    this.intentosCaptura = 0;
+    if (this.autoCaptureTimer) {
+      clearTimeout(this.autoCaptureTimer);
+    }
+
+    // La cámara puede tardar en mostrar el primer cuadro. Tras esta pausa,
+    // intentarCapturaAutomatica verifica el video y reintenta si hace falta.
+    this.autoCaptureTimer = setTimeout(() => this.intentarCapturaAutomatica(), 3000);
   }
 
   // ==========================================
@@ -501,6 +512,8 @@ export class AnalisisRostroComponent implements OnDestroy {
   quitarImagen() {
 
     this.imagenSeleccionada = null;
+    this.resultadoAnalisis = null;
+    this.errorMensaje = '';
 
     if (this.previewUrl) {
 

@@ -11,9 +11,22 @@ No entrena nada: usa el modelo ya entrenado por Google a través de su API.
 
 import os
 import json
+import re
 
 
 MODELO_TEXTO = "gemini-3.6-flash"
+TIPOS_CABELLO_VALIDOS = {
+    "1a", "1b", "1c", "2a", "2b", "2c",
+    "3a", "3b", "3c", "4a", "4b", "4c",
+}
+
+
+def _normalizar_tipo_cabello(valor) -> str:
+    """Keep the compact 1a-4c code even if Gemini adds a description."""
+    coincidencia = re.search(r"\b([1-4][abc])\b", str(valor or "").lower())
+    if coincidencia and coincidencia.group(1) in TIPOS_CABELLO_VALIDOS:
+        return coincidencia.group(1)
+    return ""
 
 
 def _get_client():
@@ -142,7 +155,7 @@ No uses markdown.
 La estructura debe ser exactamente:
 
 {{
-    "tipo_cabello": "...",
+    "tipo_cabello": "solo uno de: 1a, 1b, 1c, 2a, 2b, 2c, 3a, 3b, 3c, 4a, 4b o 4c",
     "nombre_corte_sugerido": "...",
     "corte_del_catalogo": "... o null si no aplica ninguno del catálogo",
     "descripcion_ia": "..."
@@ -177,4 +190,8 @@ La estructura debe ser exactamente:
 
     texto = texto.strip()
 
-    return json.loads(texto)
+    resultado = json.loads(texto)
+    resultado["tipo_cabello"] = _normalizar_tipo_cabello(
+        resultado.get("tipo_cabello")
+    )
+    return resultado
