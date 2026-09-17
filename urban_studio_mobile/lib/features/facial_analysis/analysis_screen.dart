@@ -844,7 +844,7 @@ class _AnalysisScreenState extends State<AnalysisScreen>
       return url;
     }
 
-    return 'http://127.0.0.1:8000$url';
+    return 'https://urban-studio-mdpz.onrender.com$url';
   }
 
   // ============================================================
