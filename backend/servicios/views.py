@@ -1,11 +1,14 @@
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import api_view, permission_classes, parser_classes
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Categoria, Servicio
-from .serializers import CategoriaSerializer, ServicioSerializer
+from django.db import transaction
+from .models import Categoria, Servicio, Producto, OrdenProducto, DetalleOrdenProducto
+from .serializers import (
+    CategoriaSerializer, ServicioSerializer, ProductoSerializer, OrdenProductoSerializer,
+)
 from .gemini_service import analizar_rostro_con_ia
 
 
@@ -43,6 +46,63 @@ class ServicioAdminViewSet(viewsets.ModelViewSet):
         if categoria:
             qs = qs.filter(categoria__slug=categoria)
         return qs
+
+
+class ProductoAdminViewSet(viewsets.ModelViewSet):
+    queryset = Producto.objects.select_related('categoria').all()
+    serializer_class = ProductoSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        categoria = self.request.query_params.get('categoria')
+        return qs.filter(categoria__slug=categoria) if categoria else qs
+
+
+class OrdenProductoViewSet(viewsets.ModelViewSet):
+    serializer_class = OrdenProductoSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'post', 'head', 'options']
+
+    def get_queryset(self):
+        return OrdenProducto.objects.filter(cliente=self.request.user).prefetch_related(
+            'items__producto'
+        ).order_by('-creado_en')
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        items = request.data.get('items', [])
+        if not isinstance(items, list) or not items:
+            return Response({'items': 'Debes seleccionar al menos un producto.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        order = OrdenProducto.objects.create(cliente=request.user)
+        total = 0
+        try:
+            for item in items:
+                product_id = item.get('producto')
+                quantity = int(item.get('cantidad', 0))
+                if quantity < 1:
+                    raise ValueError('La cantidad debe ser mayor que cero.')
+                product = Producto.objects.select_for_update().get(
+                    pk=product_id, disponible=True
+                )
+                if product.inventario < quantity:
+                    raise ValueError(f'No hay inventario suficiente para {product.nombre}.')
+                product.inventario -= quantity
+                product.save(update_fields=['inventario', 'actualizado'])
+                DetalleOrdenProducto.objects.create(
+                    orden=order, producto=product, cantidad=quantity,
+                    precio_unitario=product.precio,
+                )
+                total += product.precio * quantity
+        except (Producto.DoesNotExist, ValueError) as exc:
+            transaction.set_rollback(True)
+            order.delete()
+            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        order.total = total
+        order.save(update_fields=['total', 'actualizado'])
+        return Response(self.get_serializer(order).data, status=status.HTTP_201_CREATED)
 
 
 # ── Vista de Inteligencia Artificial: Análisis de Rostro ────────────────────

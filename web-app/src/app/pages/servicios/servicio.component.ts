@@ -18,6 +18,18 @@ interface Categoria {
   nombre: string;
   descripcion: string;
   servicios: Servicio[];
+  productos: Producto[];
+}
+
+interface Producto {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  precio: string;
+  inventario: number;
+  disponible: boolean;
+  imagen?: string;
+  imagen_url?: string;
 }
 
 @Component({
@@ -31,6 +43,8 @@ export class ServicioComponent implements OnInit {
 
   categorias: Categoria[] = [];
   categoriaActiva: Categoria | null = null;
+  carrito: { producto: Producto; cantidad: number }[] = [];
+  mensajeOrden = '';
   cargando = true;
   nombreUsuario: string = '';
 
@@ -109,6 +123,8 @@ export class ServicioComponent implements OnInit {
   // Modales y utilidades de la vista
   abrirModal(categoria: Categoria): void {
     this.categoriaActiva = categoria;
+    this.carrito = [];
+    this.mensajeOrden = '';
   }
 
   cerrarModal(): void {
@@ -134,10 +150,35 @@ export class ServicioComponent implements OnInit {
   }
 
   irACitas(servicio: Servicio, categoria: Categoria | null): void {
+    if (categoria?.slug === 'productos') return;
     if (!categoria || !servicio) return;
     this.cerrarModal();
-    this.router.navigate(['/citas'], {
-      queryParams: { categoria: categoria.id, servicio: servicio.id }
+    this.router.navigate(['/citas'], { queryParams: { categoria: categoria.id, servicio: servicio.id } });
+  }
+
+  agregarProducto(producto: Producto): void {
+    const existente = this.carrito.find(item => item.producto.id === producto.id);
+    if (existente) { if (existente.cantidad < producto.inventario) existente.cantidad++; }
+    else this.carrito.push({ producto, cantidad: 1 });
+  }
+
+  quitarProducto(producto: Producto): void {
+    const index = this.carrito.findIndex(item => item.producto.id === producto.id);
+    if (index >= 0) { if (this.carrito[index].cantidad > 1) this.carrito[index].cantidad--; else this.carrito.splice(index, 1); }
+  }
+
+  totalOrden(): number {
+    return this.carrito.reduce((total, item) => total + Number(item.producto.precio) * item.cantidad, 0);
+  }
+
+  crearOrdenProducto(): void {
+    if (!this.carrito.length) return;
+    const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+    this.http.post<any>(`${apiConfig.apiUrl}/ordenes-productos/`, {
+      items: this.carrito.map(item => ({ producto: item.producto.id, cantidad: item.cantidad }))
+    }, { headers: token ? { Authorization: `Bearer ${token}` } : {} }).subscribe({
+      next: (order) => { this.mensajeOrden = `Orden #${order.id} creada. Paga y rec�gela en Urban Studio.`; this.carrito = []; },
+      error: (err) => this.mensajeOrden = err.error?.detail || 'No fue posible crear la orden.'
     });
   }
-}9
+}

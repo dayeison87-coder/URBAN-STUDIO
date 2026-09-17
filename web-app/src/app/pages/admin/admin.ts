@@ -21,6 +21,10 @@ interface Servicio {
   disponible: boolean;
   categoria: number;
 }
+interface Producto {
+  id: number; nombre: string; descripcion: string; precio: string;
+  inventario: number; disponible: boolean; categoria: number; imagen?: string;
+}
 
 interface Barbero {
   id: number;
@@ -41,7 +45,7 @@ export class AdminComponent implements OnInit {
   private http   = inject(HttpClient);
   private router = inject(Router);
 
-  pestanaActiva: 'servicios' | 'barberos' = 'servicios';
+  pestanaActiva: 'servicios' | 'productos' | 'barberos' = 'servicios';
   nombreUsuario = 'Admin';
   mensaje       = '';
 
@@ -61,6 +65,10 @@ export class AdminComponent implements OnInit {
     categoria:   '' as string | number,
   };
   editandoServicio = false;
+  listaProductos: Producto[] = [];
+  productoForm = { id: null as number | null, nombre: '', descripcion: '', precio: '',
+    inventario: 0, disponible: true, categoria: '' as string | number, imagen: null as File | null };
+  editandoProducto = false;
 
   // Barberos y Asignación
   listaBarberos: Barbero[] = [];
@@ -85,11 +93,57 @@ export class AdminComponent implements OnInit {
     this.cargarCategorias();
     this.cargarServicios();
     this.cargarBarberos();
+    this.cargarProductos();
   }
 
-  cambiarPestana(p: 'servicios' | 'barberos'): void {
+  cambiarPestana(p: 'servicios' | 'productos' | 'barberos'): void {
     this.pestanaActiva = p;
     this.mensaje = '';
+  }
+
+  cargarProductos(): void {
+    this.http.get<Producto[]>(`${this.apiUrl}/admin/productos/`, { headers: this.getHeaders() })
+      .subscribe({ next: data => this.listaProductos = data, error: err => console.error(err) });
+  }
+
+  seleccionarImagen(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.productoForm.imagen = input.files?.[0] || null;
+  }
+
+  guardarProducto(): void {
+    if (!this.productoForm.nombre || !this.productoForm.categoria) {
+      this.mensaje = 'Completa nombre y categoría.'; return;
+    }
+    const data = new FormData();
+    data.append('nombre', this.productoForm.nombre);
+    data.append('descripcion', this.productoForm.descripcion);
+    data.append('precio', String(this.productoForm.precio));
+    data.append('inventario', String(this.productoForm.inventario));
+    data.append('disponible', String(this.productoForm.disponible));
+    data.append('categoria', String(this.productoForm.categoria));
+    if (this.productoForm.imagen) data.append('imagen', this.productoForm.imagen);
+    const url = this.productoForm.id ? `${this.apiUrl}/admin/productos/${this.productoForm.id}/` : `${this.apiUrl}/admin/productos/`;
+    const req = this.productoForm.id ? this.http.put(url, data, { headers: this.getHeaders().delete('Content-Type') }) :
+      this.http.post(url, data, { headers: this.getHeaders().delete('Content-Type') });
+    req.subscribe({ next: () => { this.mensaje = '✓ Producto guardado.'; this.limpiarProducto(); this.cargarProductos(); },
+      error: err => this.mensaje = err.error?.detail || 'No fue posible guardar el producto.' });
+  }
+
+  editarProducto(p: Producto): void {
+    this.editandoProducto = true;
+    this.productoForm = { id: p.id, nombre: p.nombre, descripcion: p.descripcion, precio: p.precio,
+      inventario: p.inventario, disponible: p.disponible, categoria: p.categoria, imagen: null };
+  }
+
+  eliminarProducto(id: number): void {
+    if (confirm('¿Eliminar este producto?')) this.http.delete(`${this.apiUrl}/admin/productos/${id}/`, { headers: this.getHeaders() })
+      .subscribe({ next: () => this.cargarProductos(), error: err => console.error(err) });
+  }
+
+  limpiarProducto(): void {
+    this.editandoProducto = false;
+    this.productoForm = { id: null, nombre: '', descripcion: '', precio: '', inventario: 0, disponible: true, categoria: '', imagen: null };
   }
 
   // ── Categorías ──────────────────────────────────────────

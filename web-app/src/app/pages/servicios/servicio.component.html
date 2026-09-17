@@ -109,6 +109,26 @@
           </button>
         </li>
       </ul>
+      <div *ngIf="categoriaActiva.slug === 'productos'" class="us-products">
+        <div class="us-service-item" *ngFor="let producto of categoriaActiva.productos">
+          <img *ngIf="producto.imagen_url" [src]="producto.imagen_url" [alt]="producto.nombre" class="us-product-image">
+          <div>
+            <p class="us-service-name">{{ producto.nombre }}</p>
+            <p class="us-service-detail">{{ producto.descripcion }}</p>
+            <span class="us-badge" *ngIf="producto.inventario === 0">Agotado</span>
+          </div>
+          <span class="us-service-price">{{ formatPrecio(producto.precio) }}</span>
+          <button class="us-service-book" [disabled]="producto.inventario === 0"
+            (click)="agregarProducto(producto); $event.stopPropagation()">Agregar</button>
+        </div>
+        <div class="us-order-summary" *ngIf="carrito.length">
+          <p *ngFor="let item of carrito">{{ item.producto.nombre }} × {{ item.cantidad }}
+            <button (click)="quitarProducto(item.producto)">−</button></p>
+          <strong>Total: {{ formatPrecio(totalOrden().toString()) }}</strong>
+          <button class="us-service-book" (click)="crearOrdenProducto()">Crear orden para pagar y recoger</button>
+        </div>
+        <p class="us-order-message" *ngIf="mensajeOrden">{{ mensajeOrden }}</p>
+      </div>
       <div class="us-modal-empty" *ngIf="categoriaActiva.servicios.length === 0">
         <p><i class="bi bi-clock-history me-1"></i> Próximamente servicios en esta categoría.</p>
       </div>
