@@ -172,13 +172,17 @@ export class AnalisisRostroComponent implements OnDestroy {
             this.streamActivo;
 
           try {
-
-            await video.play();
-            await this.esperarVideoListo(video);
+            // Algunos navegadores dejan esta promesa pendiente aun cuando el
+            // stream ya fue autorizado. No bloqueamos el escaneo por ello.
+            void video.play().catch((error) => {
+              console.error('Error reproduciendo cámara:', error);
+            });
 
             // La apertura de la cámara debe venir de un clic por seguridad
             // del navegador. Una vez concedido el permiso, la captura y el
             // análisis se hacen solos para no pedir un segundo clic al usuario.
+            // No esperamos eventos de video: algunos navegadores no los emiten
+            // aunque el stream esté activo, lo que dejaba el escáner bloqueado.
             this.autoCaptureTimer = setTimeout(() => {
               if (this.modo === 'camara' && this.streamActivo) {
                 this.capturarFoto(true);
@@ -220,28 +224,6 @@ export class AnalisisRostroComponent implements OnDestroy {
       this.errorMensaje =
         'No pudimos acceder a la cámara. Revisa los permisos del navegador.';
     }
-  }
-
-  private esperarVideoListo(video: HTMLVideoElement): Promise<void> {
-    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && video.videoWidth > 0) {
-      return Promise.resolve();
-    }
-
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('La cámara no entregó una imagen a tiempo.'));
-      }, 5000);
-
-      const listo = () => {
-        if (video.videoWidth > 0 && video.videoHeight > 0) {
-          clearTimeout(timeout);
-          resolve();
-        }
-      };
-
-      video.addEventListener('loadeddata', listo, { once: true });
-      video.addEventListener('canplay', listo, { once: true });
-    });
   }
 
   // ==========================================
@@ -303,7 +285,9 @@ export class AnalisisRostroComponent implements OnDestroy {
     ) {
 
       this.errorMensaje =
-        'La cámara todavía no está lista. Espera un momento e inténtalo nuevamente.';
+        'No recibimos imagen de la cámara. Revisa que el navegador tenga permitido usar la cámara y vuelve a intentarlo.';
+
+      this.detenerCamara();
 
       return;
     }
@@ -364,7 +348,9 @@ export class AnalisisRostroComponent implements OnDestroy {
         if (blob.size < 10000) {
 
           this.errorMensaje =
-            'La captura salió demasiado oscura o vacía. Mira directamente a la cámara y vuelve a intentarlo.';
+            'La cámara entregó una imagen vacía. Revisa el permiso de cámara del navegador y vuelve a intentarlo.';
+
+          this.detenerCamara();
 
           return;
         }
