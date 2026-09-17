@@ -21,12 +21,6 @@ comerciales de "face shape detector".
 
 import os
 
-import numpy as np
-import mediapipe as mp
-import cv2
-from mediapipe.tasks.python import vision
-from mediapipe.tasks.python.core.base_options import BaseOptions
-
 # Ruta al modelo pre-entrenado de Google (archivo .task).
 # Se descarga UNA sola vez con el comando de gestión `python manage.py descargar_modelo_ia`
 # (o manualmente, ver instrucciones en el README de esta app).
@@ -37,6 +31,9 @@ _landmarker = None
 
 def _get_landmarker():
     """Carga el modelo una sola vez (perezoso) y lo reutiliza entre requests."""
+    from mediapipe.tasks.python import vision
+    from mediapipe.tasks.python.core.base_options import BaseOptions
+
     global _landmarker
     if _landmarker is None:
         if not os.path.exists(MODELO_PATH):
@@ -84,6 +81,9 @@ def analizar_rostro(imagen_bytes: bytes) -> dict:
     }
     Lanza RostroNoDetectadoError si no se encontró una cara clara en la foto.
     """
+    import cv2
+    import numpy as np
+
     nparr = np.frombuffer(imagen_bytes, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     if img is None:
