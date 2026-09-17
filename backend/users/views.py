@@ -37,12 +37,17 @@ class PerfilView(APIView):
 
     def get(self, request):
         user = request.user
+        rol_nombre = (
+            'Admin'
+            if user.is_staff or user.is_superuser
+            else (user.rol.nombre if user.rol else None)
+        )
         return Response({
             'id':       user.id,
             'username': user.username,
             'email':    user.email,
             'telefono': user.telefono,
-            'rol':      {'nombre': user.rol.nombre} if user.rol else None
+            'rol':      {'nombre': rol_nombre} if rol_nombre else None
         })
 
 
