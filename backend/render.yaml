@@ -2,7 +2,7 @@ services:
   - type: web
     name: urban-studio-api
     runtime: python
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate && python manage.py bootstrap_admin
     startCommand: gunicorn config.wsgi:application
     envVars:
       - key: SECRET_KEY
