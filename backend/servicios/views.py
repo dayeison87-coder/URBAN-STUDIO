@@ -51,7 +51,7 @@ class ServicioAdminViewSet(viewsets.ModelViewSet):
 class ProductoAdminViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.select_related('categoria').all()
     serializer_class = ProductoSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
     parser_classes = [JSONParser, MultiPartParser, FormParser]
 
     def get_queryset(self):
