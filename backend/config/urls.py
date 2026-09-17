@@ -4,12 +4,20 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 
+
+def api_root(request):
+    """Respuesta simple para la URL principal y el health check de Render."""
+    return JsonResponse({"status": "ok", "service": "Urban Studio API"})
+
+
 urlpatterns = [
+    path('', api_root, name='api-root'),
     path('admin/', admin.site.urls),
 
     # Auth
