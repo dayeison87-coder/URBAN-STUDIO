@@ -1,5 +1,4 @@
 import logging
-import smtplib
 
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -9,7 +8,6 @@ from datetime import timedelta
 from django.db.models import Avg, Count, Sum
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password
-from django.core.mail import send_mail
 from secrets import randbelow
 from urllib.parse import urlencode
 from urllib.request import Request as UrlRequest, urlopen
@@ -29,6 +27,7 @@ from .serializers import (
     PerfilClienteSerializer, ConfiguracionCuentaSerializer,
     SolicitarRegistroSerializer, VerificarRegistroSerializer
 )
+from .email_service import BrevoEmailError, send_registration_code
 
 logger = logging.getLogger(__name__)
 
@@ -70,12 +69,8 @@ class SolicitarRegistroView(APIView):
             }
         )
         try:
-            send_mail(
-                'Código de verificación | Urban Studio',
-                f'Tu código de verificación es: {codigo}. Válido durante 10 minutos.',
-                None, [datos['email']], fail_silently=False,
-            )
-        except (OSError, smtplib.SMTPException):
+            send_registration_code(datos['email'], codigo)
+        except BrevoEmailError:
             logger.exception('No se pudo enviar el código de registro a %s', datos['email'])
             return Response(
                 {'detail': 'No se pudo enviar el correo de verificación. Intenta de nuevo.'},
