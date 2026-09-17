@@ -1,3 +1,6 @@
+import logging
+import smtplib
+
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -26,6 +29,8 @@ from .serializers import (
     PerfilClienteSerializer, ConfiguracionCuentaSerializer,
     SolicitarRegistroSerializer, VerificarRegistroSerializer
 )
+
+logger = logging.getLogger(__name__)
 
 
 class PerfilView(APIView):
@@ -64,11 +69,18 @@ class SolicitarRegistroView(APIView):
                 'creado': timezone.now(), 'intentos': 0,
             }
         )
-        send_mail(
-            'Código de verificación | Urban Studio',
-            f'Tu código de verificación es: {codigo}. Válido durante 10 minutos.',
-            None, [datos['email']], fail_silently=False,
-        )
+        try:
+            send_mail(
+                'Código de verificación | Urban Studio',
+                f'Tu código de verificación es: {codigo}. Válido durante 10 minutos.',
+                None, [datos['email']], fail_silently=False,
+            )
+        except (OSError, smtplib.SMTPException):
+            logger.exception('No se pudo enviar el código de registro a %s', datos['email'])
+            return Response(
+                {'detail': 'No se pudo enviar el correo de verificación. Intenta de nuevo.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
         return Response({'detail': 'Código enviado al correo.'}, status=status.HTTP_200_OK)
 
 
