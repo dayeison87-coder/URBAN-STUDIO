@@ -26,19 +26,14 @@ class Command(BaseCommand):
             username=username,
             defaults={'email': email},
         )
-        if created:
-            user.email = email
-            user.is_staff = True
-            user.is_superuser = True
-            user.set_password(password)
-            user.save()
-            self.stdout.write(self.style.SUCCESS(f'Admin user {username} created.'))
-        elif not user.is_superuser or not user.is_staff:
-            user.email = email
-            user.is_staff = True
-            user.is_superuser = True
-            user.set_password(password)
-            user.save()
-            self.stdout.write(self.style.SUCCESS(f'Admin user {username} promoted.'))
-        else:
-            self.stdout.write(f'Admin user {username} already exists; password unchanged.')
+        user.email = email
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+        user.set_password(password)
+        user.save()
+
+        action = 'created' if created else 'updated'
+        self.stdout.write(
+            self.style.SUCCESS(f'Admin user {username} {action}; password synchronized.')
+        )
