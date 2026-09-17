@@ -508,6 +508,22 @@ i.bi {
   min-width: 0;
 }
 
+.us-products .us-service-item {
+  gap: 16px;
+  overflow: hidden;
+}
+
+.us-product-image {
+  width: 96px;
+  height: 96px;
+  flex: 0 0 96px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border: 1px solid #2a2a2a;
+  background: #171717;
+}
+
 .us-service-item:last-child { 
   border-bottom: none; 
 }
@@ -666,6 +682,16 @@ i.bi {
 
   .us-modal-body { 
     padding: 24px 24px 32px; 
+  }
+
+  .us-products .us-service-item {
+    gap: 10px;
+  }
+
+  .us-product-image {
+    width: 72px;
+    height: 72px;
+    flex-basis: 72px;
   }
 
   .footer-content {
