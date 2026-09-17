@@ -5,20 +5,17 @@ Django settings for config project.
 from pathlib import Path
 from datetime import timedelta
 import os
+import dj_database_url
 from dotenv import load_dotenv
 load_dotenv()
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-clave-temporal-cambiar-en-produccion')
 
-# ── DEBUG: controlado por variable de entorno ────────────────
-# En local (.env) pon DEBUG=True
-# En App Runner pon DEBUG=False
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# ── ALLOWED_HOSTS: local + producción ────────────────────────
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
@@ -27,15 +24,16 @@ ALLOWED_HOSTS = [
     '10.203.146.62',
 ]
 
-# Agrega automáticamente el dominio de App Runner desde variable de entorno
-APP_RUNNER_HOST = os.getenv('APP_RUNNER_HOST')  # ej: xxxxx.us-east-2.awsapprunner.com
+# Render
+RENDER_HOST = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_HOST:
+    ALLOWED_HOSTS.append(RENDER_HOST)
+
+# App Runner (por si acaso)
+APP_RUNNER_HOST = os.getenv('APP_RUNNER_HOST')
 if APP_RUNNER_HOST:
     ALLOWED_HOSTS.append(APP_RUNNER_HOST)
 
-# Si ya tienes dominio propio, agrégalo también:
-# ALLOWED_HOSTS.append('api.tudominio.com')
-
-# ── Apps ────────────────────────────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -52,14 +50,13 @@ INSTALLED_APPS = [
     # Propias
     'users',
     'servicios',
-    'analisis_ia',   # <--- AGREGAR ESTA LÍNEA
+    'analisis_ia',
 ]
 
-# ── Middleware ───────────────────────────────────────────────
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',   # debe ir primero
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',   # <-- NUEVO: sirve estáticos en producción
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -87,19 +84,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# ── Base de datos: PostgreSQL (RDS) vía variables de entorno ──
+# ── Base de datos ─────────────────────────────────────────────
+# Por defecto usa las variables individuales (local)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),   # el endpoint de RDS
+        'NAME': os.getenv('DB_NAME', 'urban_studio'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
-# ── Validación de contraseñas ────────────────────────────────
+# En Render, DATABASE_URL sobreescribe la config anterior
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES['default'] = dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=True
+    )
+
+# ── Validación de contraseñas ─────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -107,16 +114,16 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# ── Internacionalización ─────────────────────────────────────
+# ── Internacionalización ──────────────────────────────────────
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# ── Usuario personalizado ────────────────────────────────────
+# ── Usuario personalizado ─────────────────────────────────────
 AUTH_USER_MODEL = 'users.Usuario'
 
-# ── Django REST Framework ────────────────────────────────────
+# ── Django REST Framework ─────────────────────────────────────
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -126,27 +133,32 @@ REST_FRAMEWORK = {
     ),
 }
 
-# ── CORS ─────────────────────────────────────────────────────
+# ── CORS ──────────────────────────────────────────────────────
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:4200',  # tu web Angular
+    'http://localhost:4200',
+    'http://localhost:4200',
 ]
 
-# Agrega el dominio de producción del web-app (Amplify) desde variable de entorno
-FRONTEND_URL = os.getenv('FRONTEND_URL')  # ej: https://main.xxxxx.amplifyapp.com
+FRONTEND_URL = os.getenv('FRONTEND_URL')
 if FRONTEND_URL:
     CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
 
+VERCEL_URL = os.getenv('VERCEL_URL')
+if VERCEL_URL:
+    CORS_ALLOWED_ORIGINS.append(VERCEL_URL)
+
 CORS_ALLOWED_ORIGIN_REGEXES = [
-    r'^http://localhost:\d+$',   # cualquier puerto de localhost (Flutter Web, etc.)
+    r'^http://localhost:\d+$',
     r'^http://127\.0\.0\.1:\d+$',
 ]
 
-# ── JWT ──────────────────────────────────────────────────────
+# ── JWT ───────────────────────────────────────────────────────
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME':  timedelta(hours=8),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
+# ── Channels ──────────────────────────────────────────────────
 ASGI_APPLICATION = 'config.asgi.application'
 
 CHANNEL_LAYERS = {
@@ -155,7 +167,7 @@ CHANNEL_LAYERS = {
     }
 }
 
-# ── Static / Media ─────────────────────────────────────────────
+# ── Static / Media ────────────────────────────────────────────
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -168,7 +180,7 @@ STORAGES = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# ── Configuración de correo ─────────────────────────────────
+# ── Correo ────────────────────────────────────────────────────
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -177,12 +189,12 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+# ── Google ────────────────────────────────────────────────────
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
 
-# ── Seguridad extra para producción ─────────────────────────────
-# Estas líneas solo se activan cuando DEBUG=False (en App Runner)
+# ── Seguridad en producción ───────────────────────────────────
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
