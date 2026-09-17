@@ -58,6 +58,7 @@ export class AnalisisRostroComponent implements OnDestroy {
 
   modo: 'inicial' | 'camara' = 'inicial';
   streamActivo: MediaStream | null = null;
+  private autoCaptureTimer?: ReturnType<typeof setTimeout>;
 
   constructor(private geminiService: GeminiService) {
 
@@ -172,6 +173,15 @@ export class AnalisisRostroComponent implements OnDestroy {
 
             await video.play();
 
+            // La apertura de la cámara debe venir de un clic por seguridad
+            // del navegador. Una vez concedido el permiso, la captura y el
+            // análisis se hacen solos para no pedir un segundo clic al usuario.
+            this.autoCaptureTimer = setTimeout(() => {
+              if (this.modo === 'camara' && this.streamActivo) {
+                this.capturarFoto(true);
+              }
+            }, 2000);
+
             console.log('✅ Cámara reproduciendo');
 
             console.log(
@@ -213,7 +223,7 @@ export class AnalisisRostroComponent implements OnDestroy {
   // CAPTURAR FOTO
   // ==========================================
 
-  capturarFoto() {
+  capturarFoto(analizarAutomaticamente = false) {
 
     if (!this.iaDesbloqueada) {
 
@@ -348,6 +358,10 @@ export class AnalisisRostroComponent implements OnDestroy {
 
         this.detenerCamara();
 
+        if (analizarAutomaticamente) {
+          this.analizarImagen();
+        }
+
       },
       'image/jpeg',
       0.92
@@ -359,6 +373,11 @@ export class AnalisisRostroComponent implements OnDestroy {
   // ==========================================
 
   detenerCamara() {
+
+    if (this.autoCaptureTimer) {
+      clearTimeout(this.autoCaptureTimer);
+      this.autoCaptureTimer = undefined;
+    }
 
     if (this.streamActivo) {
 

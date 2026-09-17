@@ -21,6 +21,9 @@ comerciales de "face shape detector".
 
 import os
 
+import mediapipe as mp
+import numpy as np
+
 # Ruta al modelo pre-entrenado de Google (archivo .task).
 # Se descarga UNA sola vez con el comando de gestión `python manage.py descargar_modelo_ia`
 # (o manualmente, ver instrucciones en el README de esta app).
@@ -82,8 +85,6 @@ def analizar_rostro(imagen_bytes: bytes) -> dict:
     Lanza RostroNoDetectadoError si no se encontró una cara clara en la foto.
     """
     import cv2
-    import numpy as np
-
     nparr = np.frombuffer(imagen_bytes, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     if img is None:

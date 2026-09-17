@@ -263,7 +263,7 @@
 
 
               <div class="camera-instruccion">
-                Centra tu rostro dentro del marco
+                Centra tu rostro dentro del marco. El escaneo comenzará automáticamente.
               </div>
 
             </div>
@@ -320,10 +320,6 @@
         <!-- ESTADO CÁMARA -->
 
         <ng-container *ngIf="modo === 'camara'">
-
-          <button class="btn-gold" (click)="capturarFoto()">
-            ✦ Escanear rostro
-          </button>
 
           <button class="btn-text" (click)="cancelarCamara()">
             Cancelar
