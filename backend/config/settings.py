@@ -12,6 +12,11 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Cloudinary must receive the URI itself, not the variable assignment.
+# Invalid values should not prevent Django from booting in development.
+CLOUDINARY_URL = os.getenv('CLOUDINARY_URL', '').strip().strip('"').strip("'")
+CLOUDINARY_ENABLED = CLOUDINARY_URL.startswith('cloudinary://')
+
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-clave-temporal-cambiar-en-produccion')
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
@@ -53,7 +58,7 @@ INSTALLED_APPS = [
     'analisis_ia',
 ]
 
-if os.getenv('CLOUDINARY_URL'):
+if CLOUDINARY_ENABLED:
     INSTALLED_APPS.append('cloudinary_storage')
 
 MIDDLEWARE = [
@@ -168,7 +173,7 @@ STORAGES = {
     },
 }
 
-if os.getenv('CLOUDINARY_URL'):
+if CLOUDINARY_ENABLED:
     STORAGES["default"] = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     }
