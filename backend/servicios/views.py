@@ -75,6 +75,24 @@ class ProductoAdminViewSet(viewsets.ModelViewSet):
         categoria = self.request.query_params.get('categoria')
         return qs.filter(categoria__slug=categoria) if categoria else qs
 
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except (OSError, ValueError) as exc:
+            return Response(
+                {'detail': f'No se pudo guardar la imagen del producto: {exc}'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    def update(self, request, *args, **kwargs):
+        try:
+            return super().update(request, *args, **kwargs)
+        except (OSError, ValueError) as exc:
+            return Response(
+                {'detail': f'No se pudo guardar la imagen del producto: {exc}'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
 
 class OrdenProductoViewSet(viewsets.ModelViewSet):
     serializer_class = OrdenProductoSerializer
