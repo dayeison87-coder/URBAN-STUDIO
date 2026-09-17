@@ -20,6 +20,36 @@
     <button [class.active]="pestanaActiva === 'productos'" (click)="cambiarPestana('productos')">
       🧴 Productos
     </button>
+    <button [class.active]="pestanaActiva === 'ordenes'" (click)="cambiarPestana('ordenes')">
+      📦 Apartados
+    </button>
+  </div>
+
+  <div class="tab-content" *ngIf="pestanaActiva === 'ordenes'">
+    <h2>Apartados de productos</h2>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Apartado</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let orden of listaOrdenes">
+            <td>#{{ orden.id }}</td>
+            <td>{{ orden.cliente_nombre }}</td>
+            <td><span *ngFor="let item of orden.items">{{ item.producto_nombre }} × {{ item.cantidad }}<br></span></td>
+            <td class="gold">{{ formatMoneda(orden.total) }}</td>
+            <td>
+              <select class="select-cat order-status" [ngModel]="orden.estado"
+                (ngModelChange)="cambiarEstadoOrden(orden, $event)">
+                <option value="pendiente">Pendiente de pago</option>
+                <option value="pagada">Pagada</option>
+                <option value="retirada">Recogida</option>
+                <option value="cancelada">Cancelada</option>
+              </select>
+            </td>
+          </tr>
+          <tr *ngIf="listaOrdenes.length === 0"><td colspan="5" class="empty">No hay apartados.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div class="tab-content" *ngIf="pestanaActiva === 'productos'">

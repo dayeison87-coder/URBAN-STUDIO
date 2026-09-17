@@ -26,6 +26,11 @@ interface Producto {
   inventario: number; disponible: boolean; categoria: number; imagen?: string;
 }
 
+interface OrdenProducto {
+  id: number; cliente_nombre: string; estado: string; total: string;
+  creado_en: string; items: { producto_nombre: string; cantidad: number }[];
+}
+
 interface Barbero {
   id: number;
   username: string;
@@ -45,7 +50,7 @@ export class AdminComponent implements OnInit {
   private http   = inject(HttpClient);
   private router = inject(Router);
 
-  pestanaActiva: 'servicios' | 'productos' | 'barberos' = 'servicios';
+  pestanaActiva: 'servicios' | 'productos' | 'barberos' | 'ordenes' = 'servicios';
   nombreUsuario = 'Admin';
   mensaje       = '';
 
@@ -69,6 +74,7 @@ export class AdminComponent implements OnInit {
   productoForm = { id: null as number | null, nombre: '', descripcion: '', precio: '',
     inventario: 0, disponible: true, categoria: '' as string | number, imagen: null as File | null };
   editandoProducto = false;
+  listaOrdenes: OrdenProducto[] = [];
 
   // Barberos y Asignación
   listaBarberos: Barbero[] = [];
@@ -94,11 +100,43 @@ export class AdminComponent implements OnInit {
     this.cargarServicios();
     this.cargarBarberos();
     this.cargarProductos();
+    this.cargarOrdenes();
   }
 
-  cambiarPestana(p: 'servicios' | 'productos' | 'barberos'): void {
+  cambiarPestana(p: 'servicios' | 'productos' | 'barberos' | 'ordenes'): void {
     this.pestanaActiva = p;
     this.mensaje = '';
+  }
+
+  cargarOrdenes(): void {
+    this.http.get<OrdenProducto[]>(`${this.apiUrl}/ordenes-productos/`, {
+      headers: this.getHeaders()
+    }).subscribe({
+      next: data => this.listaOrdenes = data,
+      error: err => console.error('Error cargando órdenes:', err)
+    });
+  }
+
+  cambiarEstadoOrden(orden: OrdenProducto, estado: string): void {
+    this.http.patch<OrdenProducto>(`${this.apiUrl}/ordenes-productos/${orden.id}/`, { estado }, {
+      headers: this.getHeaders()
+    }).subscribe({
+      next: actualizada => {
+        orden.estado = actualizada.estado;
+        orden.total = actualizada.total;
+        this.mensaje = `Apartado #${orden.id} actualizado.`;
+      },
+      error: err => this.mensaje = err.error?.detail || 'No fue posible actualizar el apartado.'
+    });
+  }
+
+  estadoOrden(estado: string): string {
+    return {
+      pendiente: 'Pendiente de pago',
+      pagada: 'Pagada',
+      retirada: 'Recogida',
+      cancelada: 'Cancelada'
+    }[estado] || estado;
   }
 
   cargarProductos(): void {

@@ -159,6 +159,8 @@
               <span>{{ orden.creado_en | date:'dd/MM/yyyy' }}</span>
               <strong>{{ formatPrecio(orden.total) }}</strong>
             </div>
+            <button class="us-order-cancel" *ngIf="orden.estado === 'pendiente'"
+              (click)="cancelarOrden(orden)">Cancelar apartado</button>
           </article>
         </section>
       </div>

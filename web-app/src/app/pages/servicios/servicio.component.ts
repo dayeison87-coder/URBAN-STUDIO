@@ -201,6 +201,22 @@ export class ServicioComponent implements OnInit {
     }[estado] || estado;
   }
 
+  cancelarOrden(orden: OrdenProducto): void {
+    if (orden.estado !== 'pendiente') return;
+    if (!confirm(`¿Cancelar el apartado #${orden.id}?`)) return;
+    const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+    const headers = new HttpHeaders({ Authorization: 'Bearer ' + token });
+    this.http.post<OrdenProducto>(
+      `${apiConfig.apiUrl}/ordenes-productos/${orden.id}/cancelar/`, {}, { headers }
+    ).subscribe({
+      next: actualizada => {
+        orden.estado = actualizada.estado;
+        this.mensajeOrden = `El apartado #${orden.id} fue cancelado y el inventario fue liberado.`;
+      },
+      error: err => this.mensajeOrden = err.error?.detail || 'No fue posible cancelar el apartado.'
+    });
+  }
+
   crearOrdenProducto(): void {
     if (!this.carrito.length) return;
     const token = localStorage.getItem('access_token') || localStorage.getItem('token');

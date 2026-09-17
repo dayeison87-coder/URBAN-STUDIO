@@ -1,5 +1,5 @@
 from rest_framework import viewsets, permissions
-from rest_framework.decorators import api_view, permission_classes, parser_classes
+from rest_framework.decorators import api_view, permission_classes, parser_classes, action
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -114,12 +114,72 @@ class ProductoAdminViewSet(viewsets.ModelViewSet):
 class OrdenProductoViewSet(viewsets.ModelViewSet):
     serializer_class = OrdenProductoSerializer
     permission_classes = [IsAuthenticated]
-    http_method_names = ['get', 'post', 'head', 'options']
+    http_method_names = ['get', 'post', 'patch', 'head', 'options']
 
     def get_queryset(self):
-        return OrdenProducto.objects.filter(cliente=self.request.user).prefetch_related(
-            'items__producto'
-        ).order_by('-creado_en')
+        queryset = OrdenProducto.objects.prefetch_related('items__producto')
+        if self._es_admin():
+            return queryset.order_by('-creado_en')
+        return queryset.filter(cliente=self.request.user).order_by('-creado_en')
+
+    def _es_admin(self):
+        user = self.request.user
+        return bool(
+            user.is_staff or user.is_superuser
+            or (user.rol and user.rol.nombre == 'Admin')
+        )
+
+    def update(self, request, *args, **kwargs):
+        if not self._es_admin():
+            return Response(
+                {'detail': 'Solo un administrador puede cambiar el estado.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        order = self.get_object()
+        nuevo_estado = request.data.get('estado')
+        estados_validos = {choice[0] for choice in OrdenProducto.ESTADOS}
+        if nuevo_estado not in estados_validos:
+            return Response(
+                {'estado': 'Estado no válido.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if order.estado == 'cancelada' and nuevo_estado != 'cancelada':
+            return Response(
+                {'detail': 'Una orden cancelada no puede reactivarse.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if nuevo_estado == 'cancelada' and order.estado != 'cancelada':
+            self._cancelar_y_devolver_inventario(order)
+        order.estado = nuevo_estado
+        order.save(update_fields=['estado', 'actualizado'])
+        return Response(self.get_serializer(order).data)
+
+    @action(detail=True, methods=['post'])
+    def cancelar(self, request, pk=None):
+        order = self.get_object()
+        if self._es_admin() or order.cliente_id != request.user.id:
+            pass
+        elif order.estado != 'pendiente':
+            return Response(
+                {'detail': 'Solo puedes cancelar apartados pendientes de pago.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        else:
+            self._cancelar_y_devolver_inventario(order)
+            return Response(self.get_serializer(order).data)
+        return Response(
+            {'detail': 'Usa el cambio de estado desde el panel administrativo.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    @transaction.atomic
+    def _cancelar_y_devolver_inventario(self, order):
+        for item in order.items.select_related('producto').select_for_update():
+            product = item.producto
+            product.inventario += item.cantidad
+            product.save(update_fields=['inventario', 'actualizado'])
+        order.estado = 'cancelada'
+        order.save(update_fields=['estado', 'actualizado'])
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):

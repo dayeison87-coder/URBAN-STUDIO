@@ -754,6 +754,24 @@ i.bi {
   font-size: 19px;
 }
 
+.us-order-cancel {
+  margin-top: 13px;
+  padding: 7px 10px;
+  border: 1px solid #633c35;
+  background: transparent;
+  color: #c78373;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 9px;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+}
+
+.us-order-cancel:hover {
+  background: #633c35;
+  color: #fff;
+}
+
 .us-modal-empty {
   text-align: center; 
   padding: 40px 0;
