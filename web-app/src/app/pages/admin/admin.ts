@@ -108,7 +108,24 @@ export class AdminComponent implements OnInit {
 
   seleccionarImagen(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.productoForm.imagen = input.files?.[0] || null;
+    const archivo = input.files?.[0];
+    if (!archivo) {
+      this.productoForm.imagen = null;
+      return;
+    }
+    if (!archivo.type.startsWith('image/')) {
+      this.mensaje = 'Selecciona un archivo de imagen válido.';
+      input.value = '';
+      this.productoForm.imagen = null;
+      return;
+    }
+    if (archivo.size > 5 * 1024 * 1024) {
+      this.mensaje = 'La imagen no puede superar los 5 MB.';
+      input.value = '';
+      this.productoForm.imagen = null;
+      return;
+    }
+    this.productoForm.imagen = archivo;
   }
 
   guardarProducto(): void {

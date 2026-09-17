@@ -1,6 +1,7 @@
 # servicios/serializers.py
 
 from rest_framework import serializers
+from PIL import Image, UnidentifiedImageError
 from .models import (
     Categoria, Servicio, Producto, OrdenProducto, DetalleOrdenProducto,
 )
@@ -43,6 +44,15 @@ class ProductoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'La imagen no puede superar los 5 MB.'
             )
+        if value:
+            try:
+                image = Image.open(value)
+                image.verify()
+                value.seek(0)
+            except (UnidentifiedImageError, OSError, ValueError):
+                raise serializers.ValidationError(
+                    'El archivo seleccionado no es una imagen válida.'
+                )
         return value
 
     class Meta:
