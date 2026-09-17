@@ -7,9 +7,6 @@ import os
 import logging
 import time
 
-from google import genai
-from google.genai import types
-
 logger = logging.getLogger(__name__)
 
 MODELO_IMAGEN = "gemini-2.5-flash-image"
@@ -20,6 +17,9 @@ class GeneracionImagenError(Exception):
 
 
 def _get_client():
+    # Carga Gemini solamente cuando se necesita.
+    from google import genai
+
     api_key = os.environ.get("GEMINI_API_KEY")
 
     if not api_key:
@@ -35,6 +35,9 @@ def generar_preview_corte(
     prompt_corte: str
 ) -> bytes:
 
+    # Importar types solamente cuando se va a generar la imagen.
+    from google.genai import types
+
     if not imagen_original_bytes:
         raise GeneracionImagenError(
             "La imagen recibida está vacía."
@@ -45,7 +48,6 @@ def generar_preview_corte(
         len(imagen_original_bytes)
     )
 
-    # Evitar enviar imágenes sospechosamente pequeñas
     if len(imagen_original_bytes) < 10_000:
         raise GeneracionImagenError(
             f"La imagen recibida es demasiado pequeña: "
@@ -101,7 +103,6 @@ def generar_preview_corte(
         mime_type="image/jpeg"
     )
 
-    # Intentamos hasta 3 veces si Gemini devuelve 503
     ultimo_error = None
 
     for intento in range(3):
@@ -139,7 +140,7 @@ def generar_preview_corte(
                     if parte.inline_data is not None:
 
                         logger.info(
-                            "✅ Gemini devolvió una imagen correctamente."
+                            "Gemini devolvió una imagen correctamente."
                         )
 
                         return parte.inline_data.data
@@ -157,7 +158,6 @@ def generar_preview_corte(
                 intento + 1
             )
 
-            # Reintentar solamente si parece un error temporal
             if "503" in str(error) or "UNAVAILABLE" in str(error):
 
                 if intento < 2:
