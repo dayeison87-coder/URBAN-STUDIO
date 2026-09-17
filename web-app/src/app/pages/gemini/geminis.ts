@@ -59,6 +59,10 @@ export class AnalisisRostroComponent implements OnDestroy {
   modo: 'inicial' | 'camara' = 'inicial';
   streamActivo: MediaStream | null = null;
   private autoCaptureTimer?: ReturnType<typeof setTimeout>;
+  private cameraReadyFallbackTimer?: ReturnType<typeof setTimeout>;
+  private intentosCaptura = 0;
+  private readonly MAX_INTENTOS_CAPTURA = 5;
+  private escaneoProgramado = false;
 
   constructor(private geminiService: GeminiService) {
 
@@ -183,11 +187,7 @@ export class AnalisisRostroComponent implements OnDestroy {
             // análisis se hacen solos para no pedir un segundo clic al usuario.
             // No esperamos eventos de video: algunos navegadores no los emiten
             // aunque el stream esté activo, lo que dejaba el escáner bloqueado.
-            this.autoCaptureTimer = setTimeout(() => {
-              if (this.modo === 'camara' && this.streamActivo) {
-                this.capturarFoto(true);
-              }
-            }, 3000);
+            this.iniciarVideoYEsperarListo(video);
 
             console.log('✅ Cámara reproduciendo');
 
@@ -224,6 +224,56 @@ export class AnalisisRostroComponent implements OnDestroy {
       this.errorMensaje =
         'No pudimos acceder a la cámara. Revisa los permisos del navegador.';
     }
+  }
+
+  private iniciarVideoYEsperarListo(video: HTMLVideoElement) {
+    this.escaneoProgramado = false;
+    this.intentosCaptura = 0;
+
+    const programarEscaneo = () => {
+      if (this.escaneoProgramado || this.modo !== 'camara' || !this.streamActivo) {
+        return;
+      }
+
+      this.escaneoProgramado = true;
+      if (this.cameraReadyFallbackTimer) {
+        clearTimeout(this.cameraReadyFallbackTimer);
+        this.cameraReadyFallbackTimer = undefined;
+      }
+
+      // Da tiempo para centrar el rostro antes de la captura automática.
+      this.autoCaptureTimer = setTimeout(() => this.intentarCapturaAutomatica(), 1200);
+    };
+
+    video.addEventListener('loadeddata', programarEscaneo, { once: true });
+    video.addEventListener('canplay', programarEscaneo, { once: true });
+
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && video.videoWidth > 0) {
+      programarEscaneo();
+    }
+
+    // Respaldo para navegadores que no emiten los eventos esperados.
+    this.cameraReadyFallbackTimer = setTimeout(programarEscaneo, 4000);
+  }
+
+  private intentarCapturaAutomatica() {
+    const video = this.videoRef?.nativeElement;
+    const listo = !!video && !video.paused && video.videoWidth > 0 && video.videoHeight > 0;
+
+    if (listo) {
+      this.capturarFoto(true);
+      return;
+    }
+
+    this.intentosCaptura += 1;
+    if (this.intentosCaptura < this.MAX_INTENTOS_CAPTURA && this.modo === 'camara') {
+      this.autoCaptureTimer = setTimeout(() => this.intentarCapturaAutomatica(), 500);
+      return;
+    }
+
+    this.errorMensaje =
+      'La cámara no entregó imagen. Revisa el permiso de cámara del navegador y vuelve a intentarlo.';
+    this.detenerCamara();
   }
 
   // ==========================================
@@ -278,6 +328,11 @@ export class AnalisisRostroComponent implements OnDestroy {
       'Paused:',
       video.paused
     );
+
+    if (video.videoWidth === 0 || video.videoHeight === 0 || video.paused) {
+      this.intentarCapturaAutomatica();
+      return;
+    }
 
     if (
       video.videoWidth === 0 ||
@@ -389,6 +444,14 @@ export class AnalisisRostroComponent implements OnDestroy {
       clearTimeout(this.autoCaptureTimer);
       this.autoCaptureTimer = undefined;
     }
+
+    if (this.cameraReadyFallbackTimer) {
+      clearTimeout(this.cameraReadyFallbackTimer);
+      this.cameraReadyFallbackTimer = undefined;
+    }
+
+    this.intentosCaptura = 0;
+    this.escaneoProgramado = false;
 
     if (this.streamActivo) {
 
