@@ -129,7 +129,7 @@
         </div>
         <p class="us-order-message" *ngIf="mensajeOrden">{{ mensajeOrden }}</p>
       </div>
-      <div class="us-modal-empty" *ngIf="categoriaActiva.servicios.length === 0">
+      <div class="us-modal-empty" *ngIf="categoriaActiva.slug !== 'productos' && categoriaActiva.servicios.length === 0">
         <p><i class="bi bi-clock-history me-1"></i> Próximamente servicios en esta categoría.</p>
       </div>
     </div>
