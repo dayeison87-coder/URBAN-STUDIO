@@ -239,8 +239,8 @@
   display: block;
   position: relative;
   z-index: 1;
-  background: radial-gradient(circle at 50% 35%, #745235, #271a10 72%);
-  filter: brightness(1.08) contrast(1.03) saturate(0.92);
+  background: #a87d4f;
+  filter: brightness(1.12) contrast(1.02) saturate(0.96);
 }
 
 .camera-wrapper::before {
@@ -297,7 +297,7 @@
   inset: 0;
   border: 2px solid var(--gold);
   border-radius: 50% / 45%;
-  box-shadow: 0 0 0 2000px rgba(34, 21, 12, 0.22), 0 0 28px rgba(241, 210, 138, 0.42), inset 0 0 24px rgba(241, 210, 138, 0.14);
+  box-shadow: 0 0 28px rgba(241, 210, 138, 0.42), inset 0 0 24px rgba(241, 210, 138, 0.14);
   animation: pulseBorder 2s ease-in-out infinite;
 }
 

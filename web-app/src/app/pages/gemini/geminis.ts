@@ -166,12 +166,15 @@ export class AnalisisRostroComponent implements OnDestroy {
           const video =
             this.videoRef.nativeElement;
 
+          video.muted = true;
+          video.playsInline = true;
           video.srcObject =
             this.streamActivo;
 
           try {
 
             await video.play();
+            await this.esperarVideoListo(video);
 
             // La apertura de la cámara debe venir de un clic por seguridad
             // del navegador. Una vez concedido el permiso, la captura y el
@@ -217,6 +220,28 @@ export class AnalisisRostroComponent implements OnDestroy {
       this.errorMensaje =
         'No pudimos acceder a la cámara. Revisa los permisos del navegador.';
     }
+  }
+
+  private esperarVideoListo(video: HTMLVideoElement): Promise<void> {
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && video.videoWidth > 0) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('La cámara no entregó una imagen a tiempo.'));
+      }, 5000);
+
+      const listo = () => {
+        if (video.videoWidth > 0 && video.videoHeight > 0) {
+          clearTimeout(timeout);
+          resolve();
+        }
+      };
+
+      video.addEventListener('loadeddata', listo, { once: true });
+      video.addEventListener('canplay', listo, { once: true });
+    });
   }
 
   // ==========================================
