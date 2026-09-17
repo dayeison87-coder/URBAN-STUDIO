@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { apiConfig } from '../../config/api.config';
 
 // Interfaces
 interface Cita {
@@ -31,12 +32,6 @@ interface Perfil {
   descripcion: string;
   experiencia: number | null;
   foto: string | null;
-}
-
-interface Mensaje {
-  usuario: string;
-  mensaje: string;
-  propio?: boolean;
 }
 
 interface DashboardResumen {
@@ -71,8 +66,7 @@ export class BarberoComponent implements OnInit, OnDestroy {
 
   nombreUsuario = '';
 
-  // ✅ Ahora incluye la pestaña chat
-  pestanaActiva: 'dashboard' | 'clientes' | 'historial' | 'ingresos' | 'citas' | 'horarios' | 'perfil' | 'chat' = 'dashboard';
+  pestanaActiva: 'dashboard' | 'clientes' | 'historial' | 'ingresos' | 'citas' | 'horarios' | 'perfil' = 'dashboard';
 
   mensaje = '';
 
@@ -124,13 +118,7 @@ export class BarberoComponent implements OnInit, OnDestroy {
     hora_fin: '17:00'
   };
 
-  // Chat
-  mensajes: Mensaje[] = [];
-  mensajeTexto = '';
-  private socket!: WebSocket;
-  barberoId = '';
-
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = apiConfig.apiUrl;
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('access_token');
@@ -156,12 +144,10 @@ export class BarberoComponent implements OnInit, OnDestroy {
     this.cargarDashboard();
     this.cargarHorarios();
     this.cargarPerfil();
-    this.iniciarChat();
     this.actualizacionAutomatica = setInterval(() => this.cargarDashboard(), 15000);
   }
 
-  // ✅ También acepta "chat"
-  cambiarPestana(p: 'dashboard' | 'clientes' | 'historial' | 'ingresos' | 'citas' | 'horarios' | 'perfil' | 'chat'): void {
+  cambiarPestana(p: 'dashboard' | 'clientes' | 'historial' | 'ingresos' | 'citas' | 'horarios' | 'perfil'): void {
     this.pestanaActiva = p;
     this.mensaje = '';
     if (['dashboard', 'clientes', 'historial', 'ingresos', 'citas'].includes(p)) {
@@ -172,7 +158,6 @@ export class BarberoComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.actualizacionAutomatica) clearInterval(this.actualizacionAutomatica);
-    this.socket?.close();
   }
 
   // ───────────── CITAS ─────────────
@@ -417,7 +402,7 @@ export class BarberoComponent implements OnInit, OnDestroy {
       console.log('🔍 DATA COMPLETA DEL PERFIL:', data);
       console.log('🔍 VALOR DE data.foto:', data.foto);
       this.fotoPreview = data.foto
-  ? (data.foto.startsWith('http') ? data.foto : `http://localhost:8000${data.foto}`)
+  ? (data.foto.startsWith('http') ? data.foto : `${apiConfig.origin}${data.foto}`)
   : null;
       console.log('🔍 fotoPreview FINAL:', this.fotoPreview);
     },
@@ -469,53 +454,6 @@ export class BarberoComponent implements OnInit, OnDestroy {
   });
 }
 
-  // ───────────── CHAT ─────────────
-
-  // En barbero.ts actualiza el método iniciarChat() y enviarMensaje()
-// También agrega scrollAbajo()
-
-  iniciarChat(): void {
-    this.barberoId = localStorage.getItem('user_id') || '';
-
-    this.socket = new WebSocket(
-      `ws://localhost:8000/ws/chat/${this.barberoId}/`
-    );
-
-    this.socket.onopen = () => {
-      console.log('✅ Barbero conectado al chat sala:', this.barberoId);
-    };
-
-    this.socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      this.mensajes.push({
-        usuario: data.usuario,
-        mensaje: data.mensaje,
-        propio: data.usuario === this.nombreUsuario
-      });
-      setTimeout(() => this.scrollAbajo(), 50);
-    };
-
-    this.socket.onerror = (err) => {
-      console.error('WebSocket error:', err);
-    };
-  }
-
-  enviarMensaje(): void {
-    if (!this.mensajeTexto.trim()) return;
-    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
-
-    this.socket.send(JSON.stringify({
-      usuario: this.nombreUsuario,
-      mensaje: this.mensajeTexto.trim()
-    }));
-
-    this.mensajeTexto = '';
-  }
-
-  scrollAbajo(): void {
-    const el = document.getElementById('chatMensajes');
-    if (el) el.scrollTop = el.scrollHeight;
-  }
   logout(): void {
   localStorage.clear();
   this.router.navigate(['/login']);

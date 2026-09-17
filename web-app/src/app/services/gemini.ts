@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { apiConfig } from '../config/api.config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GeminiService {
 
-  private apiUrl = 'http://127.0.0.1:8000/api/servicios/analizar-rostro/';
-  private solicitarCodigoUrl = 'http://127.0.0.1:8000/api/solicitar-codigo-ia/';
-  private validarCodigoUrl = 'http://127.0.0.1:8000/api/validar-codigo-ia/';
-  private barberosUrl = 'http://127.0.0.1:8000/api/usuarios/barberos/';
+  private apiUrl = `${apiConfig.apiUrl}/servicios/analizar-rostro/`;
+  private solicitarCodigoUrl = `${apiConfig.apiUrl}/solicitar-codigo-ia/`;
+  private validarCodigoUrl = `${apiConfig.apiUrl}/validar-codigo-ia/`;
+  private barberosUrl = `${apiConfig.apiUrl}/usuarios/barberos/`;
 
   constructor(private http: HttpClient) {}
 

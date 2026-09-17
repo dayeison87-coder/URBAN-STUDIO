@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { apiConfig } from '../config/api.config';
 
 @Injectable({
   providedIn: 'root'
@@ -9,9 +10,9 @@ export class CitasService {
   private http = inject(HttpClient);
   
   // Endpoints del backend sincronizados con Django
-  private apiUrlCitas = 'http://localhost:8000/api/citas/';
-  private apiUrlServicios = 'http://localhost:8000/api/categorias/';
-  private apiUrlBarberos = 'http://localhost:8000/api/usuarios/barberos/'; // 👈 Nueva URL corregida
+  private apiUrlCitas = `${apiConfig.apiUrl}/citas/`;
+  private apiUrlServicios = `${apiConfig.apiUrl}/categorias/`;
+  private apiUrlBarberos = `${apiConfig.apiUrl}/usuarios/barberos/`;
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('access_token') || 

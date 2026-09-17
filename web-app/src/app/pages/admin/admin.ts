@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { apiConfig } from '../../config/api.config';
 
 interface Categoria {
   id: number;
@@ -69,7 +70,7 @@ export class AdminComponent implements OnInit {
   barberoForm = { id: null as number | null, username: '', email: '', telefono: '' };
   editandoBarbero = false;
 
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = apiConfig.apiUrl;
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('access_token');

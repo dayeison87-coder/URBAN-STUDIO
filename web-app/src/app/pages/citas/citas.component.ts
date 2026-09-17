@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
+import { apiConfig } from '../../config/api.config';
 
 interface Servicio {
   id: number;
@@ -46,7 +47,7 @@ interface Disponibilidad {
 })
 export class CitasComponent implements OnInit {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = apiConfig.apiUrl;
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 

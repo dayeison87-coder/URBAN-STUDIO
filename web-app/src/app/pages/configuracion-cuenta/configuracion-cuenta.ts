@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { apiConfig } from '../../config/api.config';
 
 @Component({
   selector: 'app-configuracion-cuenta',
@@ -14,7 +15,7 @@ import { Router } from '@angular/router';
 export class ConfiguracionCuentaComponent {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = apiConfig.apiUrl;
   passwordActual = '';
   passwordNueva = '';
   passwordConfirmacion = '';

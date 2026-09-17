@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { BarberosService } from '../../services/barberos';
+import { apiConfig } from '../../config/api.config';
 
 @Component({
   selector: 'app-barberos',
@@ -37,7 +38,7 @@ export class Barberos implements OnInit {
       next: (data) => this.barberos = data.map(barbero => ({
         ...barbero,
         avatarUrl: barbero.foto
-          ? (barbero.foto.startsWith('http') ? barbero.foto : `http://localhost:8000${barbero.foto}`)
+          ? (barbero.foto.startsWith('http') ? barbero.foto : `${apiConfig.origin}${barbero.foto}`)
           : null
       })),
       error: (err) => console.error(err)

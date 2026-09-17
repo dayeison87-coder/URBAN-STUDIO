@@ -2,12 +2,8 @@ import { Component, OnInit, inject, ViewChild, ElementRef } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { apiConfig } from '../../config/api.config';
 import { HttpClient } from '@angular/common/http'; // 👈 Inyección nativa para consumir la API
-
-interface Mensaje {
-  usuario: string;
-  mensaje: string;
-}
 
 @Component({
   selector: 'app-home',
@@ -36,13 +32,7 @@ export class HomeComponent implements OnInit { // 👈 Implementamos OnInit para
   @ViewChild('canvasRef') canvasRef!: ElementRef<HTMLCanvasElement>;
 
   // =======================
-  // CHAT
   // =======================
-  chatAbierto = false;
-  mensajes: Mensaje[] = [];
-  mensajeTexto = '';
-  private socket!: WebSocket;
-
   constructor() {
     const usuarioGuardado = localStorage.getItem('username');
     if (usuarioGuardado) {
@@ -58,11 +48,11 @@ export class HomeComponent implements OnInit { // 👈 Implementamos OnInit para
   cargarFotoUsuario(): void {
     const token = localStorage.getItem('access_token');
     if (!token) return;
-    this.http.get<{ foto: string | null }>('http://localhost:8000/api/perfil/cliente/', {
+    this.http.get<{ foto: string | null }>(`${apiConfig.apiUrl}/perfil/cliente/`, {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
       next: perfil => this.fotoUsuario = perfil.foto
-        ? (perfil.foto.startsWith('http') ? perfil.foto : `http://localhost:8000${perfil.foto}`)
+        ? (perfil.foto.startsWith('http') ? perfil.foto : `${apiConfig.origin}${perfil.foto}`)
         : null,
       error: err => console.error('Error cargando foto de usuario:', err)
     });
@@ -72,7 +62,7 @@ export class HomeComponent implements OnInit { // 👈 Implementamos OnInit para
   // Cargar Testimonios Reales
   // =======================
   cargarTestimonios() {
-    this.http.get<any[]>('http://127.0.0.1:8000/api/testimonios/ultimos/').subscribe({
+    this.http.get<any[]>(`${apiConfig.apiUrl}/testimonios/ultimos/`).subscribe({
       next: (data) => this.testimonios = data,
       error: (err) => console.error('Error cargando testimonios en Home:', err)
     });
@@ -176,54 +166,6 @@ export class HomeComponent implements OnInit { // 👈 Implementamos OnInit para
   }
 
   // =======================
-  // CHAT
   // =======================
-  abrirChat() {
-    this.chatAbierto = true;
-
-    if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
-      this.socket = new WebSocket('ws://localhost:8000/ws/chat/general/');
-
-      this.socket.onopen = () => {
-        console.log('✅ Chat conectado');
-      };
-
-      this.socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        this.mensajes.push(data);
-      };
-
-      this.socket.onerror = (error) => {
-        console.error('Error WebSocket:', error);
-      };
-
-      this.socket.onclose = () => {
-        console.log('🔴 Chat desconectado');
-      };
-    }
-  }
-
-  cerrarChat() {
-    this.chatAbierto = false;
-  }
-
-  enviarMensaje() {
-    if (!this.mensajeTexto.trim()) {
-      return;
-    }
-
-    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-      alert('El chat aún no está conectado.');
-      return;
-    }
-
-    this.socket.send(JSON.stringify({
-      usuario: this.nombreUsuario,
-      mensaje: this.mensajeTexto
-    }));
-
-    this.mensajeTexto = '';
-  }
-
    
 }

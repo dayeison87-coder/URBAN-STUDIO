@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { apiConfig } from '../../config/api.config';
 
 @Component({
   selector: 'app-register',
@@ -73,7 +74,7 @@ export class RegisterComponent {
 
     this.enviando = true;
     this.http.post(
-      'http://127.0.0.1:8000/api/register/request-code/',
+      `${apiConfig.apiUrl}/register/request-code/`,
       {
         username: this.username,
         email: this.email,
@@ -116,7 +117,7 @@ export class RegisterComponent {
       return;
     }
     this.enviando = true;
-    this.http.post('http://127.0.0.1:8000/api/register/verify/', { email: this.email, codigo: this.codigo }).subscribe({
+    this.http.post(`${apiConfig.apiUrl}/register/verify/`, { email: this.email, codigo: this.codigo }).subscribe({
       next: () => {
         this.mensaje = 'Cuenta creada correctamente.';
         this.enviando = false;
@@ -137,7 +138,7 @@ export class RegisterComponent {
 
   accesoSocial(proveedor: string) {
     if (proveedor === 'Google') {
-      window.location.href = 'http://localhost:8000/api/auth/google/';
+      window.location.href = `${apiConfig.apiUrl}/auth/google/`;
       return;
     }
     this.mensaje = 'El acceso con Facebook necesita configurar sus credenciales OAuth.';

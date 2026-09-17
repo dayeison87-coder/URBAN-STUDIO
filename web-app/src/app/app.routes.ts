@@ -13,7 +13,6 @@ import { RegisterComponent } from './pages/register/register';
 import { CitasComponent } from './pages/citas/citas.component';
 import { ServicioComponent } from './pages/servicios/servicio.component';
 import { BarberoComponent } from './pages/barbero/barbero';
-import { ChatComponent } from './pages/chat/chat';
 import { AnalisisRostroComponent } from './pages/gemini/geminis';
 import { PerfilClienteComponent } from './pages/perfil-cliente/perfil-cliente';
 import { ConfiguracionCuentaComponent } from './pages/configuracion-cuenta/configuracion-cuenta';
@@ -121,16 +120,6 @@ export const routes: Routes = [
         .then(m => m.Barberos),
     canActivate: [authGuard],
    
-  },
-
-  // ==========================================
-  // CHAT
-  // ==========================================
-
-  {
-    path: 'chat',
-    component: ChatComponent,
-    canActivate: [authGuard]
   },
 
   // ==========================================

@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
+import { apiConfig } from '../../config/api.config';
 
 @Component({
   selector: 'app-login',
@@ -33,7 +34,7 @@ export class LoginComponent {
 
   private cargarPerfilYEntrar(accessToken: string) {
     const headers = new HttpHeaders({ Authorization: `Bearer ${accessToken}` });
-    this.http.get<any>('http://127.0.0.1:8000/api/perfil/', { headers }).subscribe({
+    this.http.get<any>(`${apiConfig.apiUrl}/perfil/`, { headers }).subscribe({
       next: perfil => {
         localStorage.setItem('user_id', String(perfil.id));
         localStorage.setItem('rol', perfil.rol?.nombre || 'Cliente');
@@ -51,7 +52,7 @@ export class LoginComponent {
       return;
     }
 
-    this.http.post<any>('http://127.0.0.1:8000/api/login/', {
+    this.http.post<any>(`${apiConfig.apiUrl}/login/`, {
       username: this.username,
       password: this.password
     }).subscribe({
@@ -68,7 +69,7 @@ export class LoginComponent {
         });
 
         // Obtener el perfil del usuario
-        this.http.get<any>('http://127.0.0.1:8000/api/perfil/', { headers }).subscribe({
+        this.http.get<any>(`${apiConfig.apiUrl}/perfil/`, { headers }).subscribe({
 
           next: (perfil) => {
 

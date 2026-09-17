@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { apiConfig } from '../config/api.config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // URL de tu API de Django (recuerda levantar el servidor en el puerto 8000)
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = apiConfig.apiUrl;
 
   constructor(private http: HttpClient) {}
 

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
+import { apiConfig } from '../../config/api.config';
 
 interface Servicio {
   id: number;
@@ -76,7 +77,7 @@ export class ServicioComponent implements OnInit {
     }
 
     // 2. Cargar categorías de la API en Django
-    this.http.get<Categoria[]>('http://localhost:8000/api/categorias/')
+    this.http.get<Categoria[]>(`${apiConfig.apiUrl}/categorias/`)
       .subscribe({
         next: (data) => {
           this.categorias = data;

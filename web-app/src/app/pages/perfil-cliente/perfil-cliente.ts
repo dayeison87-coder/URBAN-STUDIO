@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { apiConfig } from '../../config/api.config';
 
 interface PerfilCliente {
   id: number;
@@ -22,7 +23,7 @@ interface PerfilCliente {
 export class PerfilClienteComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = apiConfig.apiUrl;
   perfil: PerfilCliente = { id: 0, username: '', email: '', telefono: '', foto: null };
   fotoArchivo: File | null = null;
   fotoPreview: string | null = null;
@@ -42,7 +43,7 @@ export class PerfilClienteComponent implements OnInit {
       next: perfil => {
         this.perfil = perfil;
         localStorage.setItem('username', perfil.username);
-        this.fotoPreview = perfil.foto ? (perfil.foto.startsWith('http') ? perfil.foto : `http://localhost:8000${perfil.foto}`) : null;
+        this.fotoPreview = perfil.foto ? (perfil.foto.startsWith('http') ? perfil.foto : `${apiConfig.origin}${perfil.foto}`) : null;
       },
       error: () => this.error = 'No se pudo cargar tu perfil.'
     });
