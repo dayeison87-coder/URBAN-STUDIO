@@ -5,11 +5,14 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
+import logging
 from .models import Categoria, Servicio, Producto, OrdenProducto, DetalleOrdenProducto
 from .serializers import (
     CategoriaSerializer, ServicioSerializer, ProductoSerializer, OrdenProductoSerializer,
 )
 from .gemini_service import analizar_rostro_con_ia
+
+logger = logging.getLogger(__name__)
 
 
 class IsUrbanStudioAdmin(permissions.BasePermission):
@@ -79,18 +82,32 @@ class ProductoAdminViewSet(viewsets.ModelViewSet):
         try:
             return super().create(request, *args, **kwargs)
         except (OSError, ValueError) as exc:
+            logger.exception('Error de almacenamiento al crear producto')
             return Response(
                 {'detail': f'No se pudo guardar la imagen del producto: {exc}'},
                 status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception:
+            logger.exception('Error inesperado al crear producto')
+            return Response(
+                {'detail': 'El servidor no pudo guardar el producto. Revisa los logs de Render.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
     def update(self, request, *args, **kwargs):
         try:
             return super().update(request, *args, **kwargs)
         except (OSError, ValueError) as exc:
+            logger.exception('Error de almacenamiento al actualizar producto')
             return Response(
                 {'detail': f'No se pudo guardar la imagen del producto: {exc}'},
                 status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception:
+            logger.exception('Error inesperado al actualizar producto')
+            return Response(
+                {'detail': 'El servidor no pudo actualizar el producto. Revisa los logs de Render.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
 
