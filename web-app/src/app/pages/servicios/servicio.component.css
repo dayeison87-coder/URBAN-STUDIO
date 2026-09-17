@@ -591,6 +591,169 @@ i.bi {
   margin-left: 4px;
 }
 
+.us-order-summary {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #2d271d;
+  background: linear-gradient(135deg, #17130e, #101010);
+}
+
+.us-cart-heading,
+.us-cart-total,
+.us-order-card-top,
+.us-order-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.us-cart-heading {
+  color: #c9a96e;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.us-cart-heading small,
+.us-history-heading small {
+  color: #777;
+  font-size: 9px;
+  letter-spacing: .5px;
+  text-transform: none;
+}
+
+.us-cart-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  color: #d5d0c7;
+  font-size: 12px;
+  border-bottom: 1px solid #242018;
+}
+
+.us-cart-row small {
+  color: #8d877d;
+}
+
+.us-cart-remove {
+  width: 25px;
+  height: 25px;
+  border: 1px solid #55462e;
+  background: transparent;
+  color: #c9a96e;
+  cursor: pointer;
+}
+
+.us-cart-total {
+  padding: 15px 0;
+  color: #9e978d;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.us-cart-total strong {
+  color: #e0bd76;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 25px;
+  font-weight: 400;
+}
+
+.us-order-button {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1px solid #c9a96e;
+  background: #c9a96e;
+  color: #12100d;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.us-order-button:hover {
+  background: #e1c58e;
+}
+
+.us-order-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 13px 15px;
+  border-left: 2px solid #c9a96e;
+  background: #17130e;
+  color: #d8c59f;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.us-order-message i {
+  color: #c9a96e;
+  font-size: 16px;
+}
+
+.us-order-history {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid #252525;
+}
+
+.us-history-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+  color: #c9a96e;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.us-order-card {
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px solid #292929;
+  background: #131313;
+}
+
+.us-order-card-top {
+  color: #e5dfd5;
+  font-size: 11px;
+}
+
+.us-order-status {
+  padding: 4px 7px;
+  border: 1px solid #5c4c30;
+  color: #c9a96e;
+  font-size: 8px;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+}
+
+.us-order-items {
+  margin: 10px 0 0;
+  color: #8c877f;
+  font-size: 10px;
+}
+
+.us-order-card-bottom {
+  margin-top: 12px;
+  color: #69645d;
+  font-size: 9px;
+}
+
+.us-order-card-bottom strong {
+  color: #c9a96e;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px;
+}
+
 .us-modal-empty {
   text-align: center; 
   padding: 40px 0;

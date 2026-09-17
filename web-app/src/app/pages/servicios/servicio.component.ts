@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { CommonModule, DatePipe } from '@angular/common';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { apiConfig } from '../../config/api.config';
 
@@ -32,10 +32,18 @@ interface Producto {
   imagen_url?: string;
 }
 
+interface OrdenProducto {
+  id: number;
+  estado: string;
+  total: string;
+  creado_en: string;
+  items: { producto_nombre: string; cantidad: number; subtotal: string }[];
+}
+
 @Component({
   selector: 'app-servicio',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, DatePipe, RouterLink],
   templateUrl: './servicio.component.html',
   styleUrls: ['./servicio.component.css']
 })
@@ -45,10 +53,11 @@ export class ServicioComponent implements OnInit {
   categoriaActiva: Categoria | null = null;
   carrito: { producto: Producto; cantidad: number }[] = [];
   mensajeOrden = '';
+  ordenes: OrdenProducto[] = [];
   cargando = true;
   nombreUsuario: string = '';
 
-  // Iconos SVG por categoría
+  // Iconos SVG por categorÃ­a
   iconos: Record<string, string> = {
     cabello: `<svg viewBox="0 0 80 80" fill="none" stroke="#c9a96e" stroke-width="0.5">
       <path d="M20 60 Q30 20 40 40 Q50 60 60 20"/>
@@ -90,7 +99,7 @@ export class ServicioComponent implements OnInit {
       }
     }
 
-    // 2. Cargar categorías de la API en Django
+    // 2. Cargar categorÃ­as de la API en Django
     this.http.get<Categoria[]>(`${apiConfig.apiUrl}/categorias/`)
       .subscribe({
         next: (data) => {
@@ -98,10 +107,11 @@ export class ServicioComponent implements OnInit {
           this.cargando = false;
         },
         error: (err) => {
-          console.error('Error cargando categorías:', err);
+          console.error('Error cargando categorÃ­as:', err);
           this.cargando = false;
         }
       });
+    this.cargarOrdenes();
   }
 
   // Acciones Navbar
@@ -171,13 +181,40 @@ export class ServicioComponent implements OnInit {
     return this.carrito.reduce((total, item) => total + Number(item.producto.precio) * item.cantidad, 0);
   }
 
+  cargarOrdenes(): void {
+    const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+    if (!token) return;
+    this.http.get<OrdenProducto[]>(`${apiConfig.apiUrl}/ordenes-productos/`, {
+      headers: new HttpHeaders({ Authorization: 'Bearer ' + token })
+    }).subscribe({
+      next: ordenes => this.ordenes = ordenes,
+      error: err => console.error('Error cargando apartados:', err)
+    });
+  }
+
+  estadoOrden(estado: string): string {
+    return {
+      pendiente: 'Pendiente de pago',
+      pagada: 'Pagada',
+      retirada: 'Retirada',
+      cancelada: 'Cancelada'
+    }[estado] || estado;
+  }
+
   crearOrdenProducto(): void {
     if (!this.carrito.length) return;
     const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+    const headers = token
+      ? new HttpHeaders({ Authorization: 'Bearer ' + token })
+      : new HttpHeaders();
     this.http.post<any>(`${apiConfig.apiUrl}/ordenes-productos/`, {
       items: this.carrito.map(item => ({ producto: item.producto.id, cantidad: item.cantidad }))
-    }, { headers: token ? { Authorization: `Bearer ${token}` } : {} }).subscribe({
-      next: (order) => { this.mensajeOrden = `Orden #${order.id} creada. Paga y rec�gela en Urban Studio.`; this.carrito = []; },
+    }, { headers }).subscribe({
+      next: (order) => {
+        this.mensajeOrden = `Apartado #${order.id} creado. Paga y recÃ³gelo en Urban Studio.`;
+        this.carrito = [];
+        this.ordenes = [order, ...this.ordenes];
+      },
       error: (err) => this.mensajeOrden = err.error?.detail || 'No fue posible crear la orden.'
     });
   }

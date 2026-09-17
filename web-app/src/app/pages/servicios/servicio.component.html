@@ -122,12 +122,45 @@
             (click)="agregarProducto(producto); $event.stopPropagation()">Agregar</button>
         </div>
         <div class="us-order-summary" *ngIf="carrito.length">
-          <p *ngFor="let item of carrito">{{ item.producto.nombre }} × {{ item.cantidad }}
-            <button (click)="quitarProducto(item.producto)">−</button></p>
-          <strong>Total: {{ formatPrecio(totalOrden().toString()) }}</strong>
-          <button class="us-service-book" (click)="crearOrdenProducto()">Crear orden para pagar y recoger</button>
+          <div class="us-cart-heading">
+            <span>Tu apartado</span>
+            <small>{{ carrito.length }} producto(s)</small>
+          </div>
+          <div class="us-cart-row" *ngFor="let item of carrito">
+            <span>{{ item.producto.nombre }} <small>× {{ item.cantidad }}</small></span>
+            <button class="us-cart-remove" (click)="quitarProducto(item.producto)" aria-label="Quitar producto">−</button>
+          </div>
+          <div class="us-cart-total">
+            <span>Total a pagar</span>
+            <strong>{{ formatPrecio(totalOrden().toString()) }}</strong>
+          </div>
+          <button class="us-order-button" (click)="crearOrdenProducto()">
+            <i class="bi bi-bag-check"></i> Apartar y recoger en la barbería
+          </button>
         </div>
-        <p class="us-order-message" *ngIf="mensajeOrden">{{ mensajeOrden }}</p>
+        <div class="us-order-message" *ngIf="mensajeOrden">
+          <i class="bi bi-check-circle"></i>
+          <span>{{ mensajeOrden }}</span>
+        </div>
+        <section class="us-order-history" *ngIf="ordenes.length">
+          <div class="us-history-heading">
+            <span>Mis apartados</span>
+            <small>Consulta tus pedidos y recógelos en la barbería</small>
+          </div>
+          <article class="us-order-card" *ngFor="let orden of ordenes">
+            <div class="us-order-card-top">
+              <strong>Apartado #{{ orden.id }}</strong>
+              <span class="us-order-status">{{ estadoOrden(orden.estado) }}</span>
+            </div>
+            <p class="us-order-items" *ngFor="let item of orden.items">
+              {{ item.producto_nombre }} × {{ item.cantidad }}
+            </p>
+            <div class="us-order-card-bottom">
+              <span>{{ orden.creado_en | date:'dd/MM/yyyy' }}</span>
+              <strong>{{ formatPrecio(orden.total) }}</strong>
+            </div>
+          </article>
+        </section>
       </div>
       <div class="us-modal-empty" *ngIf="categoriaActiva.slug !== 'productos' && categoriaActiva.servicios.length === 0">
         <p><i class="bi bi-clock-history me-1"></i> Próximamente servicios en esta categoría.</p>
