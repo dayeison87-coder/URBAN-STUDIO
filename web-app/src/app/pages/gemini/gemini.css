@@ -2,13 +2,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&display=swap');
 
 :host {
-  --bg: #0b0a08;
-  --surface: #171410;
-  --surface-line: #2a251c;
-  --gold: #c9a227;
-  --gold-light: #e8cd6e;
-  --text: #f5f1e8;
-  --text-muted: #8c8477;
+  --bg: #201711;
+  --surface: #2a1e16;
+  --surface-line: #59422b;
+  --gold: #cba35c;
+  --gold-light: #f1d28a;
+  --text: #fff8ec;
+  --text-muted: #b8a58d;
   display: block;
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
@@ -19,6 +19,11 @@
 .ia-page {
   padding: 128px 24px 64px;
   position: relative;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(177, 126, 67, 0.22), transparent 28%),
+    radial-gradient(circle at 88% 28%, rgba(113, 70, 40, 0.18), transparent 32%),
+    linear-gradient(135deg, #312219 0%, #1c1511 47%, #120f0d 100%);
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
@@ -155,11 +160,12 @@
 
 /* ══════ Panel de escaneo (columna centro) ══════ */
 .scan-panel {
-  background: var(--surface);
+  background: linear-gradient(145deg, rgba(54, 39, 28, 0.96), rgba(31, 23, 17, 0.98));
   border: 1px solid var(--surface-line);
   border-radius: 4px;
   padding: 24px;
   text-align: center;
+  box-shadow: 0 24px 60px rgba(10, 6, 3, 0.28);
 }
 
 .scan-frame-outer {
@@ -168,7 +174,7 @@
   border-radius: 3px;
   margin-bottom: 18px;
   overflow: hidden;
-  background: #0e0c09;
+  background: radial-gradient(circle at 50% 25%, #4b3726, #21170f 76%);
 }
 
 .scan-frame-outer::before,
@@ -221,7 +227,8 @@
   position: relative;
   width: 100%;
   height: 360px;
-  background: #000;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 35%, #745235, #271a10 72%);
 }
 
 .camera-wrapper .camera-video {
@@ -230,6 +237,24 @@
   object-fit: cover;
   transform: scaleX(-1);
   display: block;
+  position: relative;
+  z-index: 1;
+  background: radial-gradient(circle at 50% 35%, #745235, #271a10 72%);
+  filter: brightness(1.08) contrast(1.03) saturate(0.92);
+}
+
+.camera-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.22;
+  background-image:
+    linear-gradient(rgba(241, 210, 138, 0.26) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(241, 210, 138, 0.2) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
 }
 
 .scan-frame {
@@ -240,6 +265,31 @@
   width: 180px;
   height: 230px;
   pointer-events: none;
+  z-index: 3;
+}
+
+.scan-frame::before,
+.scan-frame::after {
+  content: '';
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--gold-light);
+  filter: drop-shadow(0 0 5px rgba(241, 210, 138, 0.65));
+}
+
+.scan-frame::before {
+  top: -8px;
+  left: -8px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.scan-frame::after {
+  right: -8px;
+  bottom: -8px;
+  border-left: 0;
+  border-top: 0;
 }
 
 .face-oval {
@@ -247,7 +297,7 @@
   inset: 0;
   border: 2px solid var(--gold);
   border-radius: 50% / 45%;
-  box-shadow: 0 0 0 2000px rgba(0,0,0,0.45);
+  box-shadow: 0 0 0 2000px rgba(34, 21, 12, 0.22), 0 0 28px rgba(241, 210, 138, 0.42), inset 0 0 24px rgba(241, 210, 138, 0.14);
   animation: pulseBorder 2s ease-in-out infinite;
 }
 
@@ -294,14 +344,44 @@
 
 .camera-instruccion {
   position: absolute;
-  bottom: 10px;
-  left: 0;
-  right: 0;
+  z-index: 4;
+  bottom: 36px;
+  left: 16px;
+  right: 16px;
   text-align: center;
   font-size: 10px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.65);
+  color: #fff4df;
+  text-shadow: 0 1px 8px #1b1009;
+}
+
+.scan-status {
+  position: absolute;
+  z-index: 4;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  color: var(--gold-light);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.scan-status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--gold-light);
+  box-shadow: 0 0 10px var(--gold-light);
+  animation: statusPulse 1s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  50% { opacity: 0.3; transform: scale(0.72); }
 }
 
 .preview-elegida {
@@ -309,7 +389,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0e0c09;
+  background: linear-gradient(145deg, #453020, #21170f);
 }
 .preview-elegida img {
   max-height: 100%;

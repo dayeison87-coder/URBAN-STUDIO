@@ -180,7 +180,7 @@ export class AnalisisRostroComponent implements OnDestroy {
               if (this.modo === 'camara' && this.streamActivo) {
                 this.capturarFoto(true);
               }
-            }, 2000);
+            }, 3000);
 
             console.log('✅ Cámara reproduciendo');
 
