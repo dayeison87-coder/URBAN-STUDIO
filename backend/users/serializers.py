@@ -116,6 +116,14 @@ class DisponibilidadSerializer(serializers.ModelSerializer):
 
 
 class PerfilBarberoSerializer(serializers.ModelSerializer):
+    def validate_foto(self, value):
+        max_size = 5 * 1024 * 1024
+        if value and value.size > max_size:
+            raise serializers.ValidationError(
+                'La foto no puede superar los 5 MB.'
+            )
+        return value
+
     def validate_telefono(self, value):
         if value and (not value.isdigit() or not 7 <= len(value) <= 15):
             raise serializers.ValidationError(
@@ -129,6 +137,14 @@ class PerfilBarberoSerializer(serializers.ModelSerializer):
 
 
 class PerfilClienteSerializer(serializers.ModelSerializer):
+    def validate_foto(self, value):
+        max_size = 5 * 1024 * 1024
+        if value and value.size > max_size:
+            raise serializers.ValidationError(
+                'La foto no puede superar los 5 MB.'
+            )
+        return value
+
     def validate_telefono(self, value):
         if value and (not value.isdigit() or not 7 <= len(value) <= 15):
             raise serializers.ValidationError(

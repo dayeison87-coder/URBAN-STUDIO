@@ -413,7 +413,18 @@ export class BarberoComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
 
     if (input.files?.length) {
-      this.fotoArchivo = input.files[0];
+      const archivo = input.files[0];
+      if (!archivo.type.startsWith('image/')) {
+        this.mensaje = 'Selecciona un archivo de imagen válido.';
+        input.value = '';
+        return;
+      }
+      if (archivo.size > 5 * 1024 * 1024) {
+        this.mensaje = 'La foto no puede superar los 5 MB.';
+        input.value = '';
+        return;
+      }
+      this.fotoArchivo = archivo;
 
       const reader = new FileReader();
 
