@@ -58,9 +58,18 @@ export class PerfilClienteComponent implements OnInit {
     reader.readAsDataURL(this.fotoArchivo);
   }
 
+  sanitizarTelefono(): void {
+    this.perfil.telefono = (this.perfil.telefono || '').replace(/\D/g, '').slice(0, 15);
+  }
+
   guardarPerfil(): void {
     this.mensaje = '';
     this.error = '';
+    this.sanitizarTelefono();
+    if (this.perfil.telefono && (this.perfil.telefono.length < 7 || this.perfil.telefono.length > 15)) {
+      this.error = 'El teléfono debe tener entre 7 y 15 dígitos.';
+      return;
+    }
     const datos = new FormData();
     datos.append('username', this.perfil.username);
     datos.append('email', this.perfil.email);
@@ -75,7 +84,11 @@ export class PerfilClienteComponent implements OnInit {
         this.mensaje = 'Perfil actualizado correctamente.';
         this.guardando = false;
       },
-      error: () => { this.error = 'No se pudo actualizar el perfil.'; this.guardando = false; }
+      error: err => {
+        const detail = err.error?.telefono?.[0] || err.error?.detail;
+        this.error = detail || 'No se pudo actualizar el perfil. Intenta de nuevo.';
+        this.guardando = false;
+      }
     });
   }
 

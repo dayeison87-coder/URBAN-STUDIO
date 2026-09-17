@@ -4,6 +4,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
 from datetime import timedelta
 from django.db.models import Avg, Count, Sum
 from django.utils import timezone
@@ -393,6 +394,7 @@ class BarberoDashboardView(APIView):
 class PerfilBarberoView(generics.RetrieveUpdateAPIView):
     serializer_class = PerfilBarberoSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_object(self):
         return self.request.user    
@@ -401,6 +403,7 @@ class PerfilBarberoView(generics.RetrieveUpdateAPIView):
 class PerfilClienteView(generics.RetrieveUpdateAPIView):
     serializer_class = PerfilClienteSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_object(self):
         return self.request.user

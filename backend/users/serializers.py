@@ -116,12 +116,26 @@ class DisponibilidadSerializer(serializers.ModelSerializer):
 
 
 class PerfilBarberoSerializer(serializers.ModelSerializer):
+    def validate_telefono(self, value):
+        if value and (not value.isdigit() or not 7 <= len(value) <= 15):
+            raise serializers.ValidationError(
+                'El teléfono debe contener solo números y tener entre 7 y 15 dígitos.'
+            )
+        return value
+
     class Meta:
         model = Usuario
         fields = ['id', 'username', 'email', 'telefono', 'descripcion', 'experiencia', 'foto']
 
 
 class PerfilClienteSerializer(serializers.ModelSerializer):
+    def validate_telefono(self, value):
+        if value and (not value.isdigit() or not 7 <= len(value) <= 15):
+            raise serializers.ValidationError(
+                'El teléfono debe contener solo números y tener entre 7 y 15 dígitos.'
+            )
+        return value
+
     class Meta:
         model = Usuario
         fields = ['id', 'username', 'email', 'telefono', 'foto']

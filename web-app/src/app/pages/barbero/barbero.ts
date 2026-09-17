@@ -426,6 +426,11 @@ export class BarberoComponent implements OnInit, OnDestroy {
   }
 
  guardarPerfil(): void {
+  this.sanitizarTelefono();
+  if (this.perfil.telefono && (this.perfil.telefono.length < 7 || this.perfil.telefono.length > 15)) {
+    this.mensaje = 'El teléfono debe tener entre 7 y 15 dígitos.';
+    return;
+  }
   const formData = new FormData();
 
   formData.append('descripcion', this.perfil.descripcion || '');
@@ -453,6 +458,10 @@ export class BarberoComponent implements OnInit, OnDestroy {
     }
   });
 }
+
+  sanitizarTelefono(): void {
+    this.perfil.telefono = (this.perfil.telefono || '').replace(/\D/g, '').slice(0, 15);
+  }
 
   logout(): void {
   localStorage.clear();

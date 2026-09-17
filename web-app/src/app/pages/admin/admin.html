@@ -130,7 +130,7 @@
         <div class="form-row" style="display: flex; gap: 1rem; align-items: center;">
           
           <select [(ngModel)]="usuarioSeleccionadoId" class="select-cat" style="flex: 1;">
-            <option value="" disabled selected>Selecciona un usuario registrado...</option>
+            <option value="" disabled>Selecciona un usuario registrado...</option>
             <option *ngFor="let usuario of listaUsuariosComunes" [value]="usuario.id">
               {{ usuario.username }} — ({{ usuario.email }})
             </option>

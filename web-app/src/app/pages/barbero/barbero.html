@@ -187,7 +187,8 @@
           </div>
           <div class="input-group">
             <label>Teléfono</label>
-            <input type="tel" [(ngModel)]="perfil.telefono" name="telefono">
+            <input type="tel" [(ngModel)]="perfil.telefono" name="telefono" inputmode="numeric" maxlength="15"
+              pattern="[0-9]*" (input)="sanitizarTelefono()">
           </div>
           <div class="input-group">
             <label>Años de experiencia</label>
@@ -203,4 +204,3 @@
         </div>
       </div>
     </div>
-

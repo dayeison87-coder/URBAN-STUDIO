@@ -128,7 +128,9 @@ export class ServicioComponent implements OnInit {
   formatPrecio(precio: string): string {
     const num = parseFloat(precio);
     if (isNaN(num)) return '$0';
-    return '$' + num.toLocaleString('es-CO');
+    return '$' + num.toLocaleString('es-CO', {
+      maximumFractionDigits: 0
+    });
   }
 
   irACitas(servicio: Servicio, categoria: Categoria | null): void {
