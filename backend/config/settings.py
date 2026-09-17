@@ -53,6 +53,9 @@ INSTALLED_APPS = [
     'analisis_ia',
 ]
 
+if os.getenv('CLOUDINARY_URL'):
+    INSTALLED_APPS.append('cloudinary_storage')
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -160,17 +163,23 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 os.makedirs(MEDIA_ROOT, exist_ok=True)
 
 STORAGES = {
-    "default": {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+if os.getenv('CLOUDINARY_URL'):
+    STORAGES["default"] = {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    }
+else:
+    STORAGES["default"] = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
         "OPTIONS": {
             "location": MEDIA_ROOT,
             "base_url": MEDIA_URL,
         },
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+    }
 
 # ── Correo ────────────────────────────────────────────────────
 BREVO_API_KEY = os.getenv('BREVO_API_KEY')

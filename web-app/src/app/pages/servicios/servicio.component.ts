@@ -198,7 +198,7 @@ export class ServicioComponent implements OnInit {
     return {
       pendiente: 'Pendiente de pago',
       pagada: 'Pagada',
-      retirada: 'Retirada',
+      retirada: 'Pago y recogido',
       cancelada: 'Cancelada'
     }[estado] || estado;
   }

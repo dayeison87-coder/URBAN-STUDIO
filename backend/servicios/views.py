@@ -143,18 +143,16 @@ class OrdenProductoViewSet(viewsets.ModelViewSet):
                 {'estado': 'Estado no válido.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if nuevo_estado == 'cancelada':
+        if nuevo_estado != 'retirada':
             return Response(
-                {'detail': 'El cliente cancela los apartados pendientes.'},
+                {'detail': 'El apartado solo puede marcarse como pago y recogido.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if order.estado == 'cancelada' and nuevo_estado != 'cancelada':
+        if order.estado != 'pendiente':
             return Response(
-                {'detail': 'Una orden cancelada no puede reactivarse.'},
+                {'detail': 'Este apartado ya no se puede editar.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if nuevo_estado == 'cancelada' and order.estado != 'cancelada':
-            self._cancelar_y_devolver_inventario(order)
         order.estado = nuevo_estado
         order.save(update_fields=['estado', 'actualizado'])
         return Response(self.get_serializer(order).data)

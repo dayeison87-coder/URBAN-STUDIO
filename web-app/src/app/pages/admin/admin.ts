@@ -134,7 +134,7 @@ export class AdminComponent implements OnInit {
     return {
       pendiente: 'Pendiente de pago',
       pagada: 'Pagada',
-      retirada: 'Recogida',
+      retirada: 'Pago y recogido',
       cancelada: 'Cancelada'
     }[estado] || estado;
   }
