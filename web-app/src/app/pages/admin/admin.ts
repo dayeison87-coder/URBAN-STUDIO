@@ -126,8 +126,21 @@ export class AdminComponent implements OnInit {
     const url = this.productoForm.id ? `${this.apiUrl}/admin/productos/${this.productoForm.id}/` : `${this.apiUrl}/admin/productos/`;
     const req = this.productoForm.id ? this.http.put(url, data, { headers: this.getHeaders().delete('Content-Type') }) :
       this.http.post(url, data, { headers: this.getHeaders().delete('Content-Type') });
-    req.subscribe({ next: () => { this.mensaje = '✓ Producto guardado.'; this.limpiarProducto(); this.cargarProductos(); },
-      error: err => this.mensaje = err.error?.detail || 'No fue posible guardar el producto.' });
+    req.subscribe({
+      next: () => {
+        this.mensaje = '✓ Producto guardado.';
+        this.limpiarProducto();
+        this.cargarProductos();
+      },
+      error: err => {
+        const detail = err.error?.detail
+          || err.error?.categoria?.[0]
+          || err.error?.imagen?.[0]
+          || err.error?.precio?.[0]
+          || (typeof err.error === 'string' ? err.error : '');
+        this.mensaje = detail || `No fue posible guardar el producto (${err.status}).`;
+      }
+    });
   }
 
   editarProducto(p: Producto): void {

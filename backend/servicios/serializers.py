@@ -31,6 +31,20 @@ class ProductoSerializer(serializers.ModelSerializer):
     imagen_url = serializers.SerializerMethodField()
     categoria_nombre = serializers.ReadOnlyField(source='categoria.nombre')
 
+    def validate_categoria(self, value):
+        if value.slug != 'productos':
+            raise serializers.ValidationError(
+                'Los productos deben pertenecer a la categoría Productos.'
+            )
+        return value
+
+    def validate_imagen(self, value):
+        if value and value.size > 5 * 1024 * 1024:
+            raise serializers.ValidationError(
+                'La imagen no puede superar los 5 MB.'
+            )
+        return value
+
     class Meta:
         model = Producto
         fields = [
