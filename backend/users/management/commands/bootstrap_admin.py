@@ -22,6 +22,8 @@ class Command(BaseCommand):
             )
 
         User = get_user_model()
+        Rol = User._meta.get_field('rol').remote_field.model
+        admin_role, _ = Rol.objects.get_or_create(nombre='Admin')
         user, created = User.objects.get_or_create(
             username=username,
             defaults={'email': email},
@@ -30,6 +32,7 @@ class Command(BaseCommand):
         user.is_staff = True
         user.is_superuser = True
         user.is_active = True
+        user.rol = admin_role
         user.set_password(password)
         user.save()
 

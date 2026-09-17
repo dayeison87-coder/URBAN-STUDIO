@@ -12,6 +12,22 @@ from .serializers import (
 from .gemini_service import analizar_rostro_con_ia
 
 
+class IsUrbanStudioAdmin(permissions.BasePermission):
+    """Permite administrar el catálogo a usuarios Django o con rol Admin."""
+
+    def has_permission(self, request, view):
+        user = request.user
+        return bool(
+            user
+            and user.is_authenticated
+            and (
+                user.is_staff
+                or user.is_superuser
+                or (user.rol and user.rol.nombre == 'Admin')
+            )
+        )
+
+
 # ── Vista pública: cualquiera puede ver categorías y servicios ──────────────
 
 class CategoriaViewSet(viewsets.ReadOnlyModelViewSet):
@@ -38,7 +54,7 @@ class ServicioAdminViewSet(viewsets.ModelViewSet):
     """
     queryset             = Servicio.objects.select_related('categoria').all()
     serializer_class     = ServicioSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUrbanStudioAdmin]
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -51,7 +67,7 @@ class ServicioAdminViewSet(viewsets.ModelViewSet):
 class ProductoAdminViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.select_related('categoria').all()
     serializer_class = ProductoSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsUrbanStudioAdmin]
     parser_classes = [JSONParser, MultiPartParser, FormParser]
 
     def get_queryset(self):
