@@ -2,9 +2,8 @@ import secrets
 from datetime import timedelta
 
 from django.utils import timezone
-from django.core.mail import send_mail
-
 from analisis_ia.models import CodigoSeguridadIA
+from users.email_service import send_transactional_email
 
 
 def generar_codigo_seguridad(cliente, barbero):
@@ -34,19 +33,16 @@ def generar_codigo_seguridad(cliente, barbero):
         expira_en=expira_en
     )
 
-    # Enviar correo
-    send_mail(
-    subject="Código de verificación IA - Urban Studio",
-    message=(
-        f"Hola {barbero.username},\n\n"
-        f"El cliente {cliente.username} solicitó acceso a IA Estilo.\n\n"
-        f"{codigo}\n\n"
-        f"Este código vence en 10 minutos.\n\n"
-        f"Compártelo solo si el cliente está presente contigo."
-    ),
-    from_email=None,
-    recipient_list=[barbero.email],
-    fail_silently=False,
-)
-
+    # Enviar por la API HTTPS de Brevo. Render no permite SMTP saliente.
+    send_transactional_email(
+        recipient=barbero.email,
+        subject='Código de verificación IA | Urban Studio',
+        text_content=(
+            f'Hola {barbero.username},\n\n'
+            f'El cliente {cliente.username} solicitó acceso a IA Estilo.\n\n'
+            f'Código: {codigo}\n\n'
+            'Este código vence en 10 minutos.\n\n'
+            'Compártelo solo si el cliente está presente contigo.'
+        ),
+    )
     return codigo_seguridad

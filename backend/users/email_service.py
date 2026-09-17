@@ -48,3 +48,42 @@ def send_registration_code(recipient, code):
         ) from error
     except (TimeoutError, URLError, OSError) as error:
         raise BrevoEmailError('No se pudo conectar con Brevo.') from error
+
+
+def send_transactional_email(recipient, subject, text_content):
+    """Send a text email through Brevo's HTTPS transactional API."""
+    if not settings.BREVO_API_KEY or not settings.BREVO_SENDER_EMAIL:
+        raise BrevoEmailError('Brevo no estÃ¡ configurado correctamente.')
+
+    payload = {
+        'sender': {
+            'email': settings.BREVO_SENDER_EMAIL,
+            'name': settings.BREVO_SENDER_NAME,
+        },
+        'to': [{'email': recipient}],
+        'subject': subject,
+        'textContent': text_content,
+    }
+    request = Request(
+        'https://api.brevo.com/v3/smtp/email',
+        data=json.dumps(payload).encode('utf-8'),
+        headers={
+            'accept': 'application/json',
+            'api-key': settings.BREVO_API_KEY,
+            'content-type': 'application/json',
+        },
+        method='POST',
+    )
+
+    try:
+        with urlopen(request, timeout=settings.BREVO_TIMEOUT) as response:
+            if response.status < 200 or response.status >= 300:
+                raise BrevoEmailError(
+                    f'Brevo respondiÃ³ con estado HTTP {response.status}.'
+                )
+    except HTTPError as error:
+        raise BrevoEmailError(
+            f'Brevo rechazÃ³ el envÃ­o con estado HTTP {error.code}.'
+        ) from error
+    except (TimeoutError, URLError, OSError) as error:
+        raise BrevoEmailError('No se pudo conectar con Brevo.') from error
