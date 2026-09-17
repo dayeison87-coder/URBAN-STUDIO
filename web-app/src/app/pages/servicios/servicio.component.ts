@@ -54,6 +54,7 @@ export class ServicioComponent implements OnInit {
   carrito: { producto: Producto; cantidad: number }[] = [];
   mensajeOrden = '';
   ordenes: OrdenProducto[] = [];
+  pestanaProductos: 'productos' | 'apartados' = 'productos';
   cargando = true;
   nombreUsuario: string = '';
 
@@ -135,6 +136,7 @@ export class ServicioComponent implements OnInit {
     this.categoriaActiva = categoria;
     this.carrito = [];
     this.mensajeOrden = '';
+    this.pestanaProductos = 'productos';
   }
 
   cerrarModal(): void {

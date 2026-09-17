@@ -37,12 +37,14 @@
             <td><span *ngFor="let item of orden.items">{{ item.producto_nombre }} × {{ item.cantidad }}<br></span></td>
             <td class="gold">{{ formatMoneda(orden.total) }}</td>
             <td>
-              <select class="select-cat order-status" [ngModel]="orden.estado"
+              <span class="order-status-label" *ngIf="orden.estado === 'cancelada'">
+                Cancelada
+              </span>
+              <select *ngIf="orden.estado !== 'cancelada'" class="select-cat order-status" [ngModel]="orden.estado"
                 (ngModelChange)="cambiarEstadoOrden(orden, $event)">
-                <option value="pendiente">Pendiente de pago</option>
+                <option value="pendiente" disabled>Pendiente de pago</option>
                 <option value="pagada">Pagada</option>
                 <option value="retirada">Recogida</option>
-                <option value="cancelada">Cancelada</option>
               </select>
             </td>
           </tr>

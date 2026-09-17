@@ -110,6 +110,18 @@
         </li>
       </ul>
       <div *ngIf="categoriaActiva.slug === 'productos'" class="us-products">
+        <div class="us-product-tabs">
+          <button [class.active]="pestanaProductos === 'productos'"
+            (click)="pestanaProductos = 'productos'">
+            Productos
+          </button>
+          <button [class.active]="pestanaProductos === 'apartados'"
+            (click)="pestanaProductos = 'apartados'">
+            Mis apartados
+            <span *ngIf="ordenes.length">{{ ordenes.length }}</span>
+          </button>
+        </div>
+        <ng-container *ngIf="pestanaProductos === 'productos'">
         <div class="us-service-item" *ngFor="let producto of categoriaActiva.productos">
           <img *ngIf="producto.imagen_url" [src]="producto.imagen_url" [alt]="producto.nombre" class="us-product-image">
           <div>
@@ -138,11 +150,12 @@
             <i class="bi bi-bag-check"></i> Apartar y recoger en la barbería
           </button>
         </div>
+        </ng-container>
         <div class="us-order-message" *ngIf="mensajeOrden">
           <i class="bi bi-check-circle"></i>
           <span>{{ mensajeOrden }}</span>
         </div>
-        <section class="us-order-history" *ngIf="ordenes.length">
+        <section class="us-order-history" *ngIf="pestanaProductos === 'apartados'">
           <div class="us-history-heading">
             <span>Mis apartados</span>
             <small>Consulta tus pedidos y recógelos en la barbería</small>
@@ -162,6 +175,9 @@
             <button class="us-order-cancel" *ngIf="orden.estado === 'pendiente'"
               (click)="cancelarOrden(orden)">Cancelar apartado</button>
           </article>
+          <p class="us-modal-empty" *ngIf="!ordenes.length">
+            Todavía no tienes apartados.
+          </p>
         </section>
       </div>
       <div class="us-modal-empty" *ngIf="categoriaActiva.slug !== 'productos' && categoriaActiva.servicios.length === 0">

@@ -143,6 +143,11 @@ class OrdenProductoViewSet(viewsets.ModelViewSet):
                 {'estado': 'Estado no válido.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        if nuevo_estado == 'cancelada':
+            return Response(
+                {'detail': 'El cliente cancela los apartados pendientes.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         if order.estado == 'cancelada' and nuevo_estado != 'cancelada':
             return Response(
                 {'detail': 'Una orden cancelada no puede reactivarse.'},
