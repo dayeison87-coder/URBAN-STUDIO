@@ -22,7 +22,7 @@
         <a routerLink="/barberos">Barberos</a>
       </li>
       <li>
-        <button class="btn-ia" (click)="abrirIA()">
+        <button class="btn-ia" *ngIf="!iaDesbloqueada" (click)="abrirIA()">
           ✦ Obtener código
         </button>
         <button class="btn-logout" (click)="logout()">
@@ -203,13 +203,6 @@
                 d="M200,55 C265,55 292,120 292,200 C292,290 255,375 200,375 C145,375 108,290 108,200 C108,120 135,55 200,55 Z"
                 fill="none" stroke="var(--gold)" stroke-width="1" stroke-dasharray="3 4" opacity="0.55" />
 
-              <!--
-            CONSERVA AQUÍ TODAS LAS CIRCLES
-            DE PARTÍCULAS QUE YA TENÍAS.
-            
-            Por ejemplo:
-          -->
-
               <circle cx="123.7" cy="247.7" r="1.1" fill="var(--gold)" opacity="0.55">
                 <animate attributeName="opacity" values="0.55;0.85;0.55" dur="4.1s" begin="1.1s"
                   repeatCount="indefinite" />
@@ -219,11 +212,6 @@
                 <animate attributeName="opacity" values="0.64;0.94;0.64" dur="3s" begin="1.4s"
                   repeatCount="indefinite" />
               </circle>
-
-              <!--
-            PEGA AQUÍ EL RESTO DE TUS <circle>
-            DE PARTÍCULAS SIN CAMBIARLOS.
-          -->
 
             </svg>
 
@@ -257,7 +245,28 @@
 
                 <div class="face-dot dot-mouth-r"></div>
 
-                <div class="scan-line"></div>
+                <div class="scan-line" *ngIf="!mostrarProgreso"></div>
+
+              </div>
+
+
+              <!-- ANILLO DE PROGRESO 0% -> 100% (tipo verificación facial) -->
+              <div class="scan-progress" *ngIf="mostrarProgreso">
+
+                <svg class="scan-progress-ring" viewBox="0 0 120 120">
+
+                  <circle class="scan-progress-track" cx="60" cy="60" r="52" />
+
+                  <circle
+                    class="scan-progress-fill"
+                    cx="60" cy="60" r="52"
+                    [style.stroke-dasharray]="circunferenciaAnillo"
+                    [style.stroke-dashoffset]="circunferenciaAnillo - (progresoEscaneo / 100) * circunferenciaAnillo"
+                  />
+
+                </svg>
+
+                <span class="scan-progress-text">{{ progresoEscaneo }}%</span>
 
               </div>
 
@@ -268,7 +277,7 @@
 
               <div class="scan-status">
                 <span class="scan-status-dot"></span>
-                Escaneando automáticamente
+                {{ estadoCamara || 'Escaneando automáticamente' }}
               </div>
 
             </div>
@@ -315,8 +324,12 @@
 
         <ng-container *ngIf="modo === 'inicial' && !imagenSeleccionada">
 
-          <button class="btn-gold" (click)="activarCamara()">
+          <button class="btn-gold" *ngIf="iaDesbloqueada" (click)="activarCamara()">
             Escanear con la cámara
+          </button>
+
+          <button class="btn-gold" *ngIf="!iaDesbloqueada" (click)="abrirIA()">
+            ✦ Obtener código
           </button>
 
         </ng-container>
@@ -325,6 +338,12 @@
         <!-- ESTADO CÁMARA -->
 
         <ng-container *ngIf="modo === 'camara'">
+
+          <!-- Captura manual de respaldo: por si el usuario quiere -->
+          <!-- forzar la foto sin esperar el ciclo automático. -->
+          <button class="btn-text" (click)="capturarFoto(true)">
+            Capturar ahora
+          </button>
 
           <button class="btn-text" (click)="cancelarCamara()">
             Cancelar
@@ -356,6 +375,10 @@
 
           <button class="btn-text" (click)="quitarImagen()" [disabled]="cargando">
             Elegir otra foto
+          </button>
+
+          <button class="btn-text" (click)="cancelarYReescanear()" [disabled]="cargando">
+            Cancelar y escanear de nuevo
           </button>
 
         </ng-container>

@@ -394,12 +394,11 @@ class AnalizarRostroView(APIView):
             analisis.estado = "completado"
             analisis.save()
 
-            # ======================================
-            # 7. MARCAR CÓDIGO COMO USADO
-            # ======================================
-
+            # El código se consume solamente cuando Gemini terminó de
+            # generar el resultado. Si el análisis falla antes de este punto,
+            # el cliente puede intentar de nuevo con el mismo código.
             codigo_seguridad.usado = True
-            codigo_seguridad.save()
+            codigo_seguridad.save(update_fields=["usado"])
 
         except (
             RostroNoDetectadoError,

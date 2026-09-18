@@ -2,6 +2,7 @@ import { Component, ElementRef, ViewChild, OnDestroy, inject } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { GeminiService } from '../../services/gemini';
 
 interface Barbero {
@@ -33,6 +34,7 @@ export class AnalisisRostroComponent implements OnDestroy {
 
   cargando = false;
   errorMensaje = '';
+  private analisisSubscription?: Subscription;
 
   // ==========================================
   // CÓDIGO DE SEGURIDAD / ACCESO A LA IA
@@ -48,8 +50,6 @@ export class AnalisisRostroComponent implements OnDestroy {
   barberos: Barbero[] = [];
   barberoSeleccionado: number | null = null;
 
-  // Indica si el usuario ya validó correctamente
-  // el código y puede utilizar la IA.
   iaDesbloqueada = false;
 
   // ==========================================
@@ -58,11 +58,30 @@ export class AnalisisRostroComponent implements OnDestroy {
 
   modo: 'inicial' | 'camara' = 'inicial';
   streamActivo: MediaStream | null = null;
-  private autoCaptureTimer?: ReturnType<typeof setTimeout>;
-  private cameraReadyFallbackTimer?: ReturnType<typeof setTimeout>;
+
+  // Mensaje corto que se muestra mientras la cámara se estabiliza,
+  // para que el usuario sepa que sigue trabajando y no está trabada.
+  estadoCamara: string = '';
+
+  // ── Progreso de escaneo tipo "verificación facial" (0-100%) ──
+  // El anillo se llena en DURACION_ESCANEO_MS; solo al llegar a 100%
+  // se intenta capturar y, si sale bien, se envía automáticamente.
+  mostrarProgreso = false;
+  progresoEscaneo = 0;
+  readonly circunferenciaAnillo = 2 * Math.PI * 52;
+
+  private progresoInterval?: ReturnType<typeof setInterval>;
+  private readonly DURACION_ESCANEO_MS = 2600;
+
+  private videoListoListener?: () => void;
+  private fallbackTimer?: ReturnType<typeof setTimeout>;
   private intentosCaptura = 0;
-  private readonly MAX_INTENTOS_CAPTURA = 5;
-  private escaneoProgramado = false;
+  private readonly MAX_INTENTOS_CAPTURA = 6;
+
+  // Brillo mínimo promedio (0-255) que debe tener el frame capturado
+  // para considerarlo válido. Frames muy oscuros suelen significar que
+  // la cámara todavía no terminó de ajustar exposición/enfoque.
+  private readonly BRILLO_MINIMO = 22;
 
   constructor(private geminiService: GeminiService) {
 
@@ -78,11 +97,9 @@ export class AnalisisRostroComponent implements OnDestroy {
   // ==========================================
 
   logout() {
-
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('username');
-
     this.router.navigate(['/login']);
   }
 
@@ -92,16 +109,13 @@ export class AnalisisRostroComponent implements OnDestroy {
 
   abrirIA() {
 
-    // Si ya validó el código anteriormente,
-    // no necesitamos volver a solicitarlo.
     if (this.iaDesbloqueada) {
       return;
     }
 
     this.errorMensaje = '';
-
-    // Solicitar código al correo
     this.cargandoBarberos = true;
+
     this.geminiService.obtenerBarberos().subscribe({
       next: (barberos) => {
         this.barberos = barberos;
@@ -120,329 +134,335 @@ export class AnalisisRostroComponent implements OnDestroy {
   // ==========================================
 
   onFileSelected(event: any) {
-
     const file = event.target.files[0];
-
     if (file) {
       this.setImagen(file);
     }
   }
 
   // ==========================================
-  // CÁMARA
+  // CÁMARA: ACTIVACIÓN
   // ==========================================
 
   async activarCamara() {
 
-    // Seguridad adicional:
-    // no permitimos utilizar la cámara
-    // si la IA todavía está bloqueada.
     if (!this.iaDesbloqueada) {
-
       this.errorMensaje =
         'Primero debes validar el código de seguridad para utilizar la IA.';
-
       return;
     }
 
     this.errorMensaje = '';
+    this.intentosCaptura = 0;
+    this.estadoCamara = 'Encendiendo cámara…';
 
     try {
 
-      this.streamActivo =
-        await navigator.mediaDevices.getUserMedia({
-
-          video: {
-            facingMode: 'user',
-            width: { ideal: 640 },
-            height: { ideal: 480 }
-          },
-
-          audio: false
-        });
+      this.streamActivo = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'user',
+          width: { ideal: 640 },
+          height: { ideal: 480 }
+        },
+        audio: false
+      });
 
       this.modo = 'camara';
 
-      setTimeout(async () => {
-
-        if (this.videoRef) {
-
-          const video =
-            this.videoRef.nativeElement;
-
-          video.muted = true;
-          video.playsInline = true;
-          video.srcObject =
-            this.streamActivo;
-
-          try {
-            // Algunos navegadores dejan esta promesa pendiente aun cuando el
-            // stream ya fue autorizado. No bloqueamos el escaneo por ello.
-            void video.play().catch((error) => {
-              console.error('Error reproduciendo cámara:', error);
-            });
-
-            // La apertura de la cámara debe venir de un clic por seguridad
-            // del navegador. Una vez concedido el permiso, la captura y el
-            // análisis se hacen solos para no pedir un segundo clic al usuario.
-            // No esperamos eventos de video: algunos navegadores no los emiten
-            // aunque el stream esté activo, lo que dejaba el escáner bloqueado.
-            this.programarCapturaAutomatica();
-
-            console.log('✅ Cámara reproduciendo');
-
-            console.log(
-              '📷 Video width:',
-              video.videoWidth
-            );
-
-            console.log(
-              '📷 Video height:',
-              video.videoHeight
-            );
-
-            console.log(
-              '📷 ReadyState:',
-              video.readyState
-            );
-
-          } catch (error) {
-
-            console.error(
-              '❌ Error reproduciendo cámara:',
-              error
-            );
-          }
-        }
-
-      }, 100);
+      // Esperamos al siguiente ciclo para que Angular ya haya
+      // renderizado el <video> del *ngIf antes de asignarle el stream.
+      setTimeout(() => this.prepararVideo(), 0);
 
     } catch (err) {
-
-      console.error(err);
-
+      console.error('❌ Error obteniendo la cámara:', err);
       this.errorMensaje =
         'No pudimos acceder a la cámara. Revisa los permisos del navegador.';
+      this.estadoCamara = '';
     }
   }
 
-  private iniciarVideoYEsperarListo(video: HTMLVideoElement) {
-    this.escaneoProgramado = false;
-    this.intentosCaptura = 0;
+  private prepararVideo() {
 
-    const programarEscaneo = () => {
-      if (this.escaneoProgramado || this.modo !== 'camara' || !this.streamActivo) {
-        return;
+    if (!this.videoRef || !this.streamActivo) {
+      return;
+    }
+
+    const video = this.videoRef.nativeElement;
+
+    video.muted = true;
+    video.playsInline = true;
+    video.srcObject = this.streamActivo;
+
+    this.estadoCamara = 'Preparando cámara…';
+
+    // En vez de adivinar con un tiempo fijo, esperamos al evento real
+    // que indica que ya hay un frame de video decodificado antes de
+    // arrancar el anillo de progreso.
+    this.videoListoListener = () => {
+      if (this.videoListoListener) {
+        video.removeEventListener('loadeddata', this.videoListoListener);
+        this.videoListoListener = undefined;
       }
-
-      this.escaneoProgramado = true;
-      if (this.cameraReadyFallbackTimer) {
-        clearTimeout(this.cameraReadyFallbackTimer);
-        this.cameraReadyFallbackTimer = undefined;
+      if (this.fallbackTimer) {
+        clearTimeout(this.fallbackTimer);
+        this.fallbackTimer = undefined;
       }
-
-      // Da tiempo para centrar el rostro antes de la captura automática.
-      this.autoCaptureTimer = setTimeout(() => this.intentarCapturaAutomatica(), 1200);
+      this.iniciarProgresoEscaneo();
     };
 
-    video.addEventListener('loadeddata', programarEscaneo, { once: true });
-    video.addEventListener('canplay', programarEscaneo, { once: true });
+    video.addEventListener('loadeddata', this.videoListoListener);
 
-    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && video.videoWidth > 0) {
-      programarEscaneo();
-    }
+    void video.play().catch((error) => {
+      console.error('Error reproduciendo cámara:', error);
+    });
 
-    // Respaldo para navegadores que no emiten los eventos esperados.
-    this.cameraReadyFallbackTimer = setTimeout(programarEscaneo, 4000);
-  }
-
-  private intentarCapturaAutomatica() {
-    const video = this.videoRef?.nativeElement;
-    const listo = !!video && !video.paused && video.videoWidth > 0 && video.videoHeight > 0;
-
-    if (listo) {
-      this.capturarFoto(true);
-      return;
-    }
-
-    this.intentosCaptura += 1;
-    if (this.intentosCaptura < this.MAX_INTENTOS_CAPTURA && this.modo === 'camara') {
-      this.autoCaptureTimer = setTimeout(() => this.intentarCapturaAutomatica(), 500);
-      return;
-    }
-
-    this.errorMensaje =
-      'La cámara no entregó imagen. Revisa el permiso de cámara del navegador y vuelve a intentarlo.';
-    this.detenerCamara();
-  }
-
-  private programarCapturaAutomatica() {
-    this.intentosCaptura = 0;
-    if (this.autoCaptureTimer) {
-      clearTimeout(this.autoCaptureTimer);
-    }
-
-    // La cámara puede tardar en mostrar el primer cuadro. Tras esta pausa,
-    // intentarCapturaAutomatica verifica el video y reintenta si hace falta.
-    this.autoCaptureTimer = setTimeout(() => this.intentarCapturaAutomatica(), 3000);
+    // Red de seguridad: si 'loadeddata' nunca llega (pasa en algunos
+    // navegadores/dispositivos), arrancamos el progreso de todos modos
+    // en vez de dejar la cámara colgada para siempre.
+    this.fallbackTimer = setTimeout(() => {
+      if (this.modo === 'camara' && !this.mostrarProgreso) {
+        this.iniciarProgresoEscaneo();
+      }
+    }, 4000);
   }
 
   // ==========================================
-  // CAPTURAR FOTO
+  // CÁMARA: ANILLO DE PROGRESO 0% → 100%
+  // ==========================================
+
+  private iniciarProgresoEscaneo() {
+
+    this.mostrarProgreso = true;
+    this.progresoEscaneo = 0;
+    this.estadoCamara = 'Escaneando rostro…';
+
+    const inicio = performance.now();
+
+    if (this.progresoInterval) {
+      clearInterval(this.progresoInterval);
+    }
+
+    this.progresoInterval = setInterval(() => {
+
+      const transcurrido = performance.now() - inicio;
+      const porcentaje = Math.min(
+        100,
+        Math.round((transcurrido / this.DURACION_ESCANEO_MS) * 100)
+      );
+
+      this.progresoEscaneo = porcentaje;
+
+      if (porcentaje >= 100) {
+        if (this.progresoInterval) {
+          clearInterval(this.progresoInterval);
+          this.progresoInterval = undefined;
+        }
+        this.finalizarEscaneo();
+      }
+
+    }, 40);
+  }
+
+  // Se llama únicamente cuando el anillo llegó a 100%.
+  private finalizarEscaneo() {
+
+    if (this.modo !== 'camara' || !this.streamActivo) {
+      this.mostrarProgreso = false;
+      return;
+    }
+
+    const video = this.videoRef?.nativeElement;
+
+    const listo =
+      !!video &&
+      video.videoWidth > 0 &&
+      video.videoHeight > 0 &&
+      !video.paused &&
+      video.readyState >= 2;
+
+    if (!listo) {
+      this.reintentarEscaneo('Preparando cámara…');
+      return;
+    }
+
+    const resultado = this.capturarFrameSiEsValido();
+
+    if (!resultado) {
+      // El frame salió demasiado oscuro/negro: la cámara aún está
+      // ajustando exposición. Reiniciamos el anillo en vez de
+      // tomar una foto mala o quedarnos congelados.
+      this.reintentarEscaneo('Ajustando iluminación…');
+      return;
+    }
+
+    this.mostrarProgreso = false;
+    this.estadoCamara = '';
+    this.setImagen(resultado);
+    this.detenerCamara();
+    this.analizarImagen();
+  }
+
+  private reintentarEscaneo(mensaje: string) {
+
+    this.intentosCaptura++;
+
+    if (this.intentosCaptura >= this.MAX_INTENTOS_CAPTURA) {
+      this.mostrarProgreso = false;
+      this.errorMensaje =
+        'No pudimos obtener una imagen clara de la cámara. Verifica la iluminación o los permisos e inténtalo de nuevo.';
+      this.detenerCamara();
+      return;
+    }
+
+    this.estadoCamara = mensaje;
+
+    // Reinicia el anillo desde 0% para el siguiente intento,
+    // en vez de dejarlo pegado en 100% sin resultado.
+    this.iniciarProgresoEscaneo();
+  }
+
+  // ==========================================
+  // CAPTURA MANUAL (botón, disponible como respaldo)
   // ==========================================
 
   capturarFoto(analizarAutomaticamente = false) {
 
     if (!this.iaDesbloqueada) {
-
-      this.errorMensaje =
-        'Primero debes validar el código de seguridad.';
-
+      this.errorMensaje = 'Primero debes validar el código de seguridad.';
       return;
     }
+
+    if (this.progresoInterval) {
+      clearInterval(this.progresoInterval);
+      this.progresoInterval = undefined;
+    }
+    this.mostrarProgreso = false;
+
+    const resultado = this.capturarFrameSiEsValido(/* exigirBrillo */ false);
+
+    if (!resultado) {
+      this.errorMensaje =
+        'No recibimos imagen de la cámara. Revisa los permisos e inténtalo de nuevo.';
+      this.detenerCamara();
+      return;
+    }
+
+    this.setImagen(resultado);
+    this.detenerCamara();
+
+    if (analizarAutomaticamente) {
+      this.analizarImagen();
+    }
+  }
+
+  /**
+   * Dibuja el frame actual del video en el canvas oculto y valida que
+   * tenga contenido real (no esté negro) antes de convertirlo a File.
+   * Devuelve null si el frame no es válido/aceptable todavía.
+   */
+  private capturarFrameSiEsValido(exigirBrillo: boolean = true): File | null {
 
     if (!this.videoRef || !this.canvasRef) {
-
-      console.error(
-        '❌ Video o canvas no disponibles'
-      );
-
-      return;
+      return null;
     }
 
-    const video =
-      this.videoRef.nativeElement;
+    const video = this.videoRef.nativeElement;
+    const canvas = this.canvasRef.nativeElement;
 
-    const canvas =
-      this.canvasRef.nativeElement;
-
-    console.log(
-      '========== 📷 CAPTURANDO =========='
-    );
-
-    console.log(
-      'Video width:',
-      video.videoWidth
-    );
-
-    console.log(
-      'Video height:',
-      video.videoHeight
-    );
-
-    console.log(
-      'ReadyState:',
-      video.readyState
-    );
-
-    console.log(
-      'Paused:',
-      video.paused
-    );
-
-    if (video.videoWidth === 0 || video.videoHeight === 0 || video.paused) {
-      this.intentarCapturaAutomatica();
-      return;
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      return null;
     }
 
-    if (
-      video.videoWidth === 0 ||
-      video.videoHeight === 0
-    ) {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
-      this.errorMensaje =
-        'No recibimos imagen de la cámara. Revisa que el navegador tenga permitido usar la cámara y vuelve a intentarlo.';
-
-      this.detenerCamara();
-
-      return;
-    }
-
-    if (video.paused) {
-
-      this.errorMensaje =
-        'La cámara todavía no está reproduciendo. Espera un momento.';
-
-      return;
-    }
-
-    canvas.width =
-      video.videoWidth;
-
-    canvas.height =
-      video.videoHeight;
-
-    const ctx =
-      canvas.getContext('2d');
-
+    const ctx = canvas.getContext('2d');
     if (!ctx) {
-
-      console.error(
-        '❌ No se pudo obtener el contexto del canvas'
-      );
-
-      return;
+      return null;
     }
 
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.drawImage(
-      video,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
+    // La vista previa de cámara se muestra como espejo. Guardamos el frame
+    // con el mismo reflejo para que la foto y el resultado no cambien de lado.
+    ctx.save();
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
 
-    canvas.toBlob(
-      (blob) => {
+    if (exigirBrillo && !this.frameTieneBrilloSuficiente(ctx, canvas.width, canvas.height)) {
+      return null;
+    }
 
-        if (!blob) {
+    return this.canvasABlobSincrono(canvas);
+  }
 
-          console.error(
-            '❌ No se pudo crear el Blob'
-          );
+  /**
+   * Calcula el brillo promedio de una muestra de píxeles del frame.
+   * Un frame casi negro (cámara aún ajustando exposición) da un
+   * promedio muy bajo, así lo descartamos y reintentamos.
+   */
+  private frameTieneBrilloSuficiente(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number
+  ): boolean {
 
-          return;
-        }
+    try {
+      const muestra = ctx.getImageData(0, 0, width, height).data;
 
-        if (blob.size < 10000) {
+      let suma = 0;
+      let contados = 0;
 
-          this.errorMensaje =
-            'La cámara entregó una imagen vacía. Revisa el permiso de cámara del navegador y vuelve a intentarlo.';
+      // Muestreamos 1 de cada ~40 píxeles para que sea rápido.
+      const paso = 40 * 4;
 
-          this.detenerCamara();
+      for (let i = 0; i < muestra.length; i += paso) {
+        const r = muestra[i];
+        const g = muestra[i + 1];
+        const b = muestra[i + 2];
+        suma += (r + g + b) / 3;
+        contados++;
+      }
 
-          return;
-        }
+      const promedio = contados > 0 ? suma / contados : 0;
 
-        const file =
-          new File(
-            [blob],
-            'captura.jpg',
-            {
-              type: 'image/jpeg',
-              lastModified: Date.now()
-            }
-          );
+      return promedio >= this.BRILLO_MINIMO;
 
-        this.setImagen(file);
+    } catch (error) {
+      // Si por algún motivo no se puede leer el canvas (ej. políticas
+      // de seguridad), no bloqueamos el flujo por esto.
+      console.warn('No se pudo evaluar el brillo del frame:', error);
+      return true;
+    }
+  }
 
-        this.detenerCamara();
+  private canvasABlobSincrono(canvas: HTMLCanvasElement): File | null {
 
-        if (analizarAutomaticamente) {
-          this.analizarImagen();
-        }
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+    const partes = dataUrl.split(',');
 
-      },
-      'image/jpeg',
-      0.92
-    );
+    if (partes.length !== 2) {
+      return null;
+    }
+
+    const binario = atob(partes[1]);
+    const bytes = new Uint8Array(binario.length);
+
+    for (let i = 0; i < binario.length; i++) {
+      bytes[i] = binario.charCodeAt(i);
+    }
+
+    if (bytes.length < 8000) {
+      // Imagen sospechosamente pequeña: probablemente vacía/corrupta.
+      return null;
+    }
+
+    return new File([bytes], 'captura.jpg', {
+      type: 'image/jpeg',
+      lastModified: Date.now()
+    });
   }
 
   // ==========================================
@@ -451,35 +471,34 @@ export class AnalisisRostroComponent implements OnDestroy {
 
   detenerCamara() {
 
-    if (this.autoCaptureTimer) {
-      clearTimeout(this.autoCaptureTimer);
-      this.autoCaptureTimer = undefined;
+    if (this.progresoInterval) {
+      clearInterval(this.progresoInterval);
+      this.progresoInterval = undefined;
     }
 
-    if (this.cameraReadyFallbackTimer) {
-      clearTimeout(this.cameraReadyFallbackTimer);
-      this.cameraReadyFallbackTimer = undefined;
+    if (this.fallbackTimer) {
+      clearTimeout(this.fallbackTimer);
+      this.fallbackTimer = undefined;
     }
 
-    this.intentosCaptura = 0;
-    this.escaneoProgramado = false;
+    if (this.videoRef && this.videoListoListener) {
+      this.videoRef.nativeElement.removeEventListener('loadeddata', this.videoListoListener);
+      this.videoListoListener = undefined;
+    }
 
     if (this.streamActivo) {
-
-      this.streamActivo
-        .getTracks()
-        .forEach(
-          (track) => track.stop()
-        );
-
+      this.streamActivo.getTracks().forEach((track) => track.stop());
       this.streamActivo = null;
     }
 
+    this.intentosCaptura = 0;
+    this.progresoEscaneo = 0;
+    this.mostrarProgreso = false;
+    this.estadoCamara = '';
     this.modo = 'inicial';
   }
 
   cancelarCamara() {
-
     this.detenerCamara();
   }
 
@@ -489,40 +508,37 @@ export class AnalisisRostroComponent implements OnDestroy {
 
   private setImagen(file: File) {
 
-    // No permitimos seleccionar imagen
-    // si la IA todavía está bloqueada.
     if (!this.iaDesbloqueada) {
-
       this.errorMensaje =
         'Primero debes validar el código de seguridad para utilizar la IA.';
-
       return;
     }
 
     this.imagenSeleccionada = file;
-
-    this.previewUrl =
-      URL.createObjectURL(file);
-
+    this.previewUrl = URL.createObjectURL(file);
     this.resultadoAnalisis = null;
-
     this.errorMensaje = '';
   }
 
   quitarImagen() {
 
     this.imagenSeleccionada = null;
-    this.resultadoAnalisis = null;
-    this.errorMensaje = '';
 
     if (this.previewUrl) {
-
-      URL.revokeObjectURL(
-        this.previewUrl
-      );
-
+      URL.revokeObjectURL(this.previewUrl);
       this.previewUrl = null;
     }
+
+    this.resultadoAnalisis = null;
+  }
+
+  cancelarYReescanear() {
+    this.analisisSubscription?.unsubscribe();
+    this.analisisSubscription = undefined;
+    this.cargando = false;
+    this.quitarImagen();
+    this.errorMensaje = '';
+    void this.activarCamara();
   }
 
   // ==========================================
@@ -539,33 +555,22 @@ export class AnalisisRostroComponent implements OnDestroy {
     this.errorMensaje = '';
     this.validandoCodigo = true;
 
-    this.geminiService
-      .solicitarCodigoIA(this.barberoSeleccionado)
-      .subscribe({
-
-        next: () => {
-
-          this.validandoCodigo = false;
-
-          this.mostrarCodigo = true;
-          this.mostrarSelectorBarbero = false;
-          this.codigoEnviado = true;
-
-        },
-
-        error: (err: any) => {
-
-          this.validandoCodigo = false;
-
-          this.errorMensaje =
-            err?.error?.error ||
-            'No fue posible enviar el código de seguridad.';
-        }
-      });
+    this.geminiService.solicitarCodigoIA(this.barberoSeleccionado).subscribe({
+      next: () => {
+        this.validandoCodigo = false;
+        this.mostrarCodigo = true;
+        this.mostrarSelectorBarbero = false;
+        this.codigoEnviado = true;
+      },
+      error: (err: any) => {
+        this.validandoCodigo = false;
+        this.errorMensaje =
+          err?.error?.error || 'No fue posible enviar el código de seguridad.';
+      }
+    });
   }
 
-  
-    // ==========================================
+  // ==========================================
   // INPUT DEL CÓDIGO DE SEGURIDAD
   // ==========================================
 
@@ -573,70 +578,41 @@ export class AnalisisRostroComponent implements OnDestroy {
 
     const input = event.target as HTMLInputElement;
 
-    // Solo permitimos números
     let valor = input.value.replace(/\D/g, '');
 
-    // Solo un número por casilla
     if (valor.length > 1) {
       valor = valor.charAt(valor.length - 1);
     }
 
-    const codigoArray = this.codigo
-      .split('');
-
+    const codigoArray = this.codigo.split('');
     codigoArray[index] = valor;
-
-    this.codigo = codigoArray
-      .join('')
-      .slice(0, 6);
+    this.codigo = codigoArray.join('').slice(0, 6);
 
     input.value = valor;
 
-    // Pasar automáticamente a la siguiente casilla
     if (valor && index < 5) {
-
-      const inputs =
-        document.querySelectorAll<HTMLInputElement>(
-          '.codigo-input'
-        );
-
+      const inputs = document.querySelectorAll<HTMLInputElement>('.codigo-input');
       inputs[index + 1]?.focus();
     }
   }
 
+  manejarTecla(event: KeyboardEvent, index: number): void {
 
-  manejarTecla(
-    event: KeyboardEvent,
-    index: number
-  ): void {
-
-    // Si presiona Backspace estando
-    // la casilla vacía, vuelve a la anterior
     if (
       event.key === 'Backspace' &&
       !(event.target as HTMLInputElement).value &&
       index > 0
     ) {
-
-      const inputs =
-        document.querySelectorAll<HTMLInputElement>(
-          '.codigo-input'
-        );
-
+      const inputs = document.querySelectorAll<HTMLInputElement>('.codigo-input');
       inputs[index - 1]?.focus();
     }
   }
-
 
   pegarCodigo(event: ClipboardEvent): void {
 
     event.preventDefault();
 
-    const texto =
-      event.clipboardData
-        ?.getData('text')
-        .replace(/\D/g, '')
-        .slice(0, 6);
+    const texto = event.clipboardData?.getData('text').replace(/\D/g, '').slice(0, 6);
 
     if (!texto) {
       return;
@@ -644,20 +620,10 @@ export class AnalisisRostroComponent implements OnDestroy {
 
     this.codigo = texto;
 
-    // Esperamos a que Angular actualice
-    // los inputs antes de mover el foco
     setTimeout(() => {
-
-      const inputs =
-        document.querySelectorAll<HTMLInputElement>(
-          '.codigo-input'
-        );
-
-      const index =
-        Math.min(texto.length - 1, 5);
-
+      const inputs = document.querySelectorAll<HTMLInputElement>('.codigo-input');
+      const index = Math.min(texto.length - 1, 5);
       inputs[index]?.focus();
-
     });
   }
 
@@ -668,95 +634,57 @@ export class AnalisisRostroComponent implements OnDestroy {
   validarCodigo() {
 
     if (!this.codigo.trim()) {
+      this.errorMensaje = 'Debes ingresar el código de seguridad.';
+      return;
+    }
 
-      this.errorMensaje =
-        'Debes ingresar el código de seguridad.';
-
+    if (this.barberoSeleccionado === null) {
+      this.errorMensaje = 'Debes seleccionar un barbero.';
       return;
     }
 
     this.errorMensaje = '';
     this.validandoCodigo = true;
 
-    if (this.barberoSeleccionado === null) {
-      this.validandoCodigo = false;
-      this.errorMensaje = 'Debes seleccionar un barbero.';
-      return;
-    }
-
-    this.geminiService
-      .validarCodigoIA(this.codigo.trim(), this.barberoSeleccionado)
-      .subscribe({
-
-        next: () => {
-
-          this.validandoCodigo = false;
-
-          this.mostrarCodigo = false;
-          this.codigoEnviado = false;
-          this.codigo = '';
-
-          // ======================================
-          // CÓDIGO CORRECTO
-          // ======================================
-
-          this.iaDesbloqueada = true;
-
-          console.log(
-            '✅ IA desbloqueada correctamente'
-          );
-
-        },
-
-        error: (err: any) => {
-
-          this.validandoCodigo = false;
-
-          this.errorMensaje =
-            err?.error?.error ||
-            'El código ingresado no es válido.';
-        }
-      });
+    this.geminiService.validarCodigoIA(this.codigo.trim(), this.barberoSeleccionado).subscribe({
+      next: () => {
+        this.validandoCodigo = false;
+        this.mostrarCodigo = false;
+        this.codigoEnviado = false;
+        this.codigo = '';
+        this.iaDesbloqueada = true;
+      },
+      error: (err: any) => {
+        this.validandoCodigo = false;
+        this.errorMensaje = err?.error?.error || 'El código ingresado no es válido.';
+      }
+    });
   }
 
   // ==========================================
-  // ANALIZAR IMAGEN
+  // ENVIAR / ANALIZAR IMAGEN
   // ==========================================
 
   enviarImagen() {
 
     if (!this.iaDesbloqueada) {
-
       this.errorMensaje =
         'Primero debes validar el código de seguridad para utilizar la IA.';
-
       return;
     }
 
     if (!this.imagenSeleccionada) {
-
-      this.errorMensaje =
-        'Primero selecciona o captura una imagen.';
-
+      this.errorMensaje = 'Primero selecciona o captura una imagen.';
       return;
     }
 
-    // Si ya validó el código,
-    // analizamos directamente.
     this.analizarImagen();
   }
-
-  // ==========================================
-  // ANALIZAR IMAGEN
-  // ==========================================
 
   private analizarImagen() {
 
     if (!this.iaDesbloqueada) {
-
-      this.errorMensaje =
-        'El acceso a la IA no está autorizado.';
-
+      this.errorMensaje = 'El acceso a la IA no está autorizado.';
       return;
     }
 
@@ -765,50 +693,28 @@ export class AnalisisRostroComponent implements OnDestroy {
     }
 
     this.cargando = true;
-
     this.errorMensaje = '';
-
     this.resultadoAnalisis = null;
 
-    this.geminiService
-      .analizarRostro(
-        this.imagenSeleccionada
-      )
-      .subscribe({
+    this.analisisSubscription = this.geminiService.analizarRostro(this.imagenSeleccionada).subscribe({
+      next: (response: any) => {
 
-        next: (response: any) => {
+        this.cargando = false;
 
-          this.cargando = false;
-
-          if (
-            response.estado ===
-            'completado'
-          ) {
-
-            this.resultadoAnalisis =
-              response;
-
-          } else if (
-            response.estado === 'error'
-          ) {
-
-            this.errorMensaje =
-              response.error_detalle ||
-              'Hubo un error al analizar el rostro.';
-          }
-        },
-
-        error: (err: any) => {
-
-          this.cargando = false;
-
+        if (response.estado === 'completado') {
+          this.resultadoAnalisis = response;
+        } else if (response.estado === 'error') {
           this.errorMensaje =
-            err?.error?.error ||
-            'Hubo un error al analizar el rostro. Inténtalo de nuevo.';
-
-          console.error(err);
+            response.error_detalle || 'Hubo un error al analizar el rostro.';
         }
-      });
+      },
+      error: (err: any) => {
+        this.cargando = false;
+        this.errorMensaje =
+          err?.error?.error || 'Hubo un error al analizar el rostro. Inténtalo de nuevo.';
+        console.error(err);
+      }
+    });
   }
 
   // ==========================================
@@ -818,12 +724,10 @@ export class AnalisisRostroComponent implements OnDestroy {
   ngOnDestroy() {
 
     this.detenerCamara();
+    this.analisisSubscription?.unsubscribe();
 
     if (this.previewUrl) {
-
-      URL.revokeObjectURL(
-        this.previewUrl
-      );
+      URL.revokeObjectURL(this.previewUrl);
     }
   }
 }
