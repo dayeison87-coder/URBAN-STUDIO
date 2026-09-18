@@ -700,12 +700,6 @@
 }
 .btn-logout:hover { border-color: #e63946; color: #e63946; }
 
-/* ══════ Estado de cámara: botones lado a lado ══════ */
-.camera-card ~ .waveform + button.btn-text,
-.scan-panel .btn-text {
-  /* mantiene el comportamiento original por defecto */
-}
-
 /* ══════ Responsive ══════ */
 @media (max-width: 1080px) {
   .ia-layout { grid-template-columns: 1fr 1fr; }
