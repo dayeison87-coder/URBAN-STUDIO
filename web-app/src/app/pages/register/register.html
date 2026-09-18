@@ -6,12 +6,6 @@
             <p class="subtitle">Regístrate para gestionar tus citas y servicios</p>
         </header>
 
-        <div class="social-actions" *ngIf="!pasoVerificacion">
-            <button type="button" class="social-button google" (click)="accesoSocial('Google')"><i class="bi bi-google"></i> Continuar con Google</button>
-            
-            <div class="social-divider"><span>o crea tu cuenta con correo</span></div>
-        </div>
-
         <form *ngIf="!pasoVerificacion" (ngSubmit)="registrar()" #registerForm="ngForm" class="register-form">
 
             <div class="input-group">

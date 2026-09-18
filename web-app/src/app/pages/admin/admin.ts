@@ -178,7 +178,7 @@ export class AdminComponent implements OnInit {
     const data = new FormData();
     data.append('nombre', this.productoForm.nombre);
     data.append('descripcion', this.productoForm.descripcion);
-    data.append('precio', String(this.productoForm.precio));
+    data.append('precio', String(this.valorPrecioProducto()));
     data.append('inventario', String(this.productoForm.inventario));
     data.append('disponible', String(this.productoForm.disponible));
     data.append('categoria', String(this.productoForm.categoria));
@@ -207,6 +207,7 @@ export class AdminComponent implements OnInit {
     this.editandoProducto = true;
     this.productoForm = { id: p.id, nombre: p.nombre, descripcion: p.descripcion, precio: p.precio,
       inventario: p.inventario, disponible: p.disponible, categoria: p.categoria, imagen: null };
+    this.productoForm.precio = this.formatearPrecioProducto(this.productoForm.precio);
   }
 
   eliminarProducto(id: number): void {
@@ -218,6 +219,25 @@ export class AdminComponent implements OnInit {
     this.editandoProducto = false;
     this.productoForm = { id: null, nombre: '', descripcion: '', precio: '', inventario: 0, disponible: true, categoria: '', imagen: null };
     this.nombreImagenProducto = '';
+  }
+
+  formatearPrecioProducto(valor: string | number): string {
+    const soloDigitos = String(valor).replace(/\D/g, '');
+    if (!soloDigitos) return '';
+    return Number(soloDigitos).toLocaleString('es-CO', {
+      maximumFractionDigits: 0
+    });
+  }
+
+  alCambiarPrecioProducto(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const precioFormateado = this.formatearPrecioProducto(input.value);
+    input.value = precioFormateado;
+    this.productoForm.precio = precioFormateado;
+  }
+
+  private valorPrecioProducto(): number {
+    return Number(String(this.productoForm.precio).replace(/\D/g, ''));
   }
 
   // ── Categorías ──────────────────────────────────────────

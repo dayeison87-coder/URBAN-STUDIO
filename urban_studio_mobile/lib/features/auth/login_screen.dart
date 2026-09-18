@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/network/auth_service.dart';
@@ -24,32 +21,12 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLogin = true;
   bool _obscurePassword = true;
   bool _submitting = false;
-  StreamSubscription<Uri>? _linkSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-    final links = AppLinks();
-    links.getInitialLink().then(_handleGoogleLink);
-    _linkSubscription = links.uriLinkStream.listen(_handleGoogleLink);
-  }
-
   @override
   void dispose() {
-    _linkSubscription?.cancel();
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  Future<void> _handleGoogleLink(Uri? uri) async {
-    if (uri == null || uri.scheme != 'urbanstudio' || uri.host != 'auth') return;
-    try {
-      if (await _authService.handleGoogleCallback(uri) && mounted) await _goToHome();
-    } catch (_) {
-      _showFeedback('No se pudo completar el acceso con Google.', isError: true);
-    }
   }
 
   Future<void> _goToHome() async {
@@ -63,15 +40,6 @@ class _LoginScreenState extends State<LoginScreen> {
             : const HomeScreen(),
       ),
     );
-  }
-
-  Future<void> _handleGoogleLogin() async {
-    try {
-      await _authService.loginWithGoogle();
-      if (mounted) await _goToHome();
-    } catch (e) {
-      _showFeedback(e.toString().replaceFirst('Bad state: ', ''), isError: true);
-    }
   }
 
   Future<void> _handleSubmit() async {
@@ -168,10 +136,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 28),
                       _primaryButton(),
                       const SizedBox(height: 14),
-                      if (_isLogin) ...[
-                        _outlinedButton('Continuar con Google', Icons.account_circle_outlined, _handleGoogleLogin),
-                        const SizedBox(height: 14),
-                      ],
                       _outlinedButton(_isLogin ? 'Crear cuenta' : '¿Ya tienes cuenta? Inicia sesión', null, () => setState(() => _isLogin = !_isLogin)),
                       const SizedBox(height: 28),
                       const Row(children: [Expanded(child: Divider(color: Color(0x44FFFFFF))), Padding(padding: EdgeInsets.symmetric(horizontal: 14), child: Text('ACCESO SEGURO', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600, letterSpacing: 1))), Expanded(child: Divider(color: Color(0x44FFFFFF)))]),
