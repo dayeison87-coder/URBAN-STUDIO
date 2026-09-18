@@ -148,9 +148,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Center(child: UrbanBrand(fontSize: 20)),
+                      const Center(child: UrbanBrand(fontSize: 20, showName: false)),
                       const SizedBox(height: 18),
-                      Text(_isLogin ? 'Urban Studio' : 'Nuevo registro', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700)),
+                      Text(_isLogin ? 'Iniciar sesión' : 'Nuevo registro', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700)),
                       const SizedBox(height: 8),
                       Text(_isLogin ? 'Gestión inteligente para barberías' : 'Únete a Urban Studio', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 14)),
                       const SizedBox(height: 34),

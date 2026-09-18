@@ -172,7 +172,7 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const UrbanEyebrow('Urban Studio / Seguridad', center: false),
+            const UrbanEyebrow('Seguridad', center: false),
             const SizedBox(height: 8),
             const Text(
               'CONFIGURACIÓN DE CUENTA',

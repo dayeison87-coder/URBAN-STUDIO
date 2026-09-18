@@ -439,15 +439,6 @@ class _CitasScreenState extends State<CitasScreen> {
             ),
             child: Column(
               children: [
-                Text(
-                  'URBAN STUDIO',
-                  style: TextStyle(
-                    fontSize: 10,
-                    letterSpacing: 6,
-                    color: _gold,
-                  ),
-                ),
-                const SizedBox(height: 10),
                 const Text(
                   'MIS CITAS',
                   style: TextStyle(

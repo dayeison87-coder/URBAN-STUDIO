@@ -93,8 +93,6 @@ class _ServiciosScreenState extends State<ServiciosScreen> {
               ),
               child: Column(
                 children: [
-                  const UrbanEyebrow('Urban Studio'),
-                  const SizedBox(height: 12),
                   const Text('SERVICIOS',
                       style: TextStyle(
                           fontSize: 36,

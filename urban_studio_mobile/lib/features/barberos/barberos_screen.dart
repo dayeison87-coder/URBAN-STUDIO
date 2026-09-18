@@ -74,9 +74,6 @@ class _BarberosScreenState extends State<BarberosScreen> {
                   color: Colors.white.withOpacity(0.06)))),
               child: Column(
                 children: [
-                  Text('URBAN STUDIO', style: TextStyle(fontSize: 10,
-                    letterSpacing: 6, color: _gold)),
-                  const SizedBox(height: 10),
                   const Text('NUESTRO EQUIPO', style: TextStyle(fontSize: 30,
                     letterSpacing: 8, color: Colors.white,
                     fontWeight: FontWeight.w300)),

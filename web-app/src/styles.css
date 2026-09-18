@@ -59,6 +59,7 @@ img, svg, video, canvas {
     flex-basis: 38px;
 }
 
+
 ::selection {
     color: #0a0a0a;
     background: #d8b56d;

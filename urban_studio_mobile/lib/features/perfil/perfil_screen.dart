@@ -159,7 +159,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const UrbanEyebrow('Urban Studio / Cuenta', center: false),
+                      const UrbanEyebrow('Cuenta', center: false),
                       const SizedBox(height: 8),
                       const Text('MI PERFIL', style: TextStyle(fontSize: 34, fontWeight: FontWeight.w300, letterSpacing: 3, color: UrbanColors.text)),
                       const SizedBox(height: 8),

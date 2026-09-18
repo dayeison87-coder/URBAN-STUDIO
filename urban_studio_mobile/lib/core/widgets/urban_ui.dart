@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import '../theme/urban_theme.dart';
 
 class UrbanBrand extends StatelessWidget {
-  const UrbanBrand({super.key, this.fontSize = 18});
+  const UrbanBrand({super.key, this.fontSize = 18, this.showName = true});
 
   final double fontSize;
+  final bool showName;
 
   @override
   Widget build(BuildContext context) {
@@ -21,16 +22,18 @@ class UrbanBrand extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         ),
-        const SizedBox(width: 8),
-        Text(
-          'urban studio',
-          style: TextStyle(
-            color: UrbanColors.gold,
-            fontSize: fontSize,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.5,
+        if (showName) ...[
+          const SizedBox(width: 8),
+          Text(
+            'urban studio',
+            style: TextStyle(
+              color: UrbanColors.gold,
+              fontSize: fontSize,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.5,
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
