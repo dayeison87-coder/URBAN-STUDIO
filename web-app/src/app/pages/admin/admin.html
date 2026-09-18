@@ -103,7 +103,8 @@
         </select>
 
         <input [(ngModel)]="servicioForm.nombre"      placeholder="Nombre del servicio" />
-        <input [(ngModel)]="servicioForm.precio"      placeholder="Precio ($)"  type="number" />
+        <input [(ngModel)]="servicioForm.precio" placeholder="Precio ($)" type="text" inputmode="numeric"
+          (ngModelChange)="alCambiarPrecioServicio($event)" />
       </div>
 
       <textarea [(ngModel)]="servicioForm.descripcion" placeholder="Descripción del servicio"></textarea>

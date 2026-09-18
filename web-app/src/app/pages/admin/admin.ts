@@ -274,7 +274,7 @@ export class AdminComponent implements OnInit {
     const payload = {
       nombre:      this.servicioForm.nombre,
       descripcion: this.servicioForm.descripcion,
-      precio:      Number(this.servicioForm.precio),
+      precio:      this.valorPrecioServicio(),
       disponible:  this.servicioForm.disponible,
       categoria:   Number(this.servicioForm.categoria),
     };
@@ -305,7 +305,7 @@ export class AdminComponent implements OnInit {
       id:          s.id,
       nombre:      s.nombre,
       descripcion: s.descripcion,
-      precio:      s.precio,
+      precio:      this.formatearPrecioServicio(s.precio),
       disponible:  s.disponible,
       categoria:   s.categoria,
     };
@@ -324,6 +324,22 @@ export class AdminComponent implements OnInit {
     this.editandoServicio = false;
     this.servicioForm = { id: null, nombre: '', descripcion: '', precio: '', disponible: true, categoria: '' };
     setTimeout(() => this.mensaje = '', 3000);
+  }
+
+  formatearPrecioServicio(valor: string | number): string {
+    const soloDigitos = String(valor).replace(/\D/g, '');
+    if (!soloDigitos) return '';
+    return Number(soloDigitos).toLocaleString('es-CO', {
+      maximumFractionDigits: 0
+    });
+  }
+
+  alCambiarPrecioServicio(valor: string): void {
+    this.servicioForm.precio = this.formatearPrecioServicio(valor);
+  }
+
+  private valorPrecioServicio(): number {
+    return Number(String(this.servicioForm.precio).replace(/\D/g, ''));
   }
 
   getNombreCategoria(id: number): string {
