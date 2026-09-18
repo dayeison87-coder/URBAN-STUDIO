@@ -415,3 +415,7 @@ body {
     font-size: 1.75rem;
   }
 }
+
+/* Pulido visual consistente con el resto de Urban Studio. */
+.input-group:focus-within label, .input-group:focus-within .input-icon { color: var(--accent); }
+.login-card:hover { box-shadow: 0 14px 44px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(230, 187, 63, 0.15); }

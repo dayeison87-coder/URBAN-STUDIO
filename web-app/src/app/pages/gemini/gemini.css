@@ -1124,3 +1124,10 @@
   color: #f5f2ea;
   font: inherit;
 }
+
+/* Pulido visual consistente con el resto de Urban Studio. */
+.ia-container > .ia-layout, .ia-container > .resultado { animation: iaReveal 0.5s ease-out both; }
+@keyframes iaReveal { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.sidebar-card { transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease; }
+.sidebar-card:hover { transform: translateY(-3px); border-color: var(--gold); background: #302219; }
+.btn-gold:focus-visible, .btn-text:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }

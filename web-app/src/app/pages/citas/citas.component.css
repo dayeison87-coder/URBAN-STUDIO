@@ -493,5 +493,10 @@
   .mis-citas-title { font-size: 23px; letter-spacing: 2px; }
   .modal-calificacion-content { width: calc(100% - 24px); padding: 34px 18px 22px; }
   .modal-acciones { flex-wrap: wrap; }
-  .modal-acciones button { flex: 1 1 120px; }
+.modal-acciones button { flex: 1 1 120px; }
 }
+
+/* Pulido visual consistente con el resto de Urban Studio. */
+.citas-header::before { content: ''; display: block; width: 34px; height: 1px; margin: 0 auto 16px; background: #c9a96e; }
+.cita-card { box-shadow: 0 8px 22px rgba(0,0,0,0.12); }
+.btn-nueva:focus-visible, .btn-atras:focus-visible, .btn-siguiente:focus-visible, .btn-confirmar:focus-visible, .hora-btn:focus-visible { outline: 2px solid #f0d28f; outline-offset: 3px; }

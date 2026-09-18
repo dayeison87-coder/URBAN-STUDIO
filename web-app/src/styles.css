@@ -23,3 +23,17 @@ app-root {
 img, svg, video, canvas {
     max-width: 100%;
 }
+
+::selection {
+    color: #0a0a0a;
+    background: #d8b56d;
+}
+
+html {
+    scrollbar-color: #6e5733 #0a0a0a;
+    scrollbar-width: thin;
+}
+
+body::-webkit-scrollbar { width: 8px; }
+body::-webkit-scrollbar-track { background: #0a0a0a; }
+body::-webkit-scrollbar-thumb { background: #6e5733; border-radius: 8px; }

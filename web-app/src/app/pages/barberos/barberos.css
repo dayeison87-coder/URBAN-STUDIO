@@ -528,3 +528,8 @@ html, body {
     gap: 14px;
   }
 }
+
+/* Pulido visual consistente con el resto de Urban Studio. */
+.titulo::after { content: ''; display: block; width: 34px; height: 1px; margin: 20px auto 0; background: #c9a96e; }
+.card { box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12); }
+.btn-agendar:focus-visible { outline: 2px solid #f0d28f; outline-offset: 3px; }

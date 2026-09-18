@@ -223,7 +223,21 @@ i.bi {
   aspect-ratio: 3 / 2;
   cursor: pointer;
   overflow: hidden;
+  isolation: isolate;
 }
+
+.us-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  background: linear-gradient(180deg, transparent 45%, rgba(201, 169, 110, 0.14));
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.us-card:hover::after { opacity: 1; }
 
 .us-card:hover .us-card-bg { 
   transform: scale(1.06); 
@@ -439,7 +453,13 @@ i.bi {
   max-height: 90vh; 
   overflow-y: auto;
   box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+  scrollbar-color: #6e5733 #111;
+  scrollbar-width: thin;
 }
+
+.us-modal::-webkit-scrollbar { width: 6px; }
+.us-modal::-webkit-scrollbar-track { background: #111; }
+.us-modal::-webkit-scrollbar-thumb { background: #6e5733; }
 
 .us-modal-header {
   padding: 34px 76px 24px 32px;
@@ -503,6 +523,13 @@ i.bi {
   align-items: center;
   padding: 14px 0; 
   border-bottom: 0.5px solid #1a1a1a;
+  transition: background 0.2s ease, padding 0.2s ease;
+}
+
+.us-service-item:hover {
+  background: rgba(201, 169, 110, 0.045);
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .us-service-item > div {
