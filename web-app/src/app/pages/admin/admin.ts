@@ -229,11 +229,8 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  alCambiarPrecioProducto(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const precioFormateado = this.formatearPrecioProducto(input.value);
-    input.value = precioFormateado;
-    this.productoForm.precio = precioFormateado;
+  alCambiarPrecioProducto(valor: string): void {
+    this.productoForm.precio = this.formatearPrecioProducto(valor);
   }
 
   private valorPrecioProducto(): number {

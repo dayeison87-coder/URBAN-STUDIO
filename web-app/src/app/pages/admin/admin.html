@@ -68,7 +68,7 @@
         </select>
         <input [(ngModel)]="productoForm.nombre" placeholder="Nombre del producto" />
         <input [(ngModel)]="productoForm.precio" placeholder="Precio ($)" type="text" inputmode="numeric"
-          (input)="alCambiarPrecioProducto($event)" />
+          (ngModelChange)="alCambiarPrecioProducto($event)" />
         <input [(ngModel)]="productoForm.inventario" placeholder="Inventario" type="number" min="0" />
         <label class="image-picker">
           <input type="file" accept="image/*" (change)="seleccionarImagen($event)" />
