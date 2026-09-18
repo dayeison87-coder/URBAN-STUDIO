@@ -73,6 +73,7 @@ export class AdminComponent implements OnInit {
   listaProductos: Producto[] = [];
   productoForm = { id: null as number | null, nombre: '', descripcion: '', precio: '',
     inventario: 0, disponible: true, categoria: '' as string | number, imagen: null as File | null };
+  nombreImagenProducto = '';
   editandoProducto = false;
   listaOrdenes: OrdenProducto[] = [];
 
@@ -149,21 +150,25 @@ export class AdminComponent implements OnInit {
     const archivo = input.files?.[0];
     if (!archivo) {
       this.productoForm.imagen = null;
+      this.nombreImagenProducto = '';
       return;
     }
     if (!archivo.type.startsWith('image/')) {
       this.mensaje = 'Selecciona un archivo de imagen válido.';
       input.value = '';
       this.productoForm.imagen = null;
+      this.nombreImagenProducto = '';
       return;
     }
     if (archivo.size > 5 * 1024 * 1024) {
       this.mensaje = 'La imagen no puede superar los 5 MB.';
       input.value = '';
       this.productoForm.imagen = null;
+      this.nombreImagenProducto = '';
       return;
     }
     this.productoForm.imagen = archivo;
+    this.nombreImagenProducto = archivo.name;
   }
 
   guardarProducto(): void {
@@ -212,6 +217,7 @@ export class AdminComponent implements OnInit {
   limpiarProducto(): void {
     this.editandoProducto = false;
     this.productoForm = { id: null, nombre: '', descripcion: '', precio: '', inventario: 0, disponible: true, categoria: '', imagen: null };
+    this.nombreImagenProducto = '';
   }
 
   // ── Categorías ──────────────────────────────────────────

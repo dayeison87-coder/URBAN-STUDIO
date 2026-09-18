@@ -201,6 +201,15 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pop(context);
               _irServicios();
             }),
+            _itemDrawer(Icons.shopping_bag_outlined, 'Productos', () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ServiciosScreen(categoriaInicialSlug: 'productos'),
+                ),
+              );
+            }),
             _itemDrawer(Icons.calendar_month_outlined, 'Citas', () {
               Navigator.pop(context);
               _irCitas();

@@ -69,7 +69,11 @@
         <input [(ngModel)]="productoForm.nombre" placeholder="Nombre del producto" />
         <input [(ngModel)]="productoForm.precio" placeholder="Precio ($)" type="number" />
         <input [(ngModel)]="productoForm.inventario" placeholder="Inventario" type="number" min="0" />
-        <input type="file" accept="image/*" (change)="seleccionarImagen($event)" />
+        <label class="image-picker">
+          <input type="file" accept="image/*" (change)="seleccionarImagen($event)" />
+          <span class="image-picker-action">Subir imagen</span>
+          <span class="image-picker-name">{{ nombreImagenProducto || 'Sin archivo seleccionado' }}</span>
+        </label>
       </div>
       <textarea [(ngModel)]="productoForm.descripcion" placeholder="Descripción"></textarea>
       <label class="check-label"><input type="checkbox" [(ngModel)]="productoForm.disponible" /> Disponible</label>

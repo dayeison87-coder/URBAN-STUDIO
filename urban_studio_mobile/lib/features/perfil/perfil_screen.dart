@@ -90,6 +90,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
         setState(() {
           _photoFile = file;
           _error = null;
+          _message = 'Foto seleccionada. Pulsa GUARDAR CAMBIOS para actualizarla.';
         });
       }
     } catch (_) {
@@ -121,9 +122,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
         request.files.add(await http.MultipartFile.fromPath('foto', _photoFile!.path));
       }
       final response = await request.send().timeout(const Duration(seconds: 20));
+      final body = await response.stream.bytesToString();
       if (!mounted) return;
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        final body = await response.stream.bytesToString();
         final data = body.isEmpty ? <String, dynamic>{} : jsonDecode(body) as Map<String, dynamic>;
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('username', _username.text.trim());
@@ -133,7 +134,15 @@ class _PerfilScreenState extends State<PerfilScreen> {
           _message = 'Perfil actualizado correctamente.';
         });
       } else {
-        setState(() => _error = 'No se pudo actualizar el perfil.');
+        String detail = 'No se pudo actualizar el perfil.';
+        try {
+          final data = jsonDecode(body);
+          if (data is Map && data.isNotEmpty) {
+            final value = data.values.first;
+            detail = value is List ? value.first.toString() : value.toString();
+          }
+        } catch (_) {}
+        setState(() => _error = detail);
       }
     } catch (_) {
       if (mounted) setState(() => _error = 'No se pudo guardar el perfil. Revisa tu conexión.');

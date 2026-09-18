@@ -137,6 +137,34 @@ textarea:focus {
   border-color: #c9a96e;
 }
 
+.image-picker {
+  flex: 1;
+  min-width: 220px;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px;
+  background: #0a0a0a;
+  border: 0.5px dashed #4a3b24;
+  color: #8b857b;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.image-picker:hover { border-color: #c9a96e; background: #c9a96e0d; }
+.image-picker input { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; pointer-events: none; }
+.image-picker-action {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  background: #c9a96e;
+  color: #0a0a0a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.image-picker-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+
 .check-label {
   display: flex;
   align-items: center;

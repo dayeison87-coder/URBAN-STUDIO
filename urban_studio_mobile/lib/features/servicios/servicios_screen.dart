@@ -10,7 +10,9 @@ const _bg = Color(0xFF0a0a0a);
 const _card = Color(0xFF0f0f0f);
 
 class ServiciosScreen extends StatefulWidget {
-  const ServiciosScreen({super.key});
+  const ServiciosScreen({super.key, this.categoriaInicialSlug});
+
+  final String? categoriaInicialSlug;
 
   @override
   State<ServiciosScreen> createState() => _ServiciosScreenState();
@@ -19,6 +21,7 @@ class ServiciosScreen extends StatefulWidget {
 class _ServiciosScreenState extends State<ServiciosScreen> {
   List<dynamic> categorias = [];
   bool cargando = true;
+  bool _categoriaInicialAbierta = false;
 
   @override
   void initState() {
@@ -35,10 +38,25 @@ class _ServiciosScreenState extends State<ServiciosScreen> {
           categorias = jsonDecode(response.body);
           cargando = false;
         });
+        _abrirCategoriaInicial();
+      } else {
+        setState(() => cargando = false);
       }
     } catch (e) {
       setState(() => cargando = false);
     }
+  }
+
+  void _abrirCategoriaInicial() {
+    final slug = widget.categoriaInicialSlug;
+    if (slug == null || _categoriaInicialAbierta) return;
+    final coincidencias = categorias.where((item) => item['slug'] == slug);
+    if (coincidencias.isEmpty) return;
+    final categoria = coincidencias.first;
+    _categoriaInicialAbierta = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _abrirModal(categoria);
+    });
   }
 
   final Map<String, String> _imagenes = {
