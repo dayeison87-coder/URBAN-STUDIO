@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'core/theme/urban_theme.dart';
 import 'features/auth/login_screen.dart';
 
 void main() {
@@ -13,10 +14,7 @@ class UrbanStudioApp extends StatelessWidget {
     return MaterialApp(
       title: 'Urban Studio',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-      ),
+      theme: UrbanTheme.dark(),
       home: const LoginScreen(),
     );
   }

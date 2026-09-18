@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../../core/constants/api_constants.dart';
 import '../../models/testimonio.dart';
 import '../../core/network/auth_service.dart';
+import '../../core/widgets/urban_ui.dart';
 import '../auth/login_screen.dart';
 import '../servicios/servicios_screen.dart';
 import '../citas/citas_screen.dart';
@@ -127,22 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return AppBar(
       backgroundColor: Colors.black.withOpacity(0.92),
       elevation: 0,
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Icon(Icons.content_cut, color: _colorDorado, size: 18),
-          SizedBox(width: 8),
-          Text(
-            'urban studio',
-            style: TextStyle(
-              color: _colorDorado,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              letterSpacing: 1.2,
-            ),
-          ),
-        ],
-      ),
+      title: const UrbanBrand(fontSize: 16),
       actions: [
         TextButton.icon(
           onPressed: () => Navigator.push(
@@ -555,11 +541,6 @@ class _HomeScreenState extends State<HomeScreen> {
         titulo: 'Reservas online',
         desc:
             'Agenda tu cita en segundos, elige tu barbero y horario favorito.',
-      ),
-      (
-        icono: Icons.chat_bubble_outline,
-        titulo: 'Chat directo',
-        desc: 'Habla directamente con tu barbero antes y después de tu cita.',
       ),
       (
         icono: Icons.auto_awesome,

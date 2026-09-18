@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../core/constants/api_constants.dart';
+import '../../core/widgets/urban_ui.dart';
 import '../citas/citas_screen.dart';
 
 const _gold = Color(0xFFc9a96e);
@@ -74,12 +75,7 @@ class _ServiciosScreenState extends State<ServiciosScreen> {
               icon: const Icon(Icons.arrow_back_ios, color: _gold, size: 18),
               onPressed: () => Navigator.pop(context),
             ),
-            title: const Text('urban studio',
-                style: TextStyle(
-                    color: _gold,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2)),
+            title: const UrbanBrand(fontSize: 16),
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(0.5),
               child: Container(height: 0.5, color: _gold.withOpacity(0.2)),
@@ -97,12 +93,7 @@ class _ServiciosScreenState extends State<ServiciosScreen> {
               ),
               child: Column(
                 children: [
-                  Text('URBAN STUDIO',
-                      style: TextStyle(
-                          fontSize: 10,
-                          letterSpacing: 6,
-                          color: _gold,
-                          fontWeight: FontWeight.w400)),
+                  const UrbanEyebrow('Urban Studio'),
                   const SizedBox(height: 12),
                   const Text('SERVICIOS',
                       style: TextStyle(
@@ -262,6 +253,9 @@ class _ModalServicios extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final servicios = categoria['servicios'] as List? ?? [];
+    final productos = categoria['productos'] as List? ?? [];
+    final esProductos = categoria['slug'] == 'productos';
+    final items = esProductos ? productos : servicios;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.65,
@@ -337,10 +331,12 @@ class _ModalServicios extends StatelessWidget {
 
             // Lista de servicios — cada uno con su botón reservar
             Expanded(
-              child: servicios.isEmpty
+              child: items.isEmpty
                   ? Center(
                       child: Text(
-                          'Próximamente servicios en esta categoría.',
+                          esProductos
+                              ? 'No hay productos disponibles por ahora.'
+                              : 'Próximamente servicios en esta categoría.',
                           style: TextStyle(
                               color: Colors.white.withOpacity(0.3),
                               fontSize: 12,
@@ -349,12 +345,12 @@ class _ModalServicios extends StatelessWidget {
                       controller: controller,
                       padding:
                           const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                      itemCount: servicios.length,
+                      itemCount: items.length,
                       separatorBuilder: (_, __) => Divider(
                           color: Colors.white.withOpacity(0.06),
                           height: 1),
                       itemBuilder: (_, i) {
-                        final srv = servicios[i];
+                        final srv = items[i];
                         final disponible =
                             srv['disponible'] ?? true;
                         return Opacity(
@@ -435,8 +431,19 @@ class _ModalServicios extends StatelessWidget {
                                   ],
                                 ),
 
-                                // Botón reservar por servicio
-                                if (disponible) ...[
+                                if (esProductos && srv['inventario'] != null) ...[
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '${srv['inventario']} disponibles',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.white.withOpacity(0.35),
+                                    ),
+                                  ),
+                                ],
+
+                                // Los productos se visualizan aquí; las citas solo aplican a servicios.
+                                if (disponible && !esProductos) ...[
                                   const SizedBox(height: 12),
                                   SizedBox(
                                     width: double.infinity,

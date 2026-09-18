@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import '../../core/constants/api_constants.dart';
 import '../../core/network/auth_service.dart';
+import '../../core/widgets/urban_ui.dart';
 import '../auth/login_screen.dart';
 
 const _gold = Color(0xFFE6BB3F);
@@ -248,6 +249,19 @@ class _BarberoDashboardScreenState extends State<BarberoDashboardScreen> {
   }
 
   Future<void> _saveProfile() async {
+    try {
+      await _saveProfileInternal();
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _message =
+              'No se pudo subir la foto. Revisa tu conexión e inténtalo de nuevo.',
+        );
+      }
+    }
+  }
+
+  Future<void> _saveProfileInternal() async {
     final request = http.MultipartRequest(
       'PATCH',
       Uri.parse('${ApiConstants.baseUrl}/perfil/barbero/'),
@@ -267,6 +281,7 @@ class _BarberoDashboardScreenState extends State<BarberoDashboardScreen> {
       );
     }
     final response = await request.send();
+    if (!mounted) return;
     if (response.statusCode >= 200 && response.statusCode < 300) {
       setState(() => _message = 'Perfil actualizado correctamente.');
       await _load();
@@ -302,16 +317,7 @@ class _BarberoDashboardScreenState extends State<BarberoDashboardScreen> {
       drawer: _buildDrawer(),
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Row(
-          children: [
-            const Icon(Icons.content_cut, color: _gold, size: 18),
-            const SizedBox(width: 8),
-            Text(
-              'Hola, $_username',
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ],
-        ),
+        title: const UrbanBrand(fontSize: 16),
         actions: [
           IconButton(
             onPressed: _load,
@@ -902,6 +908,19 @@ class _BarberoDashboardScreenState extends State<BarberoDashboardScreen> {
         child: Text(time.format(context), style: const TextStyle(color: _gold)),
       );
 
+  Future<void> _pickProfilePhoto() async {
+    try {
+      final photo = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+        maxWidth: 1600,
+      );
+      if (photo != null && mounted) setState(() => _photo = photo);
+    } catch (_) {
+      if (mounted) setState(() => _message = 'No se pudo seleccionar la foto.');
+    }
+  }
+
   Widget _profileView() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -923,12 +942,7 @@ class _BarberoDashboardScreenState extends State<BarberoDashboardScreen> {
                   : null,
             ),
             TextButton.icon(
-              onPressed: () async {
-                final photo = await _picker.pickImage(
-                  source: ImageSource.gallery,
-                );
-                if (photo != null) setState(() => _photo = photo);
-              },
+              onPressed: _pickProfilePhoto,
               icon: const Icon(Icons.photo_camera, color: _gold),
               label: const Text('Cambiar foto', style: TextStyle(color: _gold)),
             ),

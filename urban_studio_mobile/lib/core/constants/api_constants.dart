@@ -1,6 +1,6 @@
 class ApiConstants {
   // IP actual del PC en la red Wi-Fi compartida con el celular
-  static const String baseUrl = 'http://10.203.146.62:8000/api';
+  static const String baseUrl = 'https://urban-studio-mdpz.onrender.com/api';
 
   // Se mantiene para que AuthService siga funcionando
   static const List<String> baseUrls = [baseUrl];
@@ -13,6 +13,7 @@ class ApiConstants {
   static const String googleTokenEndpoint = '$baseUrl/auth/google/token/';
   static const String registerEndpoint = '$baseUrl/register/';
   static const String perfilEndpoint = '$baseUrl/perfil/';
+  static const String perfilClienteEndpoint = '$baseUrl/perfil/cliente/';
 
   // =========================
   // SERVICIOS

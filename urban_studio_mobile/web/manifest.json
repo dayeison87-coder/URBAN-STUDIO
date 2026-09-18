@@ -1,11 +1,11 @@
 {
-    "name": "urban_studio_mobile",
-    "short_name": "urban_studio_mobile",
+    "name": "Urban Studio",
+    "short_name": "Urban Studio",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0A0A0A",
+    "theme_color": "#C9A96E",
+    "description": "Gestión inteligente para barberías.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

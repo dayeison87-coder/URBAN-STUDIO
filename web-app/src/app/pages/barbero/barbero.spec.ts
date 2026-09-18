@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Barbero } from './barbero';
+import { BarberoComponent } from './barbero';
 
-describe('Barbero', () => {
-  let component: Barbero;
-  let fixture: ComponentFixture<Barbero>;
+describe('BarberoComponent', () => {
+  let component: BarberoComponent;
+  let fixture: ComponentFixture<BarberoComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Barbero]
+      imports: [BarberoComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Barbero);
+    fixture = TestBed.createComponent(BarberoComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -4,7 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/constants/api_constants.dart';
+import '../../core/widgets/urban_ui.dart';
 import '../auth/login_screen.dart';
+import '../perfil/perfil_screen.dart';
 
 const _bg = Color(0xFF0A0A0A);
 const _surface = Color(0xFF111111);
@@ -159,10 +161,7 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        title: const Text(
-          'Configuración',
-          style: TextStyle(letterSpacing: 1.2),
-        ),
+        title: const UrbanBrand(fontSize: 16),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: _gold, size: 18),
           onPressed: () => Navigator.pop(context),
@@ -173,6 +172,23 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const UrbanEyebrow('Urban Studio / Seguridad', center: false),
+            const SizedBox(height: 8),
+            const Text(
+              'CONFIGURACIÓN DE CUENTA',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.w300,
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Controla la seguridad y las preferencias de tu experiencia.',
+              style: TextStyle(color: _muted, fontSize: 12),
+            ),
+            const SizedBox(height: 28),
             const Text(
               'PREFERENCIAS',
               style: TextStyle(
@@ -278,6 +294,32 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
               ),
             ),
             const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PerfilScreen()),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: _gold,
+                  side: const BorderSide(color: _gold),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  'EDITAR PERFIL',
+                  style: TextStyle(
+                    fontSize: 12,
+                    letterSpacing: 2,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(

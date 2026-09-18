@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/api_constants.dart';
+import '../../core/widgets/urban_ui.dart';
 import '../citas/citas_screen.dart';
 
 const _gold = Color(0xFFc9a96e);
@@ -56,9 +57,7 @@ class _BarberosScreenState extends State<BarberosScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: _gold, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('✂ urban studio',
-          style: TextStyle(color: _gold, fontSize: 18,
-            fontWeight: FontWeight.bold, letterSpacing: 2)),
+        title: const UrbanBrand(fontSize: 16),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(0.5),
           child: Container(height: 0.5, color: _gold.withOpacity(0.2))),
@@ -172,9 +171,16 @@ class _BarberosScreenState extends State<BarberosScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(barbero['username'] ?? '',
-                        style: const TextStyle(color: Colors.white,
-                          fontSize: 16, fontWeight: FontWeight.w500, letterSpacing: 1)),
+                      Expanded(
+                        child: Text(
+                          barbero['username'] ?? '',
+                          style: const TextStyle(color: Colors.white,
+                            fontSize: 16, fontWeight: FontWeight.w500, letterSpacing: 1),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       Text('0${index + 1}', style: TextStyle(fontSize: 10,
                         letterSpacing: 2, color: Colors.white.withOpacity(0.2))),
                     ],

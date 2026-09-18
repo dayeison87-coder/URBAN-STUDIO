@@ -1,13 +1,15 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { Barberos } from './barberos';
+import { BarberosService } from './barberos';
 
-describe('Barberos', () => {
-  let service: Barberos;
+describe('BarberosService', () => {
+  let service: BarberosService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Barberos);
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    service = TestBed.inject(BarberosService);
   });
 
   it('should be created', () => {

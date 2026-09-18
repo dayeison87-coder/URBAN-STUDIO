@@ -9,6 +9,7 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/network/api_service.dart';
+import '../../core/widgets/urban_ui.dart';
 
 const _gold = Color(0xFFc9a227);
 const _goldLight = Color(0xFFe8cd6e);
@@ -868,15 +869,7 @@ class _AnalysisScreenState extends State<AnalysisScreen>
             }
           },
         ),
-        title: const Text(
-          'urban studio',
-          style: TextStyle(
-            color: _gold,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 2,
-          ),
-        ),
+        title: const UrbanBrand(fontSize: 16),
         actions: [
           if (!_iaDesbloqueada)
             TextButton.icon(

@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/api_constants.dart';
+import '../../core/widgets/urban_ui.dart';
 
 const _gold = Color(0xFFc9a96e);
 const _bg = Color(0xFF0a0a0a);
 const _card = Color(0xFF0f0f0f);
-const _line = Color(0xFF1a1a1a);
 
 class CitasScreen extends StatefulWidget {
   // Si vienes desde "Servicios" tocando una categoría, estos ya llegan
@@ -191,6 +191,11 @@ class _CitasScreenState extends State<CitasScreen> {
   String _formatFecha(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
+  String _horaCorta(dynamic valor) {
+    final hora = '${valor ?? ''}';
+    return hora.length <= 5 ? hora : hora.substring(0, 5);
+  }
+
   bool _esPasado(DateTime d) {
     final hoy = DateTime.now();
     return d.isBefore(DateTime(hoy.year, hoy.month, hoy.day));
@@ -204,7 +209,7 @@ class _CitasScreenState extends State<CitasScreen> {
               c['barbero'] == barberoSeleccionado?['id'] &&
               c['id'] != editandoId,
         )
-        .map((c) => (c['hora'] as String).substring(0, 5))
+        .map((c) => _horaCorta(c['hora']))
         .toList();
   }
 
@@ -391,22 +396,7 @@ class _CitasScreenState extends State<CitasScreen> {
               ? () => setState(() => paso = 0)
               : () => Navigator.pop(context),
         ),
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: const [
-            Icon(Icons.content_cut, color: _gold, size: 16),
-            SizedBox(width: 8),
-            Text(
-              'urban studio',
-              style: TextStyle(
-                color: _gold,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
-              ),
-            ),
-          ],
-        ),
+        title: const UrbanBrand(fontSize: 16),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(0.5),
           child: Container(height: 0.5, color: _gold.withOpacity(0.2)),
@@ -596,7 +586,7 @@ class _CitasScreenState extends State<CitasScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${cita['fecha']} — ${(cita['hora'] ?? '').substring(0, 5)}',
+                    '${cita['fecha']} — ${_horaCorta(cita['hora'])}',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.3),
                       fontSize: 11,
@@ -655,7 +645,7 @@ class _CitasScreenState extends State<CitasScreen> {
       servicioSeleccionado = null;
       barberoSeleccionado = null;
       fechaSeleccionada = cita['fecha'] ?? '';
-      horaSeleccionada = (cita['hora'] ?? '').substring(0, 5);
+      horaSeleccionada = _horaCorta(cita['hora']);
 
       for (final cat in categorias) {
         final serviciosLista = cat['servicios'] as List? ?? [];
