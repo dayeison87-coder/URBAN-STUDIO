@@ -15,6 +15,7 @@ import { apiConfig } from '../../config/api.config';
 export class LoginComponent {
   username = '';
   password = '';
+  mostrarContrasena = false;
   mensaje = '';
 
   private http = inject(HttpClient);
