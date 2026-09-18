@@ -442,33 +442,35 @@ i.bi {
 }
 
 .us-modal-header {
-  padding: 36px 40px 24px;
+  padding: 34px 76px 24px 32px;
   border-bottom: 0.5px solid #1a1a1a;
   position: relative;
 }
 
 .us-modal-eyebrow {
-  font-size: 9px; 
-  letter-spacing: 5px;
+  font-size: 9px;
+  line-height: 1.45;
+  letter-spacing: 3px;
   color: #c9a96e; 
   text-transform: uppercase;
   margin-bottom: 10px;
+  overflow-wrap: anywhere;
 }
 
 .us-modal-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 40px; 
+  font-size: clamp(34px, 8vw, 40px);
   font-weight: 300;
-  letter-spacing: 6px; 
+  letter-spacing: 4px;
   text-transform: uppercase;
   color: #f0ede8; 
-  line-height: 1;
+  line-height: 1.08;
 }
 
 .us-modal-close {
   position: absolute; 
-  top: 28px; 
-  right: 28px;
+  top: 24px;
+  right: 24px;
   background: none; 
   border: 0.5px solid #2a2a2a;
   color: #7a7a7a; 
@@ -1028,10 +1030,42 @@ i.bi {
     max-height: calc(100dvh - 24px);
   }
 
-  .us-modal-header,
+  .us-modal-header {
+    padding: 28px 62px 20px 24px;
+  }
+
+  .us-modal-eyebrow {
+    font-size: 8px;
+    letter-spacing: 2px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .us-modal-title {
+    font-size: clamp(32px, 11vw, 38px);
+    letter-spacing: 3px;
+  }
+
+  .us-modal-close {
+    top: 20px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+  }
+
   .us-modal-body {
-    padding-left: 18px;
-    padding-right: 18px;
+    padding: 20px 18px 28px;
+  }
+
+  .us-product-tabs {
+    gap: 0;
+    justify-content: space-between;
+  }
+
+  .us-product-tabs button {
+    padding: 11px 4px;
+    font-size: 9px;
+    letter-spacing: 1px;
   }
 
   .footer-links {
