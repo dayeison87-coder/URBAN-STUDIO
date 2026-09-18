@@ -715,10 +715,71 @@
 }
 
 @media (max-width: 520px) {
-  .ia-page { padding: 96px 16px 48px; }
+  .navbar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 16px 12px;
+  }
+
+  .brand-container {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .logo {
+    font-size: 19px;
+    white-space: nowrap;
+  }
+
+  .user-greeting {
+    display: none;
+  }
+
+  .menu {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, max-content));
+    justify-content: center;
+    width: 100%;
+    gap: 10px 16px;
+    padding: 0;
+    margin: 0;
+  }
+
+  .menu li {
+    display: flex;
+    justify-content: center;
+  }
+
+  .menu a {
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+  }
+
+  .menu li:last-child {
+    grid-column: 1 / -1;
+    gap: 10px;
+  }
+
+  .btn-ia,
+  .btn-logout {
+    margin: 0;
+    padding: 9px 12px;
+    font-size: 10px;
+  }
+
+  .ia-page { padding: 190px 16px 48px; }
+  .ia-title { font-size: 34px; }
+  .ia-subtitle { font-size: 14px; }
+  .timeline { margin-top: 32px; }
   .stats-row { grid-template-columns: 1fr; }
   .mirror img { width: 100%; }
   .particle-face, .camera-wrapper, .preview-elegida { height: 300px; }
+
+  .scan-panel { padding: 16px; }
+  .ia-sidebar { gap: 14px; }
+  .sidebar-card { padding: 18px; }
 }
 /* =====================================================
    CÓDIGO DE SEGURIDAD
