@@ -14,12 +14,13 @@ from urllib.parse import urlencode
 from urllib.request import Request as UrlRequest, urlopen
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 # ⬇️ Importamos el nuevo modelo de Calificaciones junto a los demás
-from .models import Servicio, Usuario, Cita, Disponibilidad, CalificacionBarbero, VerificacionRegistro
+from .models import Rol, Servicio, Usuario, Cita, Disponibilidad, CalificacionBarbero, VerificacionRegistro
 # ⬇️ Importamos el nuevo Serializer de Calificaciones junto a los demás
 from .serializers import (
     ServicioSerializer, UsuarioSerializer, CitaSerializer,
@@ -296,6 +297,42 @@ class UsuarioDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
     permission_classes = [IsAuthenticated]
+
+
+class UsuarioRolBarberoView(APIView):
+    """Asigna o retira el rol de barbero sin depender de IDs de la base de datos."""
+
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        solicitante = request.user
+        es_admin = (
+            solicitante.is_staff
+            or solicitante.is_superuser
+            or (solicitante.rol and solicitante.rol.nombre == 'Admin')
+        )
+        if not es_admin:
+            return Response(
+                {'detail': 'Solo un administrador puede asignar el rol de barbero.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        usuario = get_object_or_404(Usuario, pk=pk)
+        asignar_barbero = request.data.get('barbero')
+        if not isinstance(asignar_barbero, bool):
+            return Response(
+                {'barbero': 'Envía true para asignar o false para retirar el rol.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if asignar_barbero:
+            rol_barbero, _ = Rol.objects.get_or_create(nombre='Barbero')
+            usuario.rol = rol_barbero
+        else:
+            usuario.rol = None
+        usuario.save(update_fields=['rol'])
+
+        return Response(UsuarioSerializer(usuario).data)
 
 
 class DisponibilidadView(generics.ListCreateAPIView):

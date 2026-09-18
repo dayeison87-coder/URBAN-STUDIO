@@ -354,13 +354,9 @@ export class AdminComponent implements OnInit {
         return;
       }
 
-      // ⬇️ CAMBIO AQUÍ: Enviamos el ID del Rol como número. 
-      // Si el ID de Barbero en tu DB no es 3, cámbialo por el número correcto (ej: 2, 4)
-      const payload = {
-        rol: 2 // 👈 Cambia este número por el ID real de tu rol Barbero
-      };
+      const payload = { barbero: true };
 
-      this.http.patch(`${this.apiUrl}/usuarios/${this.usuarioSeleccionadoId}/`, payload, { headers: this.getHeaders() }).subscribe({
+      this.http.patch(`${this.apiUrl}/usuarios/${this.usuarioSeleccionadoId}/rol-barbero/`, payload, { headers: this.getHeaders() }).subscribe({
         next: () => {
           this.mensaje = '✓ Usuario asignado como Barbero con éxito.';
           this.limpiarBarbero();
@@ -386,12 +382,9 @@ export class AdminComponent implements OnInit {
   eliminarBarbero(id: number): void {
     if (confirm('¿Quitar el rol de barbero a este usuario?')) {
       
-      // ⬇️ CAMBIO AQUÍ: Coloca el ID correspondiente al rol de Cliente común (suele ser 1 o 2)
-      const payload = { 
-        rol: 1 
-      };
+      const payload = { barbero: false };
 
-      this.http.patch(`${this.apiUrl}/usuarios/${id}/`, payload, { headers: this.getHeaders() }).subscribe({
+      this.http.patch(`${this.apiUrl}/usuarios/${id}/rol-barbero/`, payload, { headers: this.getHeaders() }).subscribe({
         next:  () => { 
           this.mensaje = '✓ Rol de barbero removido.'; 
           this.cargarBarberos(); 

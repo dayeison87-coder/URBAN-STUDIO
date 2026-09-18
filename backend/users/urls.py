@@ -8,6 +8,7 @@ from .views import (
     ServicioListCreateView,
     UsuarioListCreateView,
     UsuarioDetailView,
+    UsuarioRolBarberoView,
     CitaListCreateView,
     RegisterView,
     SolicitarRegistroView,
@@ -52,6 +53,7 @@ urlpatterns = [
 
     # --- 4. BARBEROS Y DISPONIBILIDAD ---
     path('usuarios/barberos/', BarberoListView.as_view(), name='lista-barberos'),
+    path('usuarios/<int:pk>/rol-barbero/', UsuarioRolBarberoView.as_view(), name='usuario-rol-barbero'),
     path('usuarios/<int:pk>/', UsuarioDetailView.as_view(), name='usuario-detail'),
     path('disponibilidad/', DisponibilidadView.as_view(), name='disponibilidad'),
     path('disponibilidad/<int:pk>/', DisponibilidadDetailView.as_view(), name='disponibilidad-detail'),
