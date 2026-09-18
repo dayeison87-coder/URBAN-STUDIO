@@ -2,7 +2,7 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { apiConfig } from '../../config/api.config';
 
 // Interfaces
@@ -56,7 +56,7 @@ interface IngresoDiario { fecha: string; total: number; }
 @Component({
   selector: 'app-barbero',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './barbero.html',
   styleUrl: './barbero.css'
 })
