@@ -462,7 +462,7 @@
 
 /* Responsive */
 @media (max-width: 600px) {
-  .citas-page { padding: 22px 20px 40px; }
+  .citas-page { padding: 22px 16px 40px; max-width: 100%; overflow-x: clip; }
   .categoria-grid { grid-template-columns: 1fr; }
   .barbero-grid { grid-template-columns: repeat(2, 1fr); }
   .citas-title { font-size: 32px; letter-spacing: 6px; }
@@ -481,4 +481,17 @@
   .cita-precio { margin-left: auto; }
   .cita-acciones { grid-column: 1 / -1; width: 100%; justify-content: flex-end; padding-top: 8px; border-top: 1px solid #1a1a1a; }
   .paso-actions { margin-bottom: 36px; }
+  .paso-title { font-size: 25px; letter-spacing: 2px; overflow-wrap: anywhere; }
+  .servicio-card { gap: 12px; }
+  .srv-info { min-width: 0; }
+  .srv-desc, .barbero-email, .resumen-item strong { overflow-wrap: anywhere; }
+  .resumen { padding: 18px; }
+  .resumen-item { gap: 12px; }
+  .paso-actions { flex-wrap: wrap; justify-content: stretch; }
+  .paso-actions button { flex: 1 1 140px; }
+  .mis-citas-header { align-items: flex-start; gap: 14px; }
+  .mis-citas-title { font-size: 23px; letter-spacing: 2px; }
+  .modal-calificacion-content { width: calc(100% - 24px); padding: 34px 18px 22px; }
+  .modal-acciones { flex-wrap: wrap; }
+  .modal-acciones button { flex: 1 1 120px; }
 }

@@ -930,3 +930,81 @@ i.bi {
     gap: 16px;
   }
 }
+
+@media (max-width: 600px) {
+  .us-page {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .navbar {
+    padding: 14px 16px;
+  }
+
+  .brand-container {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .logo {
+    font-size: 18px;
+    white-space: nowrap;
+  }
+
+  .menu {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .menu li {
+    min-width: 0;
+    text-align: center;
+  }
+
+  .menu a {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .us-hero {
+    padding: 132px 20px 32px;
+  }
+
+  .us-title {
+    font-size: clamp(32px, 12vw, 42px);
+    letter-spacing: 5px;
+  }
+
+  .us-subtitle {
+    letter-spacing: 2px;
+  }
+
+  .us-grid {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .us-modal-bg {
+    padding: 12px;
+  }
+
+  .us-modal {
+    max-height: calc(100dvh - 24px);
+  }
+
+  .us-modal-header,
+  .us-modal-body {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

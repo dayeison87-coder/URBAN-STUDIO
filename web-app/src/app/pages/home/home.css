@@ -870,6 +870,119 @@ i.bi {
   }
 }
 
+/* Móvil: el encabezado tiene una jerarquía propia para no partir el menú ni
+   superponerse sobre el inicio de la página. */
+@media (max-width: 600px) {
+  .navbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    padding: 14px 16px 12px;
+    text-align: left;
+  }
+
+  .brand-container {
+    flex-direction: row;
+    min-width: 0;
+  }
+
+  .logo {
+    font-size: 18px;
+    letter-spacing: 1.5px;
+    white-space: nowrap;
+  }
+
+  .user-greeting {
+    display: none;
+  }
+
+  .navbar .menu {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    gap: 10px 6px;
+  }
+
+  .navbar .menu li {
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .navbar .menu li a {
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+  }
+
+  .navbar .menu li:nth-child(4) {
+    grid-column: 1 / -1;
+  }
+
+  .navbar .menu li:last-child {
+    position: absolute;
+    top: 10px;
+    right: 16px;
+  }
+
+  .account-trigger {
+    width: 42px;
+    height: 42px;
+  }
+
+  .account-avatar {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .hero {
+    min-height: 100svh;
+    padding: 176px 20px 56px;
+    align-items: flex-start;
+    background-position: center;
+  }
+
+  .hero-content {
+    width: 100%;
+    padding: 28px 0 0;
+  }
+
+  .hero-eyebrow {
+    letter-spacing: 4px;
+    margin-bottom: 16px;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(38px, 12vw, 52px);
+    letter-spacing: 3px;
+  }
+
+  .hero-sub {
+    line-height: 1.7;
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+  }
+
+  .hero-btns {
+    flex-direction: column;
+    width: min(100%, 340px);
+    margin: 0 auto;
+  }
+
+  #btnReserva,
+  .btn-ver-servicios {
+    width: 100%;
+    padding: 16px 20px;
+  }
+
+  .section-title {
+    font-size: 36px;
+    letter-spacing: 3px;
+  }
+}
+
 .account-menu { position: relative; }
 .account-trigger { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; padding: 2px; border: 1px solid #302b21; border-radius: 50%; background: #11100e; color: #ddd; cursor: pointer; font-family: 'Montserrat', sans-serif; }
 .account-trigger:hover, .account-trigger[aria-expanded='true'] { border-color: #c9a96e; }
@@ -888,3 +1001,39 @@ i.bi {
 .account-dropdown i { width: 15px; color: #c9a96e; text-align: center; }
 .account-dropdown .account-logout { margin-top: 5px; border-top: 1px solid #29251e; color: #c77979; }
 .account-dropdown .account-logout i { color: #c77979; }
+
+@media (max-width: 600px) {
+  .navbar .account-trigger {
+    width: 42px;
+    height: 42px;
+  }
+
+  .navbar .account-avatar {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Evita que cualquier elemento decorativo amplíe el lienzo en pantallas pequeñas. */
+@media (max-width: 600px) {
+  :host {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .section-sub,
+  .hero-sub,
+  .footer-copy,
+  .footer-brand {
+    overflow-wrap: anywhere;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+  }
+}

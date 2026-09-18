@@ -437,3 +437,94 @@ html, body {
     text-align: center;
   }
 }
+
+@media (max-width: 600px) {
+  :host {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .navbar {
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  .brand-container {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .logo {
+    font-size: 18px;
+    white-space: nowrap;
+  }
+
+  .user-greeting {
+    display: none;
+  }
+
+  .menu {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    gap: 8px;
+  }
+
+  .menu li {
+    min-width: 0;
+    text-align: center;
+  }
+
+  .menu a {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .barberos-section {
+    padding-top: 142px;
+    padding-bottom: 44px;
+  }
+
+  .barberos-section .titulo,
+  .barberos-section .grid {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .titulo {
+    margin-bottom: 32px;
+  }
+
+  .titulo h1 {
+    font-size: 30px;
+    letter-spacing: 3px;
+  }
+
+  .titulo p {
+    line-height: 1.7;
+    letter-spacing: 1px;
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .card {
+    padding: 28px 18px;
+  }
+
+  .correo a {
+    overflow-wrap: anywhere;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+  }
+}
