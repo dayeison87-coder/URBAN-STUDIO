@@ -738,10 +738,9 @@
 
   .menu {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, max-content));
-    justify-content: center;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     width: 100%;
-    gap: 10px 16px;
+    gap: 12px 10px;
     padding: 0;
     margin: 0;
   }
@@ -752,8 +751,9 @@
   }
 
   .menu a {
+    display: block;
     font-size: 10px;
-    letter-spacing: 0.8px;
+    letter-spacing: 1px;
     white-space: nowrap;
   }
 
@@ -769,10 +769,42 @@
     font-size: 10px;
   }
 
-  .ia-page { padding: 190px 16px 48px; }
-  .ia-title { font-size: 34px; }
-  .ia-subtitle { font-size: 14px; }
-  .timeline { margin-top: 32px; }
+  .ia-page {
+    padding: 190px 20px 48px;
+    background-attachment: scroll;
+  }
+
+  .ia-container,
+  .ia-intro,
+  .scan-panel,
+  .ia-sidebar {
+    min-width: 0;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    margin-bottom: 14px;
+  }
+
+  .ia-title {
+    font-size: clamp(38px, 12vw, 46px);
+    line-height: 1.08;
+    margin-bottom: 18px;
+  }
+
+  .ia-subtitle {
+    max-width: none;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .timeline { margin-top: 30px; }
+  .timeline-track { margin-bottom: 22px; }
+  .timeline-steps { gap: 16px; }
+  .tstep { gap: 13px; }
+  .tstep-icon { width: 42px; height: 42px; flex-basis: 42px; }
+  .tstep-label { font-size: 14px; line-height: 1.35; }
   .stats-row { grid-template-columns: 1fr; }
   .mirror img { width: 100%; }
   .particle-face, .camera-wrapper, .preview-elegida { height: 300px; }

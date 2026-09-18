@@ -122,7 +122,7 @@
           </button>
         </div>
         <ng-container *ngIf="pestanaProductos === 'productos'">
-        <div class="us-service-item" *ngFor="let producto of categoriaActiva.productos">
+        <div class="us-service-item" [class.has-image]="producto.imagen_url" *ngFor="let producto of categoriaActiva.productos">
           <img *ngIf="producto.imagen_url" [src]="producto.imagen_url" [alt]="producto.nombre" class="us-product-image">
           <div>
             <p class="us-service-name">{{ producto.nombre }}</p>

@@ -915,13 +915,44 @@ i.bi {
   }
 
   .us-products .us-service-item {
-    gap: 10px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px 12px;
+    align-items: center;
+  }
+
+  .us-products .us-service-item.has-image {
+    grid-template-columns: 72px minmax(0, 1fr) auto;
   }
 
   .us-product-image {
     width: 72px;
     height: 72px;
     flex-basis: 72px;
+    grid-row: 1 / span 2;
+  }
+
+  .us-products .us-service-item > div {
+    min-width: 0;
+  }
+
+  .us-products .us-service-price {
+    grid-column: -2;
+    grid-row: 1;
+    margin-left: 0;
+    font-size: 21px;
+  }
+
+  .us-products .us-service-book {
+    grid-column: -2;
+    grid-row: 2;
+    margin-left: 0;
+    padding: 9px 10px;
+  }
+
+  .us-products .us-service-name,
+  .us-products .us-service-detail {
+    overflow-wrap: anywhere;
   }
 
   .footer-content {

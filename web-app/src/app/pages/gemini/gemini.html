@@ -71,14 +71,11 @@
 
           <div class="timeline-track">
 
-            <span class="timeline-dot" [class.is-active]="modo === 'inicial' && !imagenSeleccionada">
-              ></span>
+            <span class="timeline-dot" [class.is-active]="modo === 'inicial' && !imagenSeleccionada" aria-hidden="true"></span>
 
-            <span class="timeline-dot" [class.is-active]="modo === 'camara' || imagenSeleccionada">
-              ></span>
+            <span class="timeline-dot" [class.is-active]="modo === 'camara' || imagenSeleccionada" aria-hidden="true"></span>
 
-            <span class="timeline-dot" [class.is-active]="cargando">
-              ></span>
+            <span class="timeline-dot" [class.is-active]="cargando" aria-hidden="true"></span>
 
           </div>
 
