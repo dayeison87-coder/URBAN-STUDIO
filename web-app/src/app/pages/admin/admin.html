@@ -41,10 +41,16 @@
               <span class="order-status-label" *ngIf="orden.estado === 'cancelada'">
                 Cancelada
               </span>
-              <button *ngIf="orden.estado === 'pendiente'" class="order-complete"
-                (click)="cambiarEstadoOrden(orden, 'retirada')">
-                Marcar pago y recogido
-              </button>
+              <div class="order-actions" *ngIf="orden.estado === 'pendiente'">
+                <button class="order-complete"
+                  (click)="cambiarEstadoOrden(orden, 'retirada')">
+                  Marcar pago y recogido
+                </button>
+                <button class="order-cancel"
+                  (click)="cancelarOrden(orden)">
+                  Cancelar
+                </button>
+              </div>
               <span class="order-status-complete" *ngIf="orden.estado === 'retirada' || orden.estado === 'pagada'">
                 ✓ Pago y recogido
               </span>

@@ -337,12 +337,10 @@ export class BarberoComponent implements OnInit, OnDestroy {
     }
     const duplicado = this.listaHorarios.some(h =>
       h.id !== this.horarioEditandoId &&
-      h.dia_semana === this.horarioForm.dia_semana &&
-      h.hora_inicio === this.horarioForm.hora_inicio &&
-      h.hora_fin === this.horarioForm.hora_fin
+      h.dia_semana === this.horarioForm.dia_semana
     );
     if (duplicado) {
-      this.mensaje = 'Ese horario ya está configurado.';
+      this.mensaje = 'Ya tienes un horario configurado para ese día.';
       return;
     }
     const peticion = this.horarioEditandoId === null

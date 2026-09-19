@@ -294,6 +294,27 @@ tbody tr:hover { background: #111; }
   border-color: #4ade80;
   background: #4ade8012;
 }
+
+.order-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.order-cancel {
+  border: 1px solid #b44747;
+  border-radius: 6px;
+  background: transparent;
+  color: #b44747;
+  cursor: pointer;
+  padding: 0.45rem 0.7rem;
+}
+
+.order-cancel:hover {
+  background: #b44747;
+  color: #fff;
+}
 .order-status-complete {
   color: #4ade80;
   font-size: 11px;

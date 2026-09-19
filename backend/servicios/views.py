@@ -160,20 +160,19 @@ class OrdenProductoViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def cancelar(self, request, pk=None):
         order = self.get_object()
-        if self._es_admin() or order.cliente_id != request.user.id:
-            pass
-        elif order.estado != 'pendiente':
+        if order.estado != 'pendiente':
             return Response(
-                {'detail': 'Solo puedes cancelar apartados pendientes de pago.'},
+                {'detail': 'Solo se pueden cancelar apartados pendientes de pago.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        else:
+        if self._es_admin() or order.cliente_id == request.user.id:
             self._cancelar_y_devolver_inventario(order)
             return Response(self.get_serializer(order).data)
-        return Response(
-            {'detail': 'Usa el cambio de estado desde el panel administrativo.'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+        else:
+            return Response(
+                {'detail': 'No puedes cancelar este apartado.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
     @transaction.atomic
     def _cancelar_y_devolver_inventario(self, order):

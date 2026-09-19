@@ -64,6 +64,14 @@ class Disponibilidad(models.Model):
     hora_inicio = models.TimeField()
     hora_fin = models.TimeField()
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['barbero', 'dia_semana'],
+                name='unique_barbero_dia_semana',
+            ),
+        ]
+
     def __str__(self):
         return f"{self.barbero.username} - {self.dia_semana}"
 

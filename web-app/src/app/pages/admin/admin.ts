@@ -131,6 +131,22 @@ export class AdminComponent implements OnInit {
     });
   }
 
+  cancelarOrden(orden: OrdenProducto): void {
+    if (!confirm(`¿Quieres cancelar el apartado #${orden.id}?`)) return;
+
+    this.http.post<OrdenProducto>(
+      `${this.apiUrl}/ordenes-productos/${orden.id}/cancelar/`,
+      {},
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: actualizada => {
+        orden.estado = actualizada.estado;
+        this.mensaje = `Apartado #${orden.id} cancelado. Inventario restituido.`;
+      },
+      error: err => this.mensaje = err.error?.detail || 'No fue posible cancelar el apartado.'
+    });
+  }
+
   estadoOrden(estado: string): string {
     return {
       pendiente: 'Pendiente de pago',

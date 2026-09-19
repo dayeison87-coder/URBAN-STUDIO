@@ -17,7 +17,10 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ['id', 'username', 'email', 'telefono', 'rol', 'promedio_calificacion', 'foto']
+        fields = [
+            'id', 'username', 'email', 'telefono', 'rol',
+            'promedio_calificacion', 'foto', 'descripcion',
+        ]
 
     def validate_email(self, value):
         if '@' not in value or '.' not in value.rsplit('@', 1)[-1]:
@@ -113,6 +116,31 @@ class DisponibilidadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Disponibilidad
         fields = ['id', 'dia_semana', 'hora_inicio', 'hora_fin']
+
+    def validate_dia_semana(self, value):
+        dias_validos = {
+            'Lunes', 'Martes', 'Miércoles', 'Jueves',
+            'Viernes', 'Sábado', 'Domingo',
+        }
+        if value not in dias_validos:
+            raise serializers.ValidationError('Selecciona un día de la semana válido.')
+        return value
+
+    def validate(self, attrs):
+        barbero = self.context['request'].user
+        dia = attrs.get('dia_semana', getattr(self.instance, 'dia_semana', None))
+        if Disponibilidad.objects.filter(
+            barbero=barbero,
+            dia_semana=dia,
+        ).exclude(pk=getattr(self.instance, 'pk', None)).exists():
+            raise serializers.ValidationError(
+                {'dia_semana': 'Ya tienes un horario configurado para ese día.'}
+            )
+        if attrs.get('hora_inicio') and attrs.get('hora_fin') and attrs['hora_inicio'] >= attrs['hora_fin']:
+            raise serializers.ValidationError(
+                {'hora_fin': 'La hora de cierre debe ser posterior a la hora de apertura.'}
+            )
+        return attrs
 
 
 class PerfilBarberoSerializer(serializers.ModelSerializer):

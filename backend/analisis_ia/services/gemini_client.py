@@ -5,13 +5,15 @@ Usa la API de Gemini (capa gratuita, modelos Flash) para:
 2. Redactar una recomendación de corte en lenguaje natural, tomando en
    cuenta la forma de rostro/cabello ya calculada por MediaPipe y el
    catálogo real de servicios de la barbería.
-
-No entrena nada: usa el modelo ya entrenado por Google a través de su API.
+3. Detectar si el cliente tiene barba (para no inventarla en la imagen).
+4. Construir un prompt de edición de imagen que conserve el rostro.
 """
 
 import os
 import json
 import re
+import random
+import time
 
 
 MODELO_TEXTO = "gemini-3.6-flash"
@@ -21,8 +23,34 @@ TIPOS_CABELLO_VALIDOS = {
 }
 
 
+def _detectar_mime_type_imagen(imagen_bytes: bytes) -> str:
+    if not imagen_bytes:
+        raise ValueError("La imagen recibida está vacía.")
+
+    if imagen_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if imagen_bytes.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if imagen_bytes.startswith(b"GIF87a") or imagen_bytes.startswith(b"GIF89a"):
+        return "image/gif"
+    if imagen_bytes.startswith(b"RIFF") and imagen_bytes[8:12] == b"WEBP":
+        return "image/webp"
+    return "image/jpeg"
+
+# Cada petición recibe UN enfoque distinto al azar. Esto obliga al modelo
+# a salir del "corte clásico" que siempre elige por defecto.
+ENFOQUES_ESTILO = [
+    "texturizado y desenfadado, con movimiento natural",
+    "moderno y atrevido, con contraste marcado entre laterales y parte superior",
+    "elegante y pulido, con acabado limpio y definido",
+    "de bajo mantenimiento, que se peine fácil en casa",
+    "con volumen y flujo, aprovechando la longitud disponible",
+    "urbano y contemporáneo, con detalles de diseño en los laterales",
+    "retro reinterpretado, con una vuelta actual",
+]
+
+
 def _normalizar_tipo_cabello(valor) -> str:
-    """Keep the compact 1a-4c code even if Gemini adds a description."""
     coincidencia = re.search(r"\b([1-4][abc])\b", str(valor or "").lower())
     if coincidencia and coincidencia.group(1) in TIPOS_CABELLO_VALIDOS:
         return coincidencia.group(1)
@@ -30,20 +58,51 @@ def _normalizar_tipo_cabello(valor) -> str:
 
 
 def _get_client():
-    """
-    Crea el cliente de Gemini solamente cuando realmente se necesita.
-    Esto evita cargar google.genai durante el arranque de Django.
-    """
     from google import genai
-
     api_key = os.environ.get("GEMINI_API_KEY")
-
     if not api_key:
-        raise RuntimeError(
-            "Falta configurar GEMINI_API_KEY en las variables de entorno"
-        )
-
+        raise RuntimeError("Falta configurar GEMINI_API_KEY en las variables de entorno")
     return genai.Client(api_key=api_key)
+
+
+def _limpiar_json(texto: str) -> str:
+    texto = (texto or "").strip()
+    if texto.startswith("```json"):
+        texto = texto[7:]
+    if texto.startswith("```"):
+        texto = texto[3:]
+    if texto.endswith("```"):
+        texto = texto[:-3]
+    return texto.strip()
+
+
+def _normalizar_lista_texto(valores, max_items: int = 15) -> str:
+    if not valores:
+        return "(ninguno)"
+
+    lista = [str(valor).strip() for valor in valores if str(valor).strip()]
+    if not lista:
+        return "(ninguno)"
+
+    return "; ".join(lista[-max_items:])
+
+
+def _parsear_respuesta_json(respuesta) -> dict:
+    texto = getattr(respuesta, "text", None) or ""
+    contenido_limpio = _limpiar_json(texto)
+
+    if not contenido_limpio:
+        raise ValueError("Gemini devolvió una respuesta vacía.")
+
+    try:
+        datos = json.loads(contenido_limpio)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Gemini devolvió JSON inválido: {exc}") from exc
+
+    if not isinstance(datos, dict):
+        raise ValueError("Gemini no devolvió un objeto JSON válido.")
+
+    return datos
 
 
 def analizar_cabello_y_recomendar(
@@ -51,32 +110,33 @@ def analizar_cabello_y_recomendar(
     forma_rostro: str,
     indice_cefalico: str,
     nombres_servicios_disponibles: list[str],
+    cortes_recientes: list[str] | None = None,
 ) -> dict:
     """
-    Analiza una fotografía del cliente y devuelve:
-
-    {
-        "tipo_cabello": "1a" | "1b" | ... | "4c",
-        "nombre_corte_sugerido": "texto libre",
-        "corte_del_catalogo": "nombre EXACTO del servicio o null",
-        "descripcion_ia": "explicación en español"
-    }
+    cortes_recientes: nombres de cortes ya recomendados a otros clientes
+    (por ejemplo, los últimos 15 de tu base de datos). Se le pide al modelo
+    que NO los repita.
     """
 
-    # Importamos Gemini solamente cuando se llama esta función.
     from google.genai import types
 
     client = _get_client()
 
     catalogo_txt = (
-        ", ".join(nombres_servicios_disponibles)
+        ", ".join(str(nombre).strip() for nombre in nombres_servicios_disponibles if str(nombre).strip())
         if nombres_servicios_disponibles
         else "(sin catálogo cargado)"
     )
 
+    recientes_txt = _normalizar_lista_texto(cortes_recientes, max_items=15)
+    enfoque = random.choice(ENFOQUES_ESTILO)
+
+    mime_type = _detectar_mime_type_imagen(imagen_bytes)
+
     prompt = f"""
 Eres un barbero senior con 15 años de experiencia, especialista en
-asesoría de imagen masculina.
+asesoría de imagen masculina. Eres conocido porque NUNCA repites el
+mismo corte: cada cliente sale con una propuesta hecha a su medida.
 
 Te doy una foto de un cliente y dos datos ya calculados matemáticamente
 a partir de su rostro:
@@ -84,114 +144,189 @@ a partir de su rostro:
 - Forma de rostro: {forma_rostro}
 - Índice cefálico: {indice_cefalico}
 
-Guía de criterios profesionales por forma de rostro
-(úsala para razonar, no la repitas literalmente):
+Criterios por forma de rostro (son una brújula, no una receta única;
+dentro de cada uno hay MUCHOS cortes posibles):
 
-- Ovalado: es la forma más versátil, casi cualquier corte funciona;
-  evita ocultarlo con demasiado volumen.
-
-- Redondo: busca dar altura y angularidad (volumen arriba, laterales
-  cortos/fade) para alargar visualmente el rostro; evita cortes muy
-  redondeados en la parte superior.
-
-- Cuadrado: suaviza los ángulos marcados de la mandíbula con texturas
-  y flequillos suaves; evita cortes muy geométricos que refuercen
-  la cuadratura.
-
-- Corazón: la frente es más ancha que la mandíbula; evita volumen
-  extra en la parte superior/frontal (agrandaría la frente), y en
-  cambio da algo de definición hacia los laterales bajos y la barbilla
-  para equilibrar.
-
-- Alargado/oblongo: evita mucho volumen vertical arriba (alarga aún
-  más el rostro); prioriza cortes con volumen a los lados o flequillo
-  horizontal.
-
-- Diamante: pómulos anchos con frente y mandíbula más estrechas;
-  suaviza los pómulos con textura a los lados y algo de volumen en
-  frente y mentón.
-
-- Triangular: mandíbula más ancha que la frente; da volumen y textura
-  en la parte superior para equilibrar, mantén los laterales/mandíbula
-  más definidos.
+- Ovalado: versátil, casi cualquier corte funciona; evita taparlo con
+  demasiado volumen.
+- Redondo: da altura y angularidad (volumen arriba, laterales cortos).
+- Cuadrado: suaviza la mandíbula con texturas y flequillos suaves.
+- Corazón: evita volumen extra arriba/frontal; define laterales bajos.
+- Alargado/oblongo: evita mucho volumen vertical; volumen a los lados
+  o flequillo horizontal.
+- Diamante: suaviza pómulos con textura lateral y algo de volumen
+  en frente y mentón.
+- Triangular: volumen y textura arriba para equilibrar.
 
 Catálogo de cortes que ofrece esta barbería:
 {catalogo_txt}
 
+Cortes que YA recomendaste a otros clientes (NO los repitas ni
+recomiendes variantes casi idénticas):
+{recientes_txt}
+
+Enfoque de estilo para ESTA consulta: {enfoque}.
+Úsalo como punto de partida, siempre que sea coherente con el rostro y
+con el cabello real del cliente.
+
 Tu tarea:
 
-1. Observa la foto y clasifica el tipo de cabello según la escala
-   estándar (1a-4c).
+1. Observa la foto con cuidado y responde con lo que VES, no con lo que
+   supones:
+   - tipo de cabello según la escala 1a-4c;
+   - densidad, textura, dirección de crecimiento, remolinos,
+     línea de nacimiento (entradas), altura de la frente, orejas,
+     grosor del cuello, longitud ACTUAL del cabello;
+   - si el cliente tiene barba, bigote o está afeitado.
 
-2. Piensa en 2 o 3 opciones de corte razonables para esta combinación
-   específica de forma de rostro, índice cefálico y tipo de cabello,
-   aplicando los criterios de arriba.
+2. Piensa la propuesta combinando estas piezas de forma libre. No estás
+   limitado a una lista; mezcla lo que mejor le quede a ESTA persona:
+   - Laterales y nuca: skin fade, low/mid/high fade, taper, drop fade,
+     burst fade, temp fade, degradado con tijera, sin degradado, tapered
+     natural, laterales largos, etc.
+   - Parte superior: crop, quiff, pompadour, textured fringe, flow,
+     rizos definidos, twists, afro moldeado, slick back, side part,
+     ivy league, caesar, buzz, capas, mullet moderno, etc.
+   - Detalles: design line, raya marcada, flequillo, acabado mate/brillo,
+     textura, línea frontal, etc.
 
-3. Luego elige la opción más específica y justificada para esta persona
-   en particular, evitando una respuesta genérica que darías para
-   cualquier cliente con esa forma de rostro.
+3. Reglas de variedad:
+   - Genera mentalmente 3 propuestas MUY distintas entre sí y elige la
+     que mejor encaje. Las otras dos se devuelven como alternativas.
+   - Evita por defecto los nombres genéricos ("fade medio", "corte
+     clásico", "degradado clásico") y evita caer siempre en el mismo
+     combo de fade + textura arriba. Explora otras familias de cortes.
+   - Debe ser REALIZABLE hoy con el cabello que tiene: si el cabello es
+     muy corto, no propongas algo que requiera 10 cm de largo.
+   - Respeta el tipo de cabello: no propongas un slick back liso a un
+     cabello 4c, ni rizos definidos a un cabello 1a, sin adaptarlo.
 
-4. Si alguno de los cortes del catálogo de arriba es una opción sólida,
-   úsalo tal cual y copia el nombre exacto.
+4. Si alguno del catálogo encaja de verdad, indícalo en
+   "corte_del_catalogo". Si no, usa null (no fuerces el catálogo).
 
-5. Si ninguno aplica bien, sugiere uno nuevo con nombre común y específico.
-   Ejemplos:
-   - "Mohicano bajo"
-   - "Corte texturizado con fade medio"
-   - "Crop francés con fringe"
+5. Escribe una explicación de 3-4 frases en español, tono amable y
+   profesional, mencionando EXPLÍCITAMENTE cómo el corte responde a las
+   características de ESTE cliente (forma de rostro, tipo de cabello,
+   índice cefálico y algún detalle visible de la foto).
 
-6. Escribe una explicación de 3-4 frases, en español, con tono amable
-   y profesional de barbero.
+Responde ÚNICAMENTE con un JSON válido, sin texto antes ni después,
+sin bloques de código, sin markdown.
 
-7. La explicación debe mencionar explícitamente CÓMO el corte responde
-   a la forma de rostro y al índice cefálico de esta persona.
-
-Responde ÚNICAMENTE con un JSON válido.
-
-No agregues texto antes ni después del JSON.
-No uses bloques de código.
-No uses markdown.
-
-La estructura debe ser exactamente:
+Estructura exacta:
 
 {{
     "tipo_cabello": "solo uno de: 1a, 1b, 1c, 2a, 2b, 2c, 3a, 3b, 3c, 4a, 4b o 4c",
-    "nombre_corte_sugerido": "...",
-    "corte_del_catalogo": "... o null si no aplica ninguno del catálogo",
-    "descripcion_ia": "..."
+    "tiene_barba": true o false (true solo si hay barba o bigote visibles),
+    "descripcion_barba": "ej: 'afeitado', 'barba corta de 3 días', 'barba completa', 'solo bigote'",
+    "nombre_corte_sugerido": "nombre técnico específico y detallado",
+    "corte_del_catalogo": "nombre exacto del catálogo o null",
+    "alternativas": ["otra propuesta distinta 1", "otra propuesta distinta 2"],
+    "descripcion_ia": "explicación personalizada de 3-4 frases"
 }}
 """
 
-    respuesta = client.models.generate_content(
-        model=MODELO_TEXTO,
-        contents=[
-            types.Part.from_bytes(
-                data=imagen_bytes,
-                mime_type="image/jpeg",
-            ),
-            prompt,
-        ],
-        config=types.GenerateContentConfig(
-            temperature=0.4,
-        ),
-    )
+    ultimo_error = None
 
-    texto = respuesta.text.strip()
+    for intento in range(3):
+        try:
+            respuesta = client.models.generate_content(
+                model=MODELO_TEXTO,
+                contents=[
+                    types.Part.from_bytes(
+                        data=imagen_bytes,
+                        mime_type=mime_type,
+                    ),
+                    prompt,
+                ],
+                config=types.GenerateContentConfig(
+                    temperature=1.0,
+                    top_p=0.95,
+                    response_mime_type="application/json",
+                ),
+            )
 
-    # Por si Gemini devuelve el JSON dentro de un bloque markdown.
-    if texto.startswith("```json"):
-        texto = texto[7:]
+            resultado = _parsear_respuesta_json(respuesta)
+            break
+        except Exception as error:
+            ultimo_error = error
+            if intento < 2 and (
+                "503" in str(error)
+                or "UNAVAILABLE" in str(error)
+                or "429" in str(error)
+                or "RESOURCE_EXHAUSTED" in str(error)
+            ):
+                time.sleep(2 * (intento + 1))
+                continue
+            raise
 
-    if texto.startswith("```"):
-        texto = texto[3:]
+    if not isinstance(resultado, dict):
+        raise ValueError("La respuesta de Gemini no tiene el formato esperado.")
 
-    if texto.endswith("```"):
-        texto = texto[:-3]
-
-    texto = texto.strip()
-
-    resultado = json.loads(texto)
     resultado["tipo_cabello"] = _normalizar_tipo_cabello(
         resultado.get("tipo_cabello")
     )
+    resultado["tiene_barba"] = bool(resultado.get("tiene_barba", False))
+
+    alternativas = resultado.get("alternativas") or []
+    if not isinstance(alternativas, list):
+        alternativas = []
+    resultado["alternativas"] = [
+        str(item).strip() for item in alternativas if str(item).strip()
+    ][:2]
+
+    resultado["descripcion_barba"] = str(
+        resultado.get("descripcion_barba", "")
+    ).strip() or "afeitado"
+    resultado["descripcion_ia"] = str(
+        resultado.get("descripcion_ia", "")
+    ).strip() or "Recomendación generada por IA."
+
+    if not resultado.get("nombre_corte_sugerido"):
+        resultado["nombre_corte_sugerido"] = "corte personalizado"
+
+    if resultado.get("tipo_cabello") not in TIPOS_CABELLO_VALIDOS:
+        resultado["tipo_cabello"] = ""
+
     return resultado
+
+
+def construir_prompt_imagen(resultado: dict) -> str:
+    """
+    Prompt para el modelo de EDICIÓN de imagen (se le manda la foto
+    original junto con este texto). Está redactado como "edita esta foto",
+    no como "genera una persona", para que conserve la identidad.
+    """
+    corte = resultado.get("nombre_corte_sugerido", "")
+    tiene_barba = resultado.get("tiene_barba", False)
+    desc_barba = resultado.get("descripcion_barba", "")
+
+    if tiene_barba:
+        regla_barba = (
+            f"The person has facial hair ({desc_barba}). Keep the beard/"
+            "mustache EXACTLY as it is in the original photo: same shape, "
+            "length, density and color. Do not trim, extend or restyle it."
+        )
+    else:
+        regla_barba = (
+            "The person is clean-shaven. Do NOT add a beard, mustache, "
+            "stubble or any facial hair. The lower face must stay smooth "
+            "exactly as in the original photo."
+        )
+
+    return f"""
+Edit this photo. Change ONLY the hairstyle of the person to: {corte}.
+
+Everything else must remain pixel-identical to the original photo:
+- Same person: identical face, facial features, face shape, eyes, eyebrows,
+  nose, mouth, ears, skin tone, skin texture, age and expression.
+- Same head size, head angle, pose, framing, camera distance and crop.
+- Same clothing, background and lighting.
+- Same hair color (unless the cut requires otherwise) and natural hair
+  texture/type.
+
+{regla_barba}
+
+Do not beautify, smooth, slim, age or rejuvenate the face. Do not change
+the identity. Only the hair changes. The result must look like a real
+photo of the same person right after leaving the barbershop.
+""".strip()
