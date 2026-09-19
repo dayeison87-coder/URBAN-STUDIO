@@ -193,6 +193,8 @@ Tu tarea:
      línea de nacimiento (entradas), altura de la frente, orejas,
      grosor del cuello, longitud ACTUAL del cabello;
    - si el cliente tiene barba, bigote o está afeitado.
+   - longitud actual del cabello: "muy corto" (0-2 cm), "corto"
+     (2-5 cm), "medio" (5-10 cm) o "largo" (más de 10 cm).
 
 2. Piensa la propuesta combinando estas piezas de forma libre. No estás
    limitado a una lista; mezcla lo que mejor le quede a ESTA persona:
@@ -217,6 +219,10 @@ Tu tarea:
      devuelvas una lista de alternativas ni varias imágenes.
    - La opción elegida debe ser específica, realizable con la longitud
      actual y claramente distinta de las recomendaciones recientes.
+   - No puedes añadir longitud que no aparece en la foto. Si el cabello
+     es muy corto o corto, descarta slick back largo, pompadour alto,
+     mullet, wolf cut, flow, man bun, cola o cualquier estilo que necesite
+     cabello medio/largo. No inventes cabello en la nuca.
    - Evita por defecto los nombres genéricos ("fade medio", "corte
      clásico", "degradado clásico") y evita caer siempre en el mismo
      combo de fade + textura arriba. Explora otras familias de cortes.
@@ -242,6 +248,11 @@ Estructura exacta:
     "tipo_cabello": "solo uno de: 1a, 1b, 1c, 2a, 2b, 2c, 3a, 3b, 3c, 4a, 4b o 4c",
     "tiene_barba": true o false (true solo si hay barba o bigote visibles),
     "descripcion_barba": "ej: 'afeitado', 'barba corta de 3 días', 'barba completa', 'solo bigote'",
+    "detalles_corte": {{
+        "longitud_actual": "muy corto, corto, medio o largo",
+        "peinado": "cómo se peina la parte superior sin superar la longitud actual",
+        "restricciones": "qué NO debe cambiarse o inventarse en la imagen"
+    }},
     "nombre_corte_sugerido": "nombre técnico específico y detallado",
     "corte_del_catalogo": "nombre exacto del catálogo o null",
     "descripcion_ia": "explicación personalizada de 3-4 frases"
@@ -299,6 +310,21 @@ Estructura exacta:
 
     if not resultado.get("nombre_corte_sugerido"):
         resultado["nombre_corte_sugerido"] = "corte personalizado"
+
+    detalles_corte = resultado.get("detalles_corte")
+    if not isinstance(detalles_corte, dict):
+        detalles_corte = {}
+    resultado["detalles_corte"] = {
+        "longitud_actual": str(
+            detalles_corte.get("longitud_actual", "")
+        ).strip(),
+        "peinado": str(
+            detalles_corte.get("peinado", "")
+        ).strip(),
+        "restricciones": str(
+            detalles_corte.get("restricciones", "")
+        ).strip(),
+    }
 
     if resultado.get("tipo_cabello") not in TIPOS_CABELLO_VALIDOS:
         resultado["tipo_cabello"] = ""

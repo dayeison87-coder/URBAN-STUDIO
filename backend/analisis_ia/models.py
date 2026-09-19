@@ -100,6 +100,11 @@ class AnalisisFacial(models.Model):
         blank=True
     )
 
+    detalles_corte_ia = models.JSONField(
+        default=dict,
+        blank=True
+    )
+
     # Imagen generada
     imagen_resultado = models.ImageField(
         upload_to="analisis_ia/resultados/",

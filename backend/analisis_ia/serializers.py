@@ -18,6 +18,7 @@ class AnalisisFacialOutputSerializer(serializers.ModelSerializer):
             "descripcion_ia",
             "corte_recomendado",
             "nombre_corte_sugerido",
+            "detalles_corte_ia",
             "imagen_resultado",
             "imagen_resultado_perfil",
             "estado",

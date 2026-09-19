@@ -364,6 +364,10 @@ class AnalizarRostroView(APIView):
                     ""
                 )
             )
+            analisis.detalles_corte_ia = analisis_ia_texto.get(
+                "detalles_corte",
+                {}
+            )
 
             nombre_catalogo = (
                 analisis_ia_texto.get(
@@ -392,6 +396,20 @@ class AnalizarRostroView(APIView):
                 analisis.nombre_corte_sugerido
                 or "corte de cabello moderno"
             )
+            detalles_corte = analisis.detalles_corte_ia
+            if isinstance(detalles_corte, dict):
+                longitud = detalles_corte.get("longitud_actual", "")
+                peinado = detalles_corte.get("peinado", "")
+                restricciones = detalles_corte.get("restricciones", "")
+                if longitud:
+                    prompt_corte += (
+                        f". Longitud actual observada: {longitud}. "
+                        "No añadir longitud ni extensiones."
+                    )
+                if peinado:
+                    prompt_corte += f" Peinado recomendado: {peinado}."
+                if restricciones:
+                    prompt_corte += f" Restricciones: {restricciones}."
 
             imagen_resultado_bytes = (
                 generar_preview_corte(
