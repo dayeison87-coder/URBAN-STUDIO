@@ -25,6 +25,9 @@ from .services.prompts_cortes import obtener_prompt_corte
 
 logger = logging.getLogger(__name__)
 
+# Temporalmente desactivado para probar el recomendador sin depender del
+# correo del barbero. Volver a True antes de publicar en producción.
+REQUIERE_CODIGO_SEGURIDAD = False
 
 # ==================================================
 # SOLICITAR CÓDIGO DE SEGURIDAD
@@ -203,43 +206,31 @@ class AnalizarRostroView(APIView):
         # 1. VERIFICAR CÓDIGO DE SEGURIDAD
         # ==========================================
 
-        codigo_seguridad = (
-            CodigoSeguridadIA.objects.filter(
-                usuario=request.user,
-                validado=True,
-                usado=False
-            )
-            .order_by("-creado_en")
-            .first()
-        )
-
-        if not codigo_seguridad:
-
-            return Response(
-                {
-                    "error": (
-                        "Debes validar un código de seguridad "
-                        "antes de utilizar la IA."
-                    )
-                },
-                status=status.HTTP_403_FORBIDDEN
+        codigo_seguridad = None
+        if REQUIERE_CODIGO_SEGURIDAD:
+            codigo_seguridad = (
+                CodigoSeguridadIA.objects.filter(
+                    usuario=request.user,
+                    validado=True,
+                    usado=False
+                )
+                .order_by("-creado_en")
+                .first()
             )
 
-        # Verificar nuevamente que no haya vencido
-        if codigo_seguridad.esta_vencido():
+            if not codigo_seguridad:
+                return Response(
+                    {"error": "Debes validar un código de seguridad antes de utilizar la IA."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
 
-            codigo_seguridad.usado = True
-            codigo_seguridad.save()
-
-            return Response(
-                {
-                    "error": (
-                        "Tu código de seguridad ha vencido. "
-                        "Solicita uno nuevo."
-                    )
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
+            if codigo_seguridad.esta_vencido():
+                codigo_seguridad.usado = True
+                codigo_seguridad.save()
+                return Response(
+                    {"error": "Tu código de seguridad ha vencido. Solicita uno nuevo."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
 
         # ==========================================
         # 2. OBTENER LA FOTO
@@ -432,8 +423,9 @@ class AnalizarRostroView(APIView):
             # El código se consume solamente cuando Gemini terminó de
             # generar el resultado. Si el análisis falla antes de este punto,
             # el cliente puede intentar de nuevo con el mismo código.
-            codigo_seguridad.usado = True
-            codigo_seguridad.save(update_fields=["usado"])
+            if codigo_seguridad is not None:
+                codigo_seguridad.usado = True
+                codigo_seguridad.save(update_fields=["usado"])
 
         except (
             RostroNoDetectadoError,

@@ -49,6 +49,15 @@ ENFOQUES_ESTILO = [
     "retro reinterpretado, con una vuelta actual",
 ]
 
+NOMBRES_CORTE_COMUNES = (
+    "taper fade", "low taper", "mid taper", "high taper", "taper",
+    "low fade", "mid fade", "high fade", "skin fade", "drop fade",
+    "burst fade", "temple fade", "shadow fade", "buzz cut", "crew cut",
+    "crop", "french crop", "caesar", "quiff", "pompadour", "slick back",
+    "side part", "comb over", "mullet", "edgar", "two block", "curtains",
+    "fringe", "shaggy", "bro flow", "afro", "undercut", "ivy league",
+)
+
 
 def _normalizar_tipo_cabello(valor) -> str:
     coincidencia = re.search(r"\b([1-4][abc])\b", str(valor or "").lower())
@@ -93,6 +102,33 @@ def _normalizar_lista_texto(valores, max_items: int = 15) -> str:
         return "(ninguno)"
 
     return "; ".join(lista[-max_items:])
+
+
+def _elegir_nombre_comun(nombre: str, recientes: list[str] | None) -> str:
+    nombre_limpio = " ".join(str(nombre or "").split()).strip()
+    recientes_normalizados = {
+        " ".join(str(valor).casefold().split())
+        for valor in (recientes or [])
+        if str(valor).strip()
+    }
+
+    if (
+        nombre_limpio
+        and nombre_limpio.casefold() not in recientes_normalizados
+        and len(nombre_limpio.split()) <= 5
+        and any(
+            palabra in nombre_limpio.casefold()
+            for palabra in NOMBRES_CORTE_COMUNES
+        )
+    ):
+        return nombre_limpio
+
+    disponibles = [
+        nombre_comun.title()
+        for nombre_comun in NOMBRES_CORTE_COMUNES
+        if nombre_comun not in recientes_normalizados
+    ]
+    return random.choice(disponibles or ["Taper Fade"])
 
 
 def _parsear_respuesta_json(respuesta) -> dict:
@@ -226,6 +262,12 @@ Tu tarea:
    - Evita por defecto los nombres genéricos ("fade medio", "corte
      clásico", "degradado clásico") y evita caer siempre en el mismo
      combo de fade + textura arriba. Explora otras familias de cortes.
+     Usa nombres de barbería conocidos y fáciles de entender, como "taper",
+     "taper fade", "low fade", "mid fade", "high fade", "skin fade", "mullet",
+     "crop", "quiff", "side part", "slick back", "pompadour", "buzz cut",
+     "crew cut", "edgar", "two block", "curtains", "fringe" o "undercut".
+     No inventes nombres largos, poéticos, retro, ni combinaciones de más de
+     tres elementos. El nombre debe ser corto y común.
    - Debe ser REALIZABLE hoy con el cabello que tiene: si el cabello es
      muy corto, no propongas algo que requiera 10 cm de largo.
    - Respeta el tipo de cabello: no propongas un slick back liso a un
@@ -310,6 +352,11 @@ Estructura exacta:
 
     if not resultado.get("nombre_corte_sugerido"):
         resultado["nombre_corte_sugerido"] = "corte personalizado"
+
+    resultado["nombre_corte_sugerido"] = _elegir_nombre_comun(
+        resultado["nombre_corte_sugerido"],
+        cortes_recientes,
+    )
 
     detalles_corte = resultado.get("detalles_corte")
     if not isinstance(detalles_corte, dict):

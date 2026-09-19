@@ -50,7 +50,8 @@ export class AnalisisRostroComponent implements OnDestroy {
   barberos: Barbero[] = [];
   barberoSeleccionado: number | null = null;
 
-  iaDesbloqueada = false;
+  // Temporalmente sin código de seguridad para probar las recomendaciones.
+  iaDesbloqueada = true;
 
   // ==========================================
   // CÁMARA
@@ -110,6 +111,7 @@ export class AnalisisRostroComponent implements OnDestroy {
   abrirIA() {
 
     if (this.iaDesbloqueada) {
+      this.mostrarSelectorBarbero = false;
       return;
     }
 
