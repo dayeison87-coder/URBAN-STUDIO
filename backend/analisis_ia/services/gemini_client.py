@@ -14,6 +14,7 @@ import json
 import re
 import random
 import time
+from collections import Counter
 
 
 MODELO_TEXTO = "gemini-3.6-flash"
@@ -56,6 +57,13 @@ NOMBRES_CORTE_COMUNES = (
     "crop", "french crop", "caesar", "quiff", "pompadour", "slick back",
     "side part", "comb over", "mullet", "edgar", "two block", "curtains",
     "fringe", "shaggy", "bro flow", "afro", "undercut", "ivy league",
+)
+
+FAMILIAS_CORTE = (
+    "taper fade", "taper", "fade", "buzz cut", "crew cut", "crop",
+    "caesar", "quiff", "pompadour", "slick back", "side part",
+    "comb over", "mullet", "edgar", "two block", "curtains", "fringe",
+    "shaggy", "bro flow", "afro", "undercut", "ivy league",
 )
 
 
@@ -113,11 +121,17 @@ def _normalizar_lista_texto(valores, max_items: int = 15) -> str:
 
 def _elegir_nombre_comun(nombre: str, recientes: list[str] | None) -> str:
     nombre_limpio = " ".join(str(nombre or "").split()).strip()
-    recientes_normalizados = {
+    recientes_limpios = [
         " ".join(str(valor).casefold().split())
         for valor in (recientes or [])
         if str(valor).strip()
+    ]
+    recientes_normalizados = set(recientes_limpios)
+    familias_recientes = {
+        familia for valor in recientes_limpios
+        if (familia := _familia_corte(valor)) is not None
     }
+    familia_nueva = _familia_corte(nombre_limpio)
 
     if (
         nombre_limpio
@@ -127,15 +141,44 @@ def _elegir_nombre_comun(nombre: str, recientes: list[str] | None) -> str:
             palabra in nombre_limpio.casefold()
             for palabra in NOMBRES_CORTE_COMUNES
         )
+        and (
+            familia_nueva is None
+            or familia_nueva not in familias_recientes
+        )
     ):
         return nombre_limpio
 
+    conteo_familias = Counter(
+        _familia_corte(valor)
+        for valor in recientes_limpios
+        if _familia_corte(valor) is not None
+    )
     disponibles = [
         nombre_comun.title()
         for nombre_comun in NOMBRES_CORTE_COMUNES
-        if nombre_comun not in recientes_normalizados
+        if (
+            nombre_comun not in recientes_normalizados
+            and _familia_corte(nombre_comun) not in familias_recientes
+        )
     ]
-    return random.choice(disponibles or ["Taper Fade"])
+    if disponibles:
+        return random.choice(disponibles)
+
+    # Si ya se usaron todas las familias, elige la menos repetida en vez de
+    # volver siempre al mismo taper fade.
+    menos_repetidas = sorted(
+        NOMBRES_CORTE_COMUNES,
+        key=lambda corte: conteo_familias[_familia_corte(corte)],
+    )
+    return random.choice(menos_repetidas[:5]).title()
+
+
+def _familia_corte(nombre: str) -> str | None:
+    normalizado = " ".join(str(nombre or "").casefold().split())
+    for familia in sorted(FAMILIAS_CORTE, key=len, reverse=True):
+        if familia in normalizado:
+            return familia
+    return None
 
 
 def _parsear_respuesta_json(respuesta) -> dict:
