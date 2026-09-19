@@ -80,7 +80,15 @@ def _normalizar_lista_texto(valores, max_items: int = 15) -> str:
     if not valores:
         return "(ninguno)"
 
-    lista = [str(valor).strip() for valor in valores if str(valor).strip()]
+    lista = []
+    vistos = set()
+    for valor in valores:
+        texto = str(valor).strip()
+        clave = texto.casefold()
+        if texto and clave not in vistos:
+            lista.append(texto)
+            vistos.add(clave)
+
     if not lista:
         return "(ninguno)"
 
@@ -165,6 +173,13 @@ Cortes que YA recomendaste a otros clientes (NO los repitas ni
 recomiendes variantes casi idénticas):
 {recientes_txt}
 
+Si la lista anterior no está vacía, el nombre de tu propuesta principal
+NO puede coincidir con ninguno de esos cortes, aunque parezca adecuado.
+Antes de responder compara la propuesta principal y las alternativas con
+esa lista; si se parecen demasiado, descártalas y elige otra familia de
+corte. La variedad entre clientes es obligatoria, pero nunca debe estar
+por encima de que el corte sea realizable y favorezca a esta persona.
+
 Enfoque de estilo para ESTA consulta: {enfoque}.
 Úsalo como punto de partida, siempre que sea coherente con el rostro y
 con el cabello real del cliente.
@@ -190,9 +205,18 @@ Tu tarea:
    - Detalles: design line, raya marcada, flequillo, acabado mate/brillo,
      textura, línea frontal, etc.
 
-3. Reglas de variedad:
-   - Genera mentalmente 3 propuestas MUY distintas entre sí y elige la
-     que mejor encaje. Las otras dos se devuelven como alternativas.
+3. Reglas para elegir la mejor opción:
+   - Evalúa internamente muchas combinaciones: taper fade, low/mid/high
+     fade, skin fade, drop fade, burst fade, crop, fringe, quiff,
+     slick back, side part, pompadour, caesar, edgar, mullet, two block,
+     buzz, crew cut, bro flow y opciones para cabello ondulado, rizado o
+     afro.
+   - Para cada familia considera si conviene peinar hacia adelante,
+     hacia atrás, a un lado, con raya, con textura o natural.
+   - Después de comparar esas opciones, devuelve SOLO la mejor. No
+     devuelvas una lista de alternativas ni varias imágenes.
+   - La opción elegida debe ser específica, realizable con la longitud
+     actual y claramente distinta de las recomendaciones recientes.
    - Evita por defecto los nombres genéricos ("fade medio", "corte
      clásico", "degradado clásico") y evita caer siempre en el mismo
      combo de fade + textura arriba. Explora otras familias de cortes.
@@ -220,7 +244,6 @@ Estructura exacta:
     "descripcion_barba": "ej: 'afeitado', 'barba corta de 3 días', 'barba completa', 'solo bigote'",
     "nombre_corte_sugerido": "nombre técnico específico y detallado",
     "corte_del_catalogo": "nombre exacto del catálogo o null",
-    "alternativas": ["otra propuesta distinta 1", "otra propuesta distinta 2"],
     "descripcion_ia": "explicación personalizada de 3-4 frases"
 }}
 """
@@ -266,13 +289,6 @@ Estructura exacta:
         resultado.get("tipo_cabello")
     )
     resultado["tiene_barba"] = bool(resultado.get("tiene_barba", False))
-
-    alternativas = resultado.get("alternativas") or []
-    if not isinstance(alternativas, list):
-        alternativas = []
-    resultado["alternativas"] = [
-        str(item).strip() for item in alternativas if str(item).strip()
-    ][:2]
 
     resultado["descripcion_barba"] = str(
         resultado.get("descripcion_barba", "")

@@ -312,6 +312,22 @@ class AnalizarRostroView(APIView):
                 )
             )
 
+            # Evita que Gemini reciba siempre el mismo contexto vacío:
+            # las recomendaciones anteriores se usan para forzar variedad
+            # entre clientes distintos.
+            cortes_recientes = list(
+                AnalisisFacial.objects.exclude(
+                    pk=analisis.pk
+                ).exclude(
+                    nombre_corte_sugerido=""
+                ).order_by(
+                    "-creado_en"
+                ).values_list(
+                    "nombre_corte_sugerido",
+                    flat=True
+                )[:15]
+            )
+
             analisis_ia_texto = (
                 analizar_cabello_y_recomendar(
                     imagen_bytes=foto_bytes,
@@ -324,6 +340,7 @@ class AnalizarRostroView(APIView):
                     nombres_servicios_disponibles=(
                         nombres_servicios
                     ),
+                    cortes_recientes=cortes_recientes,
                 )
             )
 

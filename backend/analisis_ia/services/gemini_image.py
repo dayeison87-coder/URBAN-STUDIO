@@ -90,9 +90,12 @@ def generar_preview_corte(
         "Show only the back of the head, hair and neck. "
         "No face visible.\n\n"
 
-        "Keep the person's appearance consistent across all views. "
-        "Preserve facial structure, skin tone, facial hair and identity. "
-        "Only modify the hairstyle/haircut.\n\n"
+        "Keep the person's appearance extremely consistent across all views. "
+        "Preserve the exact facial structure, face proportions, hairline, "
+        "eyes, eyebrows, nose, lips, ears, jaw, skin tone, facial hair, "
+        "expression and identity from the source photo. Do not beautify or "
+        "redesign the person. Only modify the hairstyle/haircut and any "
+        "explicitly requested subtle hair design line.\n\n"
 
         "Use a neutral studio background and consistent lighting. "
         "Create realistic professional photography, not an illustration."
