@@ -653,6 +653,16 @@
 .corte-descripcion { color: var(--text-muted); line-height: 1.7; font-size: 15px; margin: 0; }
 
 .preview-frame { text-align: center; }
+.preview-unavailable {
+  margin: 22px auto 0;
+  max-width: 760px;
+  padding: 14px 18px;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  color: #cbbda9;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.6;
+}
 .mirror-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
 .mirror {
   position: relative; display: inline-block; padding: 14px;

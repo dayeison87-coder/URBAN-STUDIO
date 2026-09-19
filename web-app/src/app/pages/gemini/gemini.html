@@ -693,6 +693,12 @@
 
       </div>
 
+      <div class="preview-unavailable" *ngIf="!resultadoAnalisis.imagen_resultado">
+        La recomendación está lista, pero la vista previa del corte no pudo
+        generarse en este momento. Puedes conservar esta recomendación e
+        intentarlo nuevamente.
+      </div>
+
 
       <!-- VOLVER A HACER ANÁLISIS -->
 

@@ -77,26 +77,12 @@ def generar_preview_corte(
 
     instruccion = (
         f"Using the provided photo of this person, create a single image "
-        f"that works as a professional barbershop haircut reference sheet, "
-        f"divided into 4 equal quadrants. Each quadrant must show the SAME "
-        f"person with the new haircut applied: {prompt_corte}."
+        f"that shows the SAME person with the new haircut applied: "
+        f"{prompt_corte}."
         f"{instruccion_fade}\n\n"
-
-        "Quadrant 1 (top-left): FRONT view. "
-        "The person faces directly toward the camera. Both eyes visible.\n"
-
-        "Quadrant 2 (top-right): RIGHT profile view. "
-        "Show the person's right ear and cheek in a genuine 90-degree "
-        "side profile.\n"
-
-        "Quadrant 3 (bottom-left): LEFT profile view. "
-        "Show the person's left ear and cheek in the opposite 90-degree "
-        "side profile.\n"
-
-        "Quadrant 4 (bottom-right): BACK view. "
-        "Show only the back of the head, hair and neck. "
-        "No face visible.\n\n"
-
+        "Use one natural front-facing or three-quarter portrait view, "
+        "with the hairstyle clearly visible. Do not create a collage, "
+        "reference sheet, multiple panels or multiple people.\n\n"
         "Keep the person's appearance extremely consistent across all views. "
         "Preserve the exact facial structure, face proportions, hairline, "
         "eyes, eyebrows, nose, lips, ears, jaw, skin tone, facial hair, "
@@ -138,7 +124,7 @@ def generar_preview_corte(
                     imagen,
                 ],
                 config=types.GenerateContentConfig(
-                    response_modalities=["TEXT", "IMAGE"],
+                    response_modalities=["IMAGE"],
                 ),
             )
 
