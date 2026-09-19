@@ -22,6 +22,120 @@ def _normalizar(texto: str) -> str:
 
 # Cortes con nombre exacto conocido → descripción técnica detallada.
 PROMPTS_POR_CORTE = {
+    "taper": (
+        "taper clásico: solo patillas y nuca rebajadas de forma gradual, "
+        "sin rapar todo el lateral, sin fade alto, parte superior casi igual "
+        "de larga y peinada de forma natural"
+    ),
+    "taper fade": (
+        "taper fade: degradado suave y bajo únicamente en patillas y nuca, "
+        "laterales conservando peso y longitud, transición sutil, parte "
+        "superior natural; no convertirlo en low fade, mid fade ni high fade"
+    ),
+    "low taper": (
+        "low taper: taper muy bajo en patillas y borde de la nuca, laterales "
+        "largos y llenos, sin degradar toda la zona sobre la oreja, parte "
+        "superior con su longitud actual"
+    ),
+    "mid taper": (
+        "mid taper: taper gradual a media altura en patillas y nuca, sin "
+        "rapar completamente los laterales, parte superior separada y natural"
+    ),
+    "high taper": (
+        "high taper: taper marcado solo en patillas y nuca alta, laterales "
+        "limpios pero no completamente rapados, parte superior claramente "
+        "conservada"
+    ),
+    "low fade": (
+        "low fade: degradado completo bajo desde la piel junto a las patillas "
+        "hasta los laterales bajos, transición visible y parte superior con "
+        "textura; no hacer taper ni mid fade"
+    ),
+    "mid fade": (
+        "mid fade: degradado completo a media altura alrededor de toda la "
+        "cabeza, laterales notablemente cortos desde la mitad, transición "
+        "visible y parte superior separada; no hacer taper"
+    ),
+    "high fade": (
+        "high fade: degradado completo alto que sube cerca de las sienes, "
+        "laterales muy cortos y contraste fuerte con la parte superior; no "
+        "hacer taper ni low fade"
+    ),
+    "skin fade": (
+        "skin fade: laterales y nuca empiezan al ras de la piel y suben en "
+        "una transición limpia hasta la parte superior, contraste marcado, "
+        "sin conservar peso bajo en los laterales"
+    ),
+    "drop fade": (
+        "drop fade: degradado a piel que cae en curva detrás de las orejas y "
+        "sigue la forma de la nuca, laterales cortos y parte superior intacta"
+    ),
+    "burst fade": (
+        "burst fade: degradado radial alrededor de cada oreja, dejando más "
+        "longitud en la nuca y el centro posterior, sin hacer un fade completo "
+        "recto en toda la cabeza"
+    ),
+    "buzz cut": (
+        "buzz cut: cabello corto y uniforme con máquina en toda la cabeza, "
+        "sin volumen superior, sin flequillo y sin textura larga"
+    ),
+    "crew cut": (
+        "crew cut: laterales cortos y parte superior corta ligeramente más "
+        "larga hacia la frente, forma limpia y práctica, sin flequillo largo"
+    ),
+    "crop": (
+        "crop: laterales cortos y parte superior corta texturizada, flequillo "
+        "corto hacia adelante sobre la frente, acabado mate y definido"
+    ),
+    "french crop": (
+        "french crop: laterales cortos, parte superior corta con textura "
+        "marcada y flequillo recto corto hacia adelante, sin peinar hacia atrás"
+    ),
+    "caesar": (
+        "caesar: cabello corto de longitud uniforme, flequillo horizontal "
+        "corto hacia adelante y laterales limpios, sin volumen alto"
+    ),
+    "quiff": (
+        "quiff: laterales más cortos y parte superior con volumen frontal "
+        "peinada hacia arriba y ligeramente hacia atrás, sin alargar la nuca"
+    ),
+    "side part": (
+        "side part: parte superior peinada claramente hacia un lado con raya "
+        "lateral visible, laterales prolijos y sin volumen exagerado"
+    ),
+    "slick back": (
+        "slick back: parte superior peinada completamente hacia atrás con la "
+        "longitud existente, laterales ordenados, sin inventar longitud extra"
+    ),
+    "mullet": (
+        "mullet: laterales cortos, parte superior texturizada y nuca "
+        "visiblemente más larga que los laterales, solo si la foto ya tiene "
+        "longitud suficiente en la nuca"
+    ),
+    "edgar": (
+        "edgar: laterales con degradado corto, parte superior recta y "
+        "texturizada, línea frontal corta y definida hacia adelante"
+    ),
+    "two block": (
+        "two block: laterales y nuca recortados en una sección separada, "
+        "parte superior notablemente más larga y pesada, sin mezclarlo con fade"
+    ),
+    "curtains": (
+        "curtains: parte superior media dividida al centro, mechones cayendo "
+        "a ambos lados de la frente, laterales conservando longitud"
+    ),
+    "fringe": (
+        "fringe: parte superior peinada hacia adelante con flequillo visible "
+        "sobre la frente, laterales equilibrados y sin peinar hacia atrás"
+    ),
+    "bro flow": (
+        "bro flow: cabello medio o largo peinado hacia atrás y hacia los lados "
+        "con caída natural, capas suaves y movimiento, sin fade corto"
+    ),
+    "afro": (
+        "afro: cabello rizado o afro conservando volumen redondeado natural, "
+        "contorno limpio y sin alisar ni convertirlo en fade común"
+    ),
     "corte clasico": (
         "corte clásico de caballero, raya lateral marcada, lados cortos y "
         "prolijos, un poco más largo arriba, peinado con brillo natural"
@@ -57,6 +171,8 @@ PROMPTS_POR_CORTE = {
 # Palabras clave que, si aparecen en el nombre del corte, agregan una
 # descripción técnica aunque el nombre exacto no esté en el diccionario.
 PALABRAS_CLAVE = [
+    (r"\bhigh\s*temp\s*fade\b|\btemp\s*fade\b", "degradado alto alrededor de las sienes (temple fade), nuca y laterales con diseño específico"),
+    (r"\btaper\s*fade\b", "taper fade suave y bajo en patillas y nuca, no fade completo"),
     (r"\bfade\s*alto\b|\bhigh\s*fade\b", "degradado (fade) alto en los lados"),
     (r"\bfade\s*medio\b|\bmid\s*fade\b", "degradado (fade) medio en los lados"),
     (r"\bfade\s*bajo\b|\blow\s*fade\b", "degradado (fade) bajo en los lados"),

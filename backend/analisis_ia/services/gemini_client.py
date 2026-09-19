@@ -53,14 +53,17 @@ ENFOQUES_ESTILO = [
 NOMBRES_CORTE_COMUNES = (
     "taper fade", "low taper", "mid taper", "high taper", "taper",
     "low fade", "mid fade", "high fade", "skin fade", "drop fade",
-    "burst fade", "temple fade", "shadow fade", "buzz cut", "crew cut",
+    "burst fade", "temp fade", "temple fade", "shadow fade", "buzz cut", "crew cut",
     "crop", "french crop", "caesar", "quiff", "pompadour", "slick back",
     "side part", "comb over", "mullet", "edgar", "two block", "curtains",
     "fringe", "shaggy", "bro flow", "afro", "undercut", "ivy league",
 )
 
 FAMILIAS_CORTE = (
-    "taper fade", "taper", "fade", "buzz cut", "crew cut", "crop",
+    "taper fade", "low taper", "mid taper", "high taper", "taper",
+    "low fade", "mid fade", "high fade", "skin fade", "drop fade",
+    "burst fade", "temp fade", "temple fade", "shadow fade", "fade",
+    "buzz cut", "crew cut", "crop",
     "caesar", "quiff", "pompadour", "slick back", "side part",
     "comb over", "mullet", "edgar", "two block", "curtains", "fringe",
     "shaggy", "bro flow", "afro", "undercut", "ivy league",
