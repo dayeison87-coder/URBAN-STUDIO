@@ -420,20 +420,25 @@ class AnalizarRostroView(APIView):
                 if restricciones:
                     prompt_corte += f" Restricciones: {restricciones}."
 
-            imagen_resultado_bytes = (
-                generar_preview_corte(
+            try:
+                imagen_resultado_bytes = generar_preview_corte(
                     imagen_original_bytes=foto_bytes,
                     prompt_corte=prompt_corte,
                 )
-            )
-
-            analisis.imagen_resultado.save(
-                f"resultado_{analisis.id}.png",
-                ContentFile(
-                    imagen_resultado_bytes
-                ),
-                save=False,
-            )
+            except GeneracionImagenError:
+                # La recomendación de texto sigue siendo válida aunque el
+                # proveedor de imágenes tarde demasiado o no esté disponible.
+                logger.warning(
+                    "No se pudo generar la vista previa del análisis %s",
+                    analisis.id,
+                    exc_info=True,
+                )
+            else:
+                analisis.imagen_resultado.save(
+                    f"resultado_{analisis.id}.png",
+                    ContentFile(imagen_resultado_bytes),
+                    save=False,
+                )
 
             analisis.estado = "completado"
             analisis.save()

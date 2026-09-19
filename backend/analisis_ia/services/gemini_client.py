@@ -68,10 +68,17 @@ def _normalizar_tipo_cabello(valor) -> str:
 
 def _get_client():
     from google import genai
+    from google.genai import types
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise RuntimeError("Falta configurar GEMINI_API_KEY en las variables de entorno")
-    return genai.Client(api_key=api_key)
+    return genai.Client(
+        api_key=api_key,
+        http_options=types.HttpOptions(
+            timeout=90_000,
+            retry_options=types.HttpRetryOptions(attempts=1),
+        ),
+    )
 
 
 def _limpiar_json(texto: str) -> str:

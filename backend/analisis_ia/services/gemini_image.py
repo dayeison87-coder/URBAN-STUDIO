@@ -19,6 +19,7 @@ class GeneracionImagenError(Exception):
 def _get_client():
     # Carga Gemini solamente cuando se necesita.
     from google import genai
+    from google.genai import types
 
     api_key = os.environ.get("GEMINI_API_KEY")
 
@@ -27,7 +28,13 @@ def _get_client():
             "Falta configurar GEMINI_API_KEY en las variables de entorno (.env)"
         )
 
-    return genai.Client(api_key=api_key)
+    return genai.Client(
+        api_key=api_key,
+        http_options=types.HttpOptions(
+            timeout=90_000,
+            retry_options=types.HttpRetryOptions(attempts=1),
+        ),
+    )
 
 
 def generar_preview_corte(
@@ -115,7 +122,7 @@ def generar_preview_corte(
 
     ultimo_error = None
 
-    for intento in range(3):
+    for intento in range(1):
 
         try:
 
