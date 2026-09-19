@@ -21,6 +21,11 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-clave-temporal-cambiar-en-
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
+# Evita que una foto enorme se mantenga completa en memoria antes de que la
+# vista de IA pueda reducirla.
+DATA_UPLOAD_MAX_MEMORY_SIZE = 12 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 12 * 1024 * 1024
+
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',

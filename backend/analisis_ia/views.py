@@ -1,6 +1,8 @@
 import logging
+from io import BytesIO
 
 from django.core.files.base import ContentFile
+from PIL import Image, ImageOps
 
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser
@@ -28,6 +30,22 @@ logger = logging.getLogger(__name__)
 # Temporalmente desactivado para probar el recomendador sin depender del
 # correo del barbero. Volver a True antes de publicar en producción.
 REQUIERE_CODIGO_SEGURIDAD = False
+MAX_IMAGEN_IA_PIXELES = (1600, 1600)
+
+
+def _preparar_imagen_ia(imagen_bytes: bytes) -> bytes:
+    """Reduce fotos grandes antes de pasarlas a MediaPipe y Gemini."""
+    try:
+        with Image.open(BytesIO(imagen_bytes)) as imagen:
+            imagen = ImageOps.exif_transpose(imagen).convert("RGB")
+            imagen.thumbnail(MAX_IMAGEN_IA_PIXELES, Image.Resampling.LANCZOS)
+            salida = BytesIO()
+            imagen.save(salida, format="JPEG", quality=85, optimize=True)
+            return salida.getvalue()
+    except (OSError, ValueError) as error:
+        raise RostroNoDetectadoError(
+            "No se pudo leer la imagen. Verifica el formato (jpg/png)."
+        ) from error
 
 # ==================================================
 # SOLICITAR CÓDIGO DE SEGURIDAD
@@ -250,7 +268,7 @@ class AnalizarRostroView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        foto_bytes = foto.read()
+        foto_bytes = _preparar_imagen_ia(foto.read())
 
         # ==========================================
         # 3. CREAR ANÁLISIS

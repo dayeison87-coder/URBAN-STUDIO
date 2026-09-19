@@ -3,7 +3,7 @@ services:
     name: urban-studio-api
     runtime: python
     buildCommand: pip install -r requirements.txt && mkdir -p media && python manage.py collectstatic --no-input && python manage.py migrate && python manage.py bootstrap_admin
-    startCommand: gunicorn config.wsgi:application
+    startCommand: gunicorn config.wsgi:application --workers 1 --threads 1 --timeout 180 --max-requests 20 --max-requests-jitter 5
     envVars:
       - key: SECRET_KEY
         generateValue: true
