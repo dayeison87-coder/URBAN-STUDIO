@@ -203,6 +203,27 @@
   .list-filters { align-items: stretch; flex-wrap: wrap; }
   .filter-search { flex-basis: 100%; }
   .filter-date, .list-filters select { flex: 1; }
+
+  /* Las acciones de cada cita deben ajustarse al ancho del celular. */
+  .cita-card {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+  }
+  .cita-info { min-width: 0; }
+  .cita-acciones {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cita-acciones .btn-completar,
+  .cita-acciones .btn-cancelar,
+  .cita-acciones .badge {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: center;
+  }
 }
 
 /* CITAS */
