@@ -241,31 +241,9 @@
                   [style.animation-delay]="punto.delay"
                 ></span>
 
-                <div class="scan-line" *ngIf="!mostrarProgreso"></div>
+                <div class="scan-line"></div>
 
               </div>
-
-
-              <!-- ANILLO DE PROGRESO 0% -> 100% (tipo verificación facial) -->
-              <div class="scan-progress" *ngIf="mostrarProgreso">
-
-                <svg class="scan-progress-ring" viewBox="0 0 120 120">
-
-                  <circle class="scan-progress-track" cx="60" cy="60" r="52" />
-
-                  <circle
-                    class="scan-progress-fill"
-                    cx="60" cy="60" r="52"
-                    [style.stroke-dasharray]="circunferenciaAnillo"
-                    [style.stroke-dashoffset]="circunferenciaAnillo - (progresoEscaneo / 100) * circunferenciaAnillo"
-                  />
-
-                </svg>
-
-                <span class="scan-progress-text">{{ progresoEscaneo }}%</span>
-
-              </div>
-
 
               <div class="camera-instruccion">
                 Centra tu rostro dentro del marco

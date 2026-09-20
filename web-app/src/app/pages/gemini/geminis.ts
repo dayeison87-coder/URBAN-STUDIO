@@ -100,15 +100,12 @@ export class AnalisisRostroComponent implements OnDestroy {
   // para que el usuario sepa que sigue trabajando y no está trabada.
   estadoCamara: string = '';
 
-  // ── Progreso de escaneo tipo "verificación facial" (0-100%) ──
-  // El anillo se llena en DURACION_ESCANEO_MS; solo al llegar a 100%
-  // se intenta capturar y, si sale bien, se envía automáticamente.
-  mostrarProgreso = false;
-  progresoEscaneo = 0;
-  readonly circunferenciaAnillo = 2 * Math.PI * 52;
-
-  private progresoInterval?: ReturnType<typeof setInterval>;
-  private readonly DURACION_ESCANEO_MS = 2600;
+  // La APK estabiliza varios frames y luego captura; la web sigue el mismo
+  // flujo sin mostrar un porcentaje artificial al usuario.
+  private escaneoActivo = false;
+  private framesEscaneo = 0;
+  private readonly FRAMES_ESCANEO_NECESARIOS = 12;
+  private escaneoInterval?: ReturnType<typeof setInterval>;
 
   private videoListoListener?: () => void;
   private fallbackTimer?: ReturnType<typeof setTimeout>;
@@ -245,7 +242,7 @@ export class AnalisisRostroComponent implements OnDestroy {
         clearTimeout(this.fallbackTimer);
         this.fallbackTimer = undefined;
       }
-      this.iniciarProgresoEscaneo();
+      this.iniciarEscaneo();
     };
 
     video.addEventListener('loadeddata', this.videoListoListener);
@@ -258,54 +255,44 @@ export class AnalisisRostroComponent implements OnDestroy {
     // navegadores/dispositivos), arrancamos el progreso de todos modos
     // en vez de dejar la cámara colgada para siempre.
     this.fallbackTimer = setTimeout(() => {
-      if (this.modo === 'camara' && !this.mostrarProgreso) {
-        this.iniciarProgresoEscaneo();
+      if (this.modo === 'camara' && !this.escaneoActivo) {
+        this.iniciarEscaneo();
       }
     }, 4000);
   }
 
   // ==========================================
-  // CÁMARA: ANILLO DE PROGRESO 0% → 100%
+  // CÁMARA: ESTABILIZAR FRAMES Y CAPTURAR
   // ==========================================
 
-  private iniciarProgresoEscaneo() {
+  private iniciarEscaneo() {
 
-    this.mostrarProgreso = true;
-    this.progresoEscaneo = 0;
+    this.escaneoActivo = true;
+    this.framesEscaneo = 0;
     this.estadoCamara = 'Escaneando rostro…';
 
-    const inicio = performance.now();
-
-    if (this.progresoInterval) {
-      clearInterval(this.progresoInterval);
+    if (this.escaneoInterval) {
+      clearInterval(this.escaneoInterval);
     }
 
-    this.progresoInterval = setInterval(() => {
+    this.escaneoInterval = setInterval(() => {
+      this.framesEscaneo++;
 
-      const transcurrido = performance.now() - inicio;
-      const porcentaje = Math.min(
-        100,
-        Math.round((transcurrido / this.DURACION_ESCANEO_MS) * 100)
-      );
-
-      this.progresoEscaneo = porcentaje;
-
-      if (porcentaje >= 100) {
-        if (this.progresoInterval) {
-          clearInterval(this.progresoInterval);
-          this.progresoInterval = undefined;
+      if (this.framesEscaneo >= this.FRAMES_ESCANEO_NECESARIOS) {
+        if (this.escaneoInterval) {
+          clearInterval(this.escaneoInterval);
+          this.escaneoInterval = undefined;
         }
         this.finalizarEscaneo();
       }
 
-    }, 40);
+    }, 100);
   }
 
-  // Se llama únicamente cuando el anillo llegó a 100%.
   private finalizarEscaneo() {
 
     if (this.modo !== 'camara' || !this.streamActivo) {
-      this.mostrarProgreso = false;
+      this.escaneoActivo = false;
       return;
     }
 
@@ -326,14 +313,12 @@ export class AnalisisRostroComponent implements OnDestroy {
     const resultado = this.capturarFrameSiEsValido();
 
     if (!resultado) {
-      // El frame salió demasiado oscuro/negro: la cámara aún está
-      // ajustando exposición. Reiniciamos el anillo en vez de
-      // tomar una foto mala o quedarnos congelados.
+      // El frame salió demasiado oscuro/negro: reiniciamos la estabilización.
       this.reintentarEscaneo('Ajustando iluminación…');
       return;
     }
 
-    this.mostrarProgreso = false;
+    this.escaneoActivo = false;
     this.estadoCamara = '';
     this.setImagen(resultado);
     this.detenerCamara();
@@ -345,7 +330,7 @@ export class AnalisisRostroComponent implements OnDestroy {
     this.intentosCaptura++;
 
     if (this.intentosCaptura >= this.MAX_INTENTOS_CAPTURA) {
-      this.mostrarProgreso = false;
+      this.escaneoActivo = false;
       this.errorMensaje =
         'No pudimos obtener una imagen clara de la cámara. Verifica la iluminación o los permisos e inténtalo de nuevo.';
       this.detenerCamara();
@@ -354,9 +339,7 @@ export class AnalisisRostroComponent implements OnDestroy {
 
     this.estadoCamara = mensaje;
 
-    // Reinicia el anillo desde 0% para el siguiente intento,
-    // en vez de dejarlo pegado en 100% sin resultado.
-    this.iniciarProgresoEscaneo();
+    this.iniciarEscaneo();
   }
 
   // ==========================================
@@ -370,11 +353,11 @@ export class AnalisisRostroComponent implements OnDestroy {
       return;
     }
 
-    if (this.progresoInterval) {
-      clearInterval(this.progresoInterval);
-      this.progresoInterval = undefined;
+    if (this.escaneoInterval) {
+      clearInterval(this.escaneoInterval);
+      this.escaneoInterval = undefined;
     }
-    this.mostrarProgreso = false;
+    this.escaneoActivo = false;
 
     const resultado = this.capturarFrameSiEsValido(/* exigirBrillo */ false);
 
@@ -509,9 +492,9 @@ export class AnalisisRostroComponent implements OnDestroy {
 
   detenerCamara() {
 
-    if (this.progresoInterval) {
-      clearInterval(this.progresoInterval);
-      this.progresoInterval = undefined;
+    if (this.escaneoInterval) {
+      clearInterval(this.escaneoInterval);
+      this.escaneoInterval = undefined;
     }
 
     if (this.fallbackTimer) {
@@ -530,8 +513,8 @@ export class AnalisisRostroComponent implements OnDestroy {
     }
 
     this.intentosCaptura = 0;
-    this.progresoEscaneo = 0;
-    this.mostrarProgreso = false;
+    this.framesEscaneo = 0;
+    this.escaneoActivo = false;
     this.estadoCamara = '';
     this.modo = 'inicial';
   }
