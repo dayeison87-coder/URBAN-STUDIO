@@ -1,15 +1,29 @@
 <div class="citas-page">
-  <nav class="citas-navbar" aria-label="Navegación principal">
-    <div class="citas-brand">
-      <img src="assets/img/logo-urban-studio.jpg" alt="Logo de Urban Studio">
-      <span>urban studio</span>
+  <nav class="navbar" aria-label="Navegación principal">
+    <div class="brand-container">
+      <a class="logo" routerLink="/home">
+        <img class="brand-logo" src="assets/img/logo-urban-studio.jpg" alt="Urban Studio">
+        urban studio
+      </a>
+      <div class="user-greeting">Hola, <span class="username">{{ nombreUsuario }}</span></div>
     </div>
+    <ul class="menu">
+      <li><a routerLink="/servicios">Servicios</a></li>
+      <li><a routerLink="/citas" class="active">Citas</a></li>
+      <li><a routerLink="/barberos">Barberos</a></li>
+      <li><a routerLink="/gemini">IA Estilo</a></li>
+      <li><button type="button" class="btn-nav-logout" (click)="logout()">Cerrar sesión</button></li>
+    </ul>
   </nav>
 
   <div class="citas-volver">
     <button class="btn-volver" (click)="volverHome()"><i class="bi bi-arrow-left me-1"></i> Volver</button>
   </div>
   <div class="citas-header">
+    <div class="citas-header-brand">
+      <img src="assets/img/logo-urban-studio.jpg" alt="Logo de Urban Studio">
+      <span>urban studio</span>
+    </div>
     <h1 class="citas-title">{{ editandoId ? 'Editar Cita' : 'Reservar Cita' }}</h1>
     <p class="citas-sub">{{ paso === 0 ? 'Tus citas programadas' : 'Sigue los pasos para agendar tu experiencia' }}</p>
   </div>
