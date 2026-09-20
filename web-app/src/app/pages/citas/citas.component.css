@@ -18,12 +18,65 @@
   box-shadow: 0 0 0 100vmax #0a0a0a;
 }
 
+/* ── Navbar de marca ── */
+.citas-navbar {
+  display: flex;
+  align-items: center;
+  min-height: 82px;
+  padding: 8px 0 14px;
+  border-bottom: 1px solid rgba(201, 169, 110, 0.22);
+}
+
+.citas-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  color: #c9a96e;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: lowercase;
+}
+
+.citas-brand img {
+  display: block;
+  width: 62px;
+  height: 62px;
+  object-fit: cover;
+  border: 1px solid rgba(201, 169, 110, 0.6);
+  border-radius: 50%;
+  box-shadow: 0 0 18px rgba(201, 169, 110, 0.14);
+}
+
 /* ── Header ── */
 .citas-header { text-align: center; padding: 42px 0 30px; border-bottom: 0.5px solid #2a261e; margin-bottom: 32px; }
 .citas-header::after { content: 'BOOK YOUR EXPERIENCE'; display: block; margin-top: 18px; color: #665438; font-size: 8px; letter-spacing: 4px; }
 .citas-eyebrow { font-size: 10px; letter-spacing: 6px; color: #c9a96e; text-transform: uppercase; margin-bottom: 12px; }
 .citas-title { font-family: 'Cormorant Garamond', serif; font-size: 54px; font-weight: 300; letter-spacing: 9px; text-transform: uppercase; color: #f0ede8; margin-bottom: 10px; text-shadow: 0 8px 30px rgba(201,169,110,0.12); }
 .citas-sub { font-size: 10px; letter-spacing: 3px; color: #4a4a4a; text-transform: uppercase; }
+
+@media (max-width: 600px) {
+  .citas-page {
+    padding: 18px 16px 42px;
+  }
+
+  .citas-navbar {
+    min-height: 68px;
+    padding: 4px 0 10px;
+  }
+
+  .citas-brand {
+    gap: 10px;
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  .citas-brand img {
+    width: 48px;
+    height: 48px;
+  }
+}
 
 /* ── Stepper ── */
 .stepper {
