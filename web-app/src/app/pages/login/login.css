@@ -143,9 +143,9 @@ body {
   margin: 0;
 }
 
-.card-brand { position: absolute; top: 22px; left: 24px; display: flex; align-items: center; gap: 8px; }
-.card-brand img { width: 42px; height: 42px; object-fit: cover; border-radius: 50%; }
-.card-brand span { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: lowercase; }
+.card-brand { display: block; height: 42px; margin-bottom: 18px; text-align: center; }
+.card-brand img { position: absolute; top: 22px; left: 24px; width: 42px; height: 42px; object-fit: cover; border-radius: 50%; }
+.card-brand span { display: block; font-family: inherit; font-size: 24px; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: lowercase; }
 .brand-title {
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(2rem, 6vw, 2.7rem);
@@ -157,7 +157,7 @@ body {
 }
 
 .card-header h2 {
-  margin: 62px 0 8px;
+  margin: 0 0 8px;
   color: #ffffff;
   font-size: 1.15rem;
   font-weight: 600;
@@ -429,8 +429,8 @@ body {
     border-radius: 20px;
   }
 
-  .card-brand { top: 18px; left: 20px; gap: 7px; }
-  .card-brand img { width: 42px; height: 42px; }
+  .card-brand { height: 42px; }
+  .card-brand img { top: 18px; left: 20px; width: 42px; height: 42px; }
   .card-brand span { font-size: 20px; }
 }
 
