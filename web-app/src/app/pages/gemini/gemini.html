@@ -233,15 +233,13 @@
 
                 <div class="face-oval"></div>
 
-                <div class="face-dot dot-eye-l"></div>
-
-                <div class="face-dot dot-eye-r"></div>
-
-                <div class="face-dot dot-nose"></div>
-
-                <div class="face-dot dot-mouth-l"></div>
-
-                <div class="face-dot dot-mouth-r"></div>
+                <span
+                  class="face-scan-point"
+                  *ngFor="let punto of puntosEscaneo"
+                  [style.left.%]="punto.x"
+                  [style.top.%]="punto.y"
+                  [style.animation-delay]="punto.delay"
+                ></span>
 
                 <div class="scan-line" *ngIf="!mostrarProgreso"></div>
 

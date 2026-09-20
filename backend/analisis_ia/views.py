@@ -27,9 +27,7 @@ from .services.prompts_cortes import obtener_prompt_corte
 
 logger = logging.getLogger(__name__)
 
-# Temporalmente desactivado para probar el recomendador sin depender del
-# correo del barbero. Volver a True antes de publicar en producción.
-REQUIERE_CODIGO_SEGURIDAD = False
+REQUIERE_CODIGO_SEGURIDAD = True
 MAX_IMAGEN_IA_PIXELES = (1600, 1600)
 
 
