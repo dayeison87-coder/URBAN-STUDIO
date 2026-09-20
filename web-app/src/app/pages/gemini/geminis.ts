@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { GeminiService } from '../../services/gemini';
 import {
   FaceLandmarker,
+  FaceLandmarkerResult,
   FilesetResolver,
   NormalizedLandmark
 } from '@mediapipe/tasks-vision';
@@ -61,37 +62,11 @@ export class AnalisisRostroComponent implements OnDestroy {
   // de la aplicación móvil. No representan datos faciales reales: sirven
   // para mostrar el recorrido del escaneo mientras se estabiliza la cámara.
   readonly puntosEscaneo = [
-    { x: 50, y: 8, delay: '0s' },
-    { x: 35, y: 11, delay: '0.08s' },
-    { x: 65, y: 11, delay: '0.16s' },
-    { x: 24, y: 18, delay: '0.24s' },
-    { x: 76, y: 18, delay: '0.32s' },
-    { x: 17, y: 28, delay: '0.4s' },
-    { x: 83, y: 28, delay: '0.48s' },
-    { x: 13, y: 40, delay: '0.56s' },
-    { x: 87, y: 40, delay: '0.64s' },
-    { x: 12, y: 53, delay: '0.72s' },
-    { x: 88, y: 53, delay: '0.8s' },
-    { x: 15, y: 66, delay: '0.88s' },
-    { x: 85, y: 66, delay: '0.96s' },
-    { x: 20, y: 78, delay: '1.04s' },
-    { x: 80, y: 78, delay: '1.12s' },
-    { x: 30, y: 88, delay: '1.2s' },
-    { x: 70, y: 88, delay: '1.28s' },
-    { x: 50, y: 92, delay: '1.36s' },
-    { x: 28, y: 36, delay: '1.44s' },
-    { x: 72, y: 36, delay: '1.52s' },
-    { x: 35, y: 38, delay: '1.6s' },
-    { x: 65, y: 38, delay: '1.68s' },
-    { x: 31, y: 48, delay: '1.76s' },
-    { x: 69, y: 48, delay: '1.84s' },
-    { x: 50, y: 48, delay: '1.92s' },
-    { x: 42, y: 57, delay: '2s' },
-    { x: 58, y: 57, delay: '2.08s' },
-    { x: 35, y: 68, delay: '2.16s' },
-    { x: 65, y: 68, delay: '2.24s' },
-    { x: 42, y: 72, delay: '2.32s' },
-    { x: 58, y: 72, delay: '2.4s' }
+    { x: 23, y: 33, delay: '0s' },
+    { x: 77, y: 33, delay: '0.15s' },
+    { x: 50, y: 50, delay: '0.3s' },
+    { x: 32, y: 70, delay: '0.45s' },
+    { x: 68, y: 70, delay: '0.6s' }
   ];
 
   // ==========================================
@@ -118,6 +93,13 @@ export class AnalisisRostroComponent implements OnDestroy {
   private readonly INTERVALO_FRAMES_MS = 100;
   private ultimoFrameProcesado = 0;
 
+  // Carpeta con los archivos wasm de MediaPipe. La versión debe EXISTIR en npm
+  // y coincidir con la de tu node_modules (revísala con:
+  //   npm ls @mediapipe/tasks-vision ).
+  // La 0.10.22 que había antes NO existe: por eso daba 404.
+  private readonly MEDIAPIPE_WASM_URL =
+    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm';
+
   private escaneoFrameId?: number;
   private faceLandmarker?: FaceLandmarker;
   private detectorInicializandose?: Promise<FaceLandmarker>;
@@ -131,6 +113,8 @@ export class AnalisisRostroComponent implements OnDestroy {
   // para considerarlo válido. Frames muy oscuros suelen significar que
   // la cámara todavía no terminó de ajustar exposición/enfoque.
   private readonly BRILLO_MINIMO = 22;
+  // Brillo máximo: descarta fotos quemadas (mismo valor que en Flutter).
+  private readonly BRILLO_MAXIMO = 235;
 
   constructor(private geminiService: GeminiService) {
 
@@ -290,20 +274,39 @@ export class AnalisisRostroComponent implements OnDestroy {
     this.framesEscaneo = 0;
     this.progresoEscaneo = 0;
     this.ultimoFrameProcesado = 0;
-    this.estadoCamara = 'Coloca tu rostro dentro del marco';
+    this.estadoCamara = this.faceLandmarker
+      ? 'Coloca tu rostro dentro del marco'
+      : 'Cargando detector de rostro…';
 
     try {
       const detector = await this.obtenerDetectorFacial();
       if (this.modo !== 'camara' || !this.streamActivo) {
+        this.escaneoActivo = false;
         return;
       }
+      this.estadoCamara = 'Coloca tu rostro dentro del marco';
       this.detectarRostroEnVideo(detector);
     } catch (error) {
+      // Antes aquí se cerraba la cámara y por eso "se quitaba" a los ~2 s.
+      // Ahora la cámara sigue abierta y se puede usar "Capturar ahora".
       console.error('Error inicializando detector facial:', error);
-      this.escaneoActivo = false;
-      this.errorMensaje = 'No fue posible iniciar el detector facial.';
-      this.detenerCamara();
+      this.detenerAutoescaneo(
+        'No se pudo cargar el detector de rostro. Usa "Capturar ahora" o recarga la página.'
+      );
     }
+  }
+
+  /** Detiene solo la detección automática; la cámara sigue abierta. */
+  private detenerAutoescaneo(mensaje: string) {
+    if (this.escaneoFrameId !== undefined) {
+      cancelAnimationFrame(this.escaneoFrameId);
+      this.escaneoFrameId = undefined;
+    }
+    this.escaneoActivo = false;
+    this.framesEscaneo = 0;
+    this.progresoEscaneo = 0;
+    this.estadoCamara = 'Detección automática no disponible';
+    this.errorMensaje = mensaje;
   }
 
   private obtenerDetectorFacial(): Promise<FaceLandmarker> {
@@ -312,7 +315,7 @@ export class AnalisisRostroComponent implements OnDestroy {
     }
     if (!this.detectorInicializandose) {
       this.detectorInicializandose = FilesetResolver.forVisionTasks(
-        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm'
+        this.MEDIAPIPE_WASM_URL
       ).then((vision) => FaceLandmarker.createFromOptions(vision, {
         baseOptions: {
           modelAssetPath:
@@ -327,6 +330,10 @@ export class AnalisisRostroComponent implements OnDestroy {
       })).then((detector) => {
         this.faceLandmarker = detector;
         return detector;
+      }).catch((error) => {
+        // Si falla la carga se libera la promesa para poder reintentar.
+        this.detectorInicializandose = undefined;
+        throw error;
       });
     }
     return this.detectorInicializandose;
@@ -345,7 +352,16 @@ export class AnalisisRostroComponent implements OnDestroy {
     if (ahora - this.ultimoFrameProcesado >= this.INTERVALO_FRAMES_MS) {
       this.ultimoFrameProcesado = ahora;
 
-      const resultado = detector.detectForVideo(video, ahora);
+      let resultado: FaceLandmarkerResult;
+      try {
+        resultado = detector.detectForVideo(video, ahora);
+      } catch (error) {
+        console.error('Error detectando rostro:', error);
+        this.detenerAutoescaneo(
+          'Falló la detección automática. Usa "Capturar ahora".'
+        );
+        return;
+      }
       const rostros = resultado.faceLandmarks ?? [];
 
       if (rostros.length === 0) {
@@ -594,7 +610,7 @@ export class AnalisisRostroComponent implements OnDestroy {
 
       const promedio = contados > 0 ? suma / contados : 0;
 
-      return promedio >= this.BRILLO_MINIMO;
+      return promedio >= this.BRILLO_MINIMO && promedio <= this.BRILLO_MAXIMO;
 
     } catch (error) {
       // Si por algún motivo no se puede leer el canvas (ej. políticas
@@ -657,9 +673,8 @@ export class AnalisisRostroComponent implements OnDestroy {
       this.streamActivo = null;
     }
 
-    this.faceLandmarker?.close();
-    this.faceLandmarker = undefined;
-    this.detectorInicializandose = undefined;
+    // El detector se conserva abierto entre escaneos (cargarlo tarda ~2 s);
+    // se cierra en ngOnDestroy.
     this.intentosCaptura = 0;
     this.framesEscaneo = 0;
     this.progresoEscaneo = 0;
@@ -824,6 +839,8 @@ export class AnalisisRostroComponent implements OnDestroy {
         this.codigoEnviado = false;
         this.codigo = '';
         this.iaDesbloqueada = true;
+        // Precarga el detector para que la cámara no espere ~2 s al abrir.
+        void this.obtenerDetectorFacial().catch(() => undefined);
       },
       error: (err: any) => {
         this.validandoCodigo = false;
@@ -895,6 +912,9 @@ export class AnalisisRostroComponent implements OnDestroy {
   ngOnDestroy() {
 
     this.detenerCamara();
+    this.faceLandmarker?.close();
+    this.faceLandmarker = undefined;
+    this.detectorInicializandose = undefined;
     this.analisisSubscription?.unsubscribe();
 
     if (this.previewUrl) {
