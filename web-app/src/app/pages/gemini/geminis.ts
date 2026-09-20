@@ -4,6 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { GeminiService } from '../../services/gemini';
+import {
+  FaceLandmarker,
+  FilesetResolver,
+  NormalizedLandmark
+} from '@mediapipe/tasks-vision';
 
 interface Barbero {
   id: number;
@@ -100,12 +105,14 @@ export class AnalisisRostroComponent implements OnDestroy {
   // para que el usuario sepa que sigue trabajando y no está trabada.
   estadoCamara: string = '';
 
-  // La APK estabiliza varios frames y luego captura; la web sigue el mismo
-  // flujo sin mostrar un porcentaje artificial al usuario.
+  // La APK estabiliza varios frames detectando un rostro real. La web usa
+  // MediaPipe Face Landmarker para seguir el mismo flujo.
   private escaneoActivo = false;
   private framesEscaneo = 0;
   private readonly FRAMES_ESCANEO_NECESARIOS = 12;
-  private escaneoInterval?: ReturnType<typeof setInterval>;
+  private escaneoFrameId?: number;
+  private faceLandmarker?: FaceLandmarker;
+  private detectorInicializandose?: Promise<FaceLandmarker>;
 
   private videoListoListener?: () => void;
   private fallbackTimer?: ReturnType<typeof setTimeout>;
@@ -242,7 +249,7 @@ export class AnalisisRostroComponent implements OnDestroy {
         clearTimeout(this.fallbackTimer);
         this.fallbackTimer = undefined;
       }
-      this.iniciarEscaneo();
+      void this.iniciarEscaneo();
     };
 
     video.addEventListener('loadeddata', this.videoListoListener);
@@ -256,7 +263,7 @@ export class AnalisisRostroComponent implements OnDestroy {
     // en vez de dejar la cámara colgada para siempre.
     this.fallbackTimer = setTimeout(() => {
       if (this.modo === 'camara' && !this.escaneoActivo) {
-        this.iniciarEscaneo();
+        void this.iniciarEscaneo();
       }
     }, 4000);
   }
@@ -265,28 +272,111 @@ export class AnalisisRostroComponent implements OnDestroy {
   // CÁMARA: ESTABILIZAR FRAMES Y CAPTURAR
   // ==========================================
 
-  private iniciarEscaneo() {
-
+  private async iniciarEscaneo() {
+    if (this.escaneoActivo) {
+      return;
+    }
     this.escaneoActivo = true;
     this.framesEscaneo = 0;
-    this.estadoCamara = 'Escaneando rostro…';
+    this.estadoCamara = 'Buscando rostro…';
 
-    if (this.escaneoInterval) {
-      clearInterval(this.escaneoInterval);
+    try {
+      const detector = await this.obtenerDetectorFacial();
+      if (this.modo !== 'camara' || !this.streamActivo) {
+        return;
+      }
+      this.estadoCamara = 'Centra tu rostro…';
+      this.detectarRostroEnVideo(detector);
+    } catch (error) {
+      console.error('Error inicializando detector facial:', error);
+      this.escaneoActivo = false;
+      this.errorMensaje = 'No fue posible iniciar el detector facial.';
+      this.detenerCamara();
+    }
+  }
+
+  private obtenerDetectorFacial(): Promise<FaceLandmarker> {
+    if (this.faceLandmarker) {
+      return Promise.resolve(this.faceLandmarker);
+    }
+    if (!this.detectorInicializandose) {
+      this.detectorInicializandose = FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm'
+      ).then((vision) => FaceLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath:
+            'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'
+        },
+        runningMode: 'VIDEO',
+        numFaces: 1,
+        minFaceDetectionConfidence: 0.65,
+        minFacePresenceConfidence: 0.65,
+        minTrackingConfidence: 0.65
+      })).then((detector) => {
+        this.faceLandmarker = detector;
+        return detector;
+      });
+    }
+    return this.detectorInicializandose;
+  }
+
+  private detectarRostroEnVideo(detector: FaceLandmarker) {
+    const video = this.videoRef?.nativeElement;
+    if (!video || this.modo !== 'camara' || !this.streamActivo) {
+      this.escaneoActivo = false;
+      return;
     }
 
-    this.escaneoInterval = setInterval(() => {
+    const resultado = detector.detectForVideo(video, performance.now());
+    const rostro = resultado.faceLandmarks?.[0];
+
+    if (!rostro || !this.rostroEstaCorrectamentePosicionado(rostro)) {
+      this.framesEscaneo = 0;
+      this.estadoCamara = rostro
+        ? 'Centra tu rostro y mira al frente…'
+        : 'Buscando rostro…';
+    } else {
       this.framesEscaneo++;
-
+      this.estadoCamara = 'Rostro detectado…';
       if (this.framesEscaneo >= this.FRAMES_ESCANEO_NECESARIOS) {
-        if (this.escaneoInterval) {
-          clearInterval(this.escaneoInterval);
-          this.escaneoInterval = undefined;
-        }
+        this.escaneoActivo = false;
         this.finalizarEscaneo();
+        return;
       }
+    }
 
-    }, 100);
+    this.escaneoFrameId = requestAnimationFrame(() => {
+      this.detectarRostroEnVideo(detector);
+    });
+  }
+
+  private rostroEstaCorrectamentePosicionado(landmarks: NormalizedLandmark[]): boolean {
+    const xs = landmarks.map((punto) => punto.x);
+    const ys = landmarks.map((punto) => punto.y);
+    const izquierda = Math.min(...xs);
+    const derecha = Math.max(...xs);
+    const arriba = Math.min(...ys);
+    const abajo = Math.max(...ys);
+    const centroX = (izquierda + derecha) / 2;
+    const centroY = (arriba + abajo) / 2;
+    const ancho = derecha - izquierda;
+    const alto = abajo - arriba;
+    const nariz = landmarks[1];
+    const ojoIzquierdo = landmarks[33];
+    const ojoDerecho = landmarks[263];
+    const ojosCentroX = (ojoIzquierdo.x + ojoDerecho.x) / 2;
+
+    return (
+      centroX > 0.35 &&
+      centroX < 0.65 &&
+      centroY > 0.28 &&
+      centroY < 0.72 &&
+      ancho > 0.18 &&
+      ancho < 0.8 &&
+      alto > 0.2 &&
+      alto < 0.9 &&
+      Math.abs(nariz.x - ojosCentroX) < ancho * 0.22
+    );
   }
 
   private finalizarEscaneo() {
@@ -339,7 +429,7 @@ export class AnalisisRostroComponent implements OnDestroy {
 
     this.estadoCamara = mensaje;
 
-    this.iniciarEscaneo();
+    void this.iniciarEscaneo();
   }
 
   // ==========================================
@@ -353,9 +443,9 @@ export class AnalisisRostroComponent implements OnDestroy {
       return;
     }
 
-    if (this.escaneoInterval) {
-      clearInterval(this.escaneoInterval);
-      this.escaneoInterval = undefined;
+    if (this.escaneoFrameId !== undefined) {
+      cancelAnimationFrame(this.escaneoFrameId);
+      this.escaneoFrameId = undefined;
     }
     this.escaneoActivo = false;
 
@@ -492,9 +582,9 @@ export class AnalisisRostroComponent implements OnDestroy {
 
   detenerCamara() {
 
-    if (this.escaneoInterval) {
-      clearInterval(this.escaneoInterval);
-      this.escaneoInterval = undefined;
+    if (this.escaneoFrameId !== undefined) {
+      cancelAnimationFrame(this.escaneoFrameId);
+      this.escaneoFrameId = undefined;
     }
 
     if (this.fallbackTimer) {
@@ -512,6 +602,9 @@ export class AnalisisRostroComponent implements OnDestroy {
       this.streamActivo = null;
     }
 
+    this.faceLandmarker?.close();
+    this.faceLandmarker = undefined;
+    this.detectorInicializandose = undefined;
     this.intentosCaptura = 0;
     this.framesEscaneo = 0;
     this.escaneoActivo = false;
