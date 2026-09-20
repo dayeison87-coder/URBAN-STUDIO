@@ -20,8 +20,8 @@
   border-bottom: 0.5px solid #2a2a2a;
   margin-bottom: 28px;
 }
-.page-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; color: #c9a96e; font: 400 26px 'Cormorant Garamond', serif; letter-spacing: 3px; text-transform: lowercase; }
-.page-brand .brand-logo { width: 66px; height: 66px; object-fit: cover; border: 1px solid rgba(201,169,110,.65); border-radius: 50%; box-shadow: 0 0 18px rgba(201,169,110,.18); }
+.page-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: #d4af37; font: 700 20px 'Segoe UI', sans-serif; letter-spacing: 2px; text-transform: lowercase; }
+.page-brand .brand-logo { width: 48px; height: 48px; object-fit: cover; border-radius: 50%; }
 .admin-title {
   font-size: 28px;
   font-weight: 300;

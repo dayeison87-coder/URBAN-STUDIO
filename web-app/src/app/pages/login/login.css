@@ -143,9 +143,9 @@ body {
   margin: 0;
 }
 
-.card-brand { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 18px; }
-.card-brand img { width: 74px; height: 74px; object-fit: cover; border: 1px solid rgba(230,187,63,.55); border-radius: 50%; box-shadow: 0 0 22px rgba(230,187,63,.2); }
-.card-brand span { font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.7rem, 5vw, 2.35rem); font-weight: 400; color: var(--accent); letter-spacing: .12em; text-transform: lowercase; }
+.card-brand { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 18px; }
+.card-brand img { width: 42px; height: 42px; object-fit: cover; border-radius: 50%; }
+.card-brand span { font-family: inherit; font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: lowercase; }
 .brand-title {
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(2rem, 6vw, 2.7rem);
@@ -429,9 +429,9 @@ body {
     border-radius: 20px;
   }
 
-  .card-brand { gap: 10px; }
-  .card-brand img { width: 58px; height: 58px; }
-  .card-brand span { font-size: 1.65rem; }
+  .card-brand { gap: 8px; }
+  .card-brand img { width: 42px; height: 42px; }
+  .card-brand span { font-size: 17px; }
 }
 
 /* Pulido visual consistente con el resto de Urban Studio. */
