@@ -363,3 +363,147 @@ tbody tr:hover { background: #111; }
   background: #17130e;
   border-color: #5c4c30;
 }
+
+@media (max-width: 600px) {
+  .admin-wrapper {
+    width: 100%;
+    margin: 0;
+    padding: 0 12px 40px;
+    overflow-x: hidden;
+  }
+
+  .admin-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+    padding: 20px 0 18px;
+    margin-bottom: 18px;
+  }
+
+  .page-brand {
+    gap: 7px;
+    font-size: 17px;
+    letter-spacing: 1.5px;
+  }
+
+  .page-brand .brand-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .admin-title {
+    font-size: 22px;
+    letter-spacing: 3px;
+  }
+
+  .admin-sub {
+    font-size: 10px;
+  }
+
+  .btn-logout {
+    width: 100%;
+    padding: 10px 14px;
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    margin-bottom: 22px;
+  }
+
+  .tabs button {
+    min-width: 0;
+    padding: 10px 6px;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .tab-content h2 {
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+
+  .form-card {
+    padding: 14px;
+    margin-bottom: 22px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .form-row input,
+  .select-cat,
+  .image-picker {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .image-picker {
+    min-height: 42px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    padding: 11px 14px;
+  }
+
+  .filtros {
+    align-items: stretch;
+  }
+
+  .filtro-label {
+    width: 100%;
+  }
+
+  .filtro-btn {
+    flex: 1 1 auto;
+    padding: 8px 10px;
+    letter-spacing: 1px;
+  }
+
+  .tabla-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 680px;
+  }
+
+  th,
+  td {
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+
+  .acciones {
+    flex-wrap: wrap;
+  }
+
+  .order-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .order-complete,
+  .order-cancel {
+    width: 100%;
+    white-space: nowrap;
+  }
+
+  .mensaje {
+    margin: 12px 0 16px;
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+}
