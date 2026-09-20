@@ -61,11 +61,37 @@ export class AnalisisRostroComponent implements OnDestroy {
   // de la aplicación móvil. No representan datos faciales reales: sirven
   // para mostrar el recorrido del escaneo mientras se estabiliza la cámara.
   readonly puntosEscaneo = [
-    { x: 23, y: 33, delay: '0s' },
-    { x: 77, y: 33, delay: '0.15s' },
-    { x: 50, y: 50, delay: '0.3s' },
-    { x: 32, y: 70, delay: '0.45s' },
-    { x: 68, y: 70, delay: '0.6s' }
+    { x: 50, y: 8, delay: '0s' },
+    { x: 35, y: 11, delay: '0.08s' },
+    { x: 65, y: 11, delay: '0.16s' },
+    { x: 24, y: 18, delay: '0.24s' },
+    { x: 76, y: 18, delay: '0.32s' },
+    { x: 17, y: 28, delay: '0.4s' },
+    { x: 83, y: 28, delay: '0.48s' },
+    { x: 13, y: 40, delay: '0.56s' },
+    { x: 87, y: 40, delay: '0.64s' },
+    { x: 12, y: 53, delay: '0.72s' },
+    { x: 88, y: 53, delay: '0.8s' },
+    { x: 15, y: 66, delay: '0.88s' },
+    { x: 85, y: 66, delay: '0.96s' },
+    { x: 20, y: 78, delay: '1.04s' },
+    { x: 80, y: 78, delay: '1.12s' },
+    { x: 30, y: 88, delay: '1.2s' },
+    { x: 70, y: 88, delay: '1.28s' },
+    { x: 50, y: 92, delay: '1.36s' },
+    { x: 28, y: 36, delay: '1.44s' },
+    { x: 72, y: 36, delay: '1.52s' },
+    { x: 35, y: 38, delay: '1.6s' },
+    { x: 65, y: 38, delay: '1.68s' },
+    { x: 31, y: 48, delay: '1.76s' },
+    { x: 69, y: 48, delay: '1.84s' },
+    { x: 50, y: 48, delay: '1.92s' },
+    { x: 42, y: 57, delay: '2s' },
+    { x: 58, y: 57, delay: '2.08s' },
+    { x: 35, y: 68, delay: '2.16s' },
+    { x: 65, y: 68, delay: '2.24s' },
+    { x: 42, y: 72, delay: '2.32s' },
+    { x: 58, y: 72, delay: '2.4s' }
   ];
 
   // ==========================================
@@ -105,8 +131,6 @@ export class AnalisisRostroComponent implements OnDestroy {
   // para considerarlo válido. Frames muy oscuros suelen significar que
   // la cámara todavía no terminó de ajustar exposición/enfoque.
   private readonly BRILLO_MINIMO = 22;
-  // Brillo máximo: descarta fotos quemadas (mismo valor que en Flutter).
-  private readonly BRILLO_MAXIMO = 235;
 
   constructor(private geminiService: GeminiService) {
 
@@ -570,7 +594,7 @@ export class AnalisisRostroComponent implements OnDestroy {
 
       const promedio = contados > 0 ? suma / contados : 0;
 
-      return promedio >= this.BRILLO_MINIMO && promedio <= this.BRILLO_MAXIMO;
+      return promedio >= this.BRILLO_MINIMO;
 
     } catch (error) {
       // Si por algún motivo no se puede leer el canvas (ej. políticas
