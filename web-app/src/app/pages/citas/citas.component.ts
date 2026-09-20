@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { apiConfig } from '../../config/api.config';
 
 interface Servicio {
@@ -41,7 +42,7 @@ interface Disponibilidad {
 @Component({
   selector: 'app-citas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './citas.component.html',
   styleUrl: './citas.component.css'
 })
@@ -54,6 +55,7 @@ export class CitasComponent implements OnInit {
   paso = 0; // 0 = oculto (solo muestra mis citas)
   editandoId: number | null = null;
   mensaje = '';
+  nombreUsuario = localStorage.getItem('username') || 'Usuario';
 
   categorias: Categoria[] = [];
   barberos: Barbero[] = [];
@@ -85,6 +87,13 @@ export class CitasComponent implements OnInit {
 
   get nombreMes(): string { return this.meses[this.mesActual.getMonth()]; }
   get anioActual(): number { return this.mesActual.getFullYear(); }
+
+  logout(): void {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('username');
+    this.router.navigate(['/login']);
+  }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('access_token') || '';
