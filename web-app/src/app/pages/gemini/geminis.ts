@@ -82,7 +82,7 @@ export class AnalisisRostroComponent implements OnDestroy {
 
   // Progreso 0-100 de la captura automática. IGUAL QUE EN FLUTTER:
   // solo sube mientras hay UN rostro bien puesto y de frente; si el rostro
-  // se pierde, hay más de uno o se descentra, vuelve a 0.
+  // se pierde, hay más de uno, se descentra o SE MUEVE, vuelve a 0.
   progresoEscaneo = 0;
 
   private escaneoActivo = false;
@@ -92,6 +92,23 @@ export class AnalisisRostroComponent implements OnDestroy {
   // Igual que Flutter: se analiza como máximo un frame cada 100 ms.
   private readonly INTERVALO_FRAMES_MS = 100;
   private ultimoFrameProcesado = 0;
+
+  // ==========================================
+  // DETECCIÓN DE MOVIMIENTO
+  // ==========================================
+
+  // Posición del rostro cuando empezó a contar el escaneo.
+  private referenciaRostro: { x: number; y: number; ancho: number } | null = null;
+
+  // Movimiento permitido, como fracción del ancho del rostro.
+  // Más bajo = más sensible. Prueba entre 0.05 y 0.15.
+  private readonly UMBRAL_MOVIMIENTO = 0.08;
+
+  // Cambio de tamaño permitido (acercarse/alejarse), 12 %.
+  private readonly UMBRAL_ESCALA = 0.12;
+
+  // Cuenta los reinicios por movimiento (útil para reiniciar animaciones en el HTML).
+  reinicios = 0;
 
   // Carpeta con los archivos wasm de MediaPipe. La versión debe EXISTIR en npm
   // y coincidir con la de tu node_modules (revísala con:
@@ -189,6 +206,8 @@ export class AnalisisRostroComponent implements OnDestroy {
     this.errorMensaje = '';
     this.intentosCaptura = 0;
     this.progresoEscaneo = 0;
+    this.reinicios = 0;
+    this.referenciaRostro = null;
     this.estadoCamara = 'Encendiendo cámara…';
 
     try {
@@ -273,6 +292,7 @@ export class AnalisisRostroComponent implements OnDestroy {
     this.escaneoActivo = true;
     this.framesEscaneo = 0;
     this.progresoEscaneo = 0;
+    this.referenciaRostro = null;
     this.ultimoFrameProcesado = 0;
     this.estadoCamara = this.faceLandmarker
       ? 'Coloca tu rostro dentro del marco'
@@ -305,6 +325,7 @@ export class AnalisisRostroComponent implements OnDestroy {
     this.escaneoActivo = false;
     this.framesEscaneo = 0;
     this.progresoEscaneo = 0;
+    this.referenciaRostro = null;
     this.estadoCamara = 'Detección automática no disponible';
     this.errorMensaje = mensaje;
   }
@@ -365,23 +386,40 @@ export class AnalisisRostroComponent implements OnDestroy {
       const rostros = resultado.faceLandmarks ?? [];
 
       if (rostros.length === 0) {
+        this.referenciaRostro = null;
         this.actualizarEscaneo(0, 'Coloca tu rostro dentro del marco');
       } else if (rostros.length > 1) {
+        this.referenciaRostro = null;
         this.actualizarEscaneo(0, 'Solo debe aparecer un rostro');
       } else if (!this.rostroEstaCorrectamentePosicionado(rostros[0], video)) {
+        this.referenciaRostro = null;
         this.actualizarEscaneo(0, 'Centra tu rostro dentro del marco');
       } else {
-        // Rostro bien puesto: el progreso sube un frame.
-        const frames = this.framesEscaneo + 1;
-        const porcentaje = Math.round(
-          Math.min(frames / this.FRAMES_ESCANEO_NECESARIOS, 1) * 100
-        );
-        this.actualizarEscaneo(frames, `Rostro detectado · ${porcentaje}%`);
+        const rostro = rostros[0];
 
-        if (frames >= this.FRAMES_ESCANEO_NECESARIOS) {
-          this.escaneoActivo = false;
-          this.finalizarEscaneo();
-          return;
+        if (this.framesEscaneo > 0 && this.rostroSeMovio(rostro, video)) {
+          // Se movió: se descarta lo cargado y se empieza de cero.
+          this.referenciaRostro = null;
+          this.reinicios++;
+          this.actualizarEscaneo(0, 'Te moviste, mantén el rostro quieto');
+        } else {
+          // Primer frame estable: se fija la referencia.
+          if (this.framesEscaneo === 0 || !this.referenciaRostro) {
+            this.referenciaRostro = this.calcularReferencia(rostro);
+          }
+
+          // Rostro bien puesto y quieto: el progreso sube un frame.
+          const frames = this.framesEscaneo + 1;
+          const porcentaje = Math.round(
+            Math.min(frames / this.FRAMES_ESCANEO_NECESARIOS, 1) * 100
+          );
+          this.actualizarEscaneo(frames, `Rostro detectado · ${porcentaje}%`);
+
+          if (frames >= this.FRAMES_ESCANEO_NECESARIOS) {
+            this.escaneoActivo = false;
+            this.finalizarEscaneo();
+            return;
+          }
         }
       }
     }
@@ -398,6 +436,42 @@ export class AnalisisRostroComponent implements OnDestroy {
       Math.min(frames / this.FRAMES_ESCANEO_NECESARIOS, 1) * 100
     );
     this.estadoCamara = estado;
+  }
+
+  /** Promedio de nariz, ojos y mentón (no cambian con gestos) + ancho del rostro. */
+  private calcularReferencia(landmarks: NormalizedLandmark[]) {
+    const claves = [1, 33, 263, 152].map((i) => landmarks[i]);
+    const x = claves.reduce((suma, p) => suma + p.x, 0) / claves.length;
+    const y = claves.reduce((suma, p) => suma + p.y, 0) / claves.length;
+    const xs = landmarks.map((p) => p.x);
+    const ancho = Math.max(...xs) - Math.min(...xs);
+    return { x, y, ancho };
+  }
+
+  /** true si el rostro se desplazó o cambió de tamaño respecto a la referencia. */
+  private rostroSeMovio(
+    landmarks: NormalizedLandmark[],
+    video: HTMLVideoElement
+  ): boolean {
+    const ref = this.referenciaRostro;
+    if (!ref) {
+      return false;
+    }
+
+    const actual = this.calcularReferencia(landmarks);
+
+    // Se convierte a píxeles para que X e Y sean comparables.
+    const dx = (actual.x - ref.x) * video.videoWidth;
+    const dy = (actual.y - ref.y) * video.videoHeight;
+    const anchoRefPx = ref.ancho * video.videoWidth;
+
+    const desplazamiento = Math.hypot(dx, dy) / anchoRefPx;
+    const cambioEscala = Math.abs(actual.ancho - ref.ancho) / ref.ancho;
+
+    return (
+      desplazamiento > this.UMBRAL_MOVIMIENTO ||
+      cambioEscala > this.UMBRAL_ESCALA
+    );
   }
 
   /**
@@ -499,6 +573,7 @@ export class AnalisisRostroComponent implements OnDestroy {
 
     this.estadoCamara = mensaje;
     this.progresoEscaneo = 0;
+    this.referenciaRostro = null;
 
     void this.iniciarEscaneo();
   }
@@ -678,6 +753,7 @@ export class AnalisisRostroComponent implements OnDestroy {
     this.intentosCaptura = 0;
     this.framesEscaneo = 0;
     this.progresoEscaneo = 0;
+    this.referenciaRostro = null;
     this.ultimoFrameProcesado = 0;
     this.escaneoActivo = false;
     this.estadoCamara = '';
