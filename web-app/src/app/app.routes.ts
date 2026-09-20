@@ -54,7 +54,10 @@ export const routes: Routes = [
   {
     path: 'home',
     component: HomeComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: {
+      denyRoles: ['Admin', 'Barbero']
+    }
   },
 
   {
@@ -72,13 +75,19 @@ export const routes: Routes = [
   {
     path: 'perfil',
     component: PerfilClienteComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: {
+      denyRoles: ['Admin', 'Barbero']
+    }
   },
 
   {
     path: 'configuracion-cuenta',
     component: ConfiguracionCuentaComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: {
+      denyRoles: ['Admin', 'Barbero']
+    }
   },
 
   // ==========================================

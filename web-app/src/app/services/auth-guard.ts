@@ -13,6 +13,13 @@ export const authGuard: CanActivateFn = (route, state) => {
   // Obtener el rol guardado durante el login
   const rol = localStorage.getItem('rol');
 
+  const rolesBloqueados = route.data['denyRoles'] as string[] | undefined;
+  if (rolesBloqueados?.includes(rol || '')) {
+    const destino = rol === 'Admin' ? '/admin' : rol === 'Barbero' ? '/barbero' : '/home';
+    router.navigate([destino]);
+    return false;
+  }
+
   // Obtener los roles permitidos para esta ruta
   const rolesPermitidos = route.data['roles'];
 
@@ -27,7 +34,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // Si no tiene permiso, lo mandamos al Home
-  router.navigate(['/home']);
+  const destino = rol === 'Admin' ? '/admin' : rol === 'Barbero' ? '/barbero' : '/home';
+  router.navigate([destino]);
   return false;
 };

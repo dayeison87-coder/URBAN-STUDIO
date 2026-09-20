@@ -1,6 +1,7 @@
 import logging
 
 from rest_framework import generics, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -443,6 +444,10 @@ class PerfilClienteView(generics.RetrieveUpdateAPIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def get_object(self):
+        if self.request.user.is_staff or self.request.user.is_superuser or (
+            self.request.user.rol and self.request.user.rol.nombre in ['Admin', 'Barbero']
+        ):
+            raise PermissionDenied('Este perfil solo está disponible para clientes.')
         return self.request.user
 
 
@@ -451,6 +456,10 @@ class ConfiguracionCuentaView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
+        if self.request.user.is_staff or self.request.user.is_superuser or (
+            self.request.user.rol and self.request.user.rol.nombre in ['Admin', 'Barbero']
+        ):
+            raise PermissionDenied('Esta configuración solo está disponible para clientes.')
         return self.request.user
 
 

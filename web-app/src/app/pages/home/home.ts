@@ -41,6 +41,12 @@ export class HomeComponent implements OnInit { // 👈 Implementamos OnInit para
   }
 
   ngOnInit(): void {
+    const rol = localStorage.getItem('rol');
+    if (rol === 'Admin' || rol === 'Barbero') {
+      this.router.navigate([rol === 'Admin' ? '/admin' : '/barbero']);
+      return;
+    }
+
     this.cargarTestimonios(); // 👈 Lanza la petición apenas cargue la landing page
     this.cargarFotoUsuario();
   }
