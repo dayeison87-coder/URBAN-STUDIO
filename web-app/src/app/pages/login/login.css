@@ -424,16 +424,38 @@ body {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
+  .login-container {
+    min-height: 100svh;
+    padding: 12px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    place-items: center;
+  }
+
   .login-card {
+    width: 100%;
+    max-width: 390px;
     padding: 32px 24px;
     border-radius: 20px;
   }
 
-  .card-brand { height: 54px; padding-top: 12px; }
+  .card-header {
+    padding-top: 4px;
+    margin-bottom: 26px;
+  }
+
+  .card-brand { height: 54px; padding-top: 12px; margin-bottom: 14px; }
   .card-brand img { top: 16px; left: 18px; width: 62px; height: 62px; }
-  .card-brand span { font-size: 24px; }
-  .card-header h2 { font-size: 1.35rem; }
-  .subtitle { font-size: 0.98rem; }
+  .card-brand span { font-size: clamp(20px, 7vw, 24px); }
+  .card-header h2 { font-size: 1.3rem; }
+  .subtitle { font-size: 0.9rem; line-height: 1.35; }
+  .login-form { gap: 16px; }
+  .input-group { gap: 6px; }
+  .input-group label { font-size: 0.78rem; }
+  .input-group input { padding: 12px 14px; font-size: 0.9rem; }
+  .actions-group { gap: 12px; margin-top: 4px; }
+  .btn { padding: 13px 18px; }
+  .security-notice { font-size: 0.68rem; }
 }
 
 /* Pulido visual consistente con el resto de Urban Studio. */
