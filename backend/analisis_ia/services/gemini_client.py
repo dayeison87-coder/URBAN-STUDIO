@@ -178,6 +178,11 @@ def _elegir_nombre_comun(nombre: str, recientes: list[str] | None) -> str:
 
 def _familia_corte(nombre: str) -> str | None:
     normalizado = " ".join(str(nombre or "").casefold().split())
+    if any(
+        palabra in normalizado
+        for palabra in ("fade", "taper", "degradado", "desvanecido")
+    ):
+        return "fade-taper"
     for familia in sorted(FAMILIAS_CORTE, key=len, reverse=True):
         if familia in normalizado:
             return familia
@@ -225,7 +230,7 @@ def analizar_cabello_y_recomendar(
         else "(sin catálogo cargado)"
     )
 
-    recientes_txt = _normalizar_lista_texto(cortes_recientes, max_items=15)
+    recientes_txt = _normalizar_lista_texto(cortes_recientes, max_items=100)
     enfoque = random.choice(ENFOQUES_ESTILO)
 
     mime_type = _detectar_mime_type_imagen(imagen_bytes)

@@ -334,7 +334,7 @@ class AnalizarRostroView(APIView):
                 ).values_list(
                     "nombre_corte_sugerido",
                     flat=True
-                )[:15]
+                )[:100]
             )
 
             analisis_ia_texto = (
