@@ -1,46 +1,10 @@
-/* ===== VARIABLES ===== */
-:root {
-  --accent: #e6bb3f;
-  --accent-hover: #d4aa32;
-
-  /* TEXTOS CAMBIADOS A BLANCO */
-  --text-primary: #ffffff;
-  --text-secondary: #ffffff;
-  --text-muted: #ffffff;
-
-  --input-bg: rgba(255, 255, 255, 0.05);
-  --input-border: rgba(255, 255, 255, 0.1);
-  --input-focus: rgba(230, 187, 63, 0.4);
-
-  --success: #2ecc71;
-  --error: #e74c3c;
-
-  --transition: 220ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-fast: 160ms ease;
-
-  --radius: 24px;
-}
-
-/* ===== RESET Y BASE ===== */
+/* ===== RESET ===== */
 *,
 *::before,
 *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
-}
-
-body {
-  font-family: "Poppins", "Segoe UI", system-ui, -apple-system, sans-serif;
-  color: var(--text-primary);
-  line-height: 1.4;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -51,79 +15,91 @@ body {
   }
 }
 
-/* ===== LOGIN CONTAINER ===== */
+/* ===== CONTENEDOR + VARIABLES =====
+   Las variables y la fuente van aquí (no en :root/body): en el CSS de un
+   componente Angular esos selectores no se aplican, y por eso antes el
+   dorado y la tipografía no se veían. */
 .login-container {
+  --accent: #e6bb3f;
+  --accent-hover: #d4aa32;
+  --gold-border: rgba(230, 187, 63, 0.6);
+
+  --text-primary: #ffffff;
+  --text-secondary: #ffffff;
+  --text-muted: #ffffff;
+
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-focus: rgba(230, 187, 63, 0.35);
+
+  --success: #2ecc71;
+  --error: #e74c3c;
+
+  --transition: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 160ms ease;
+
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
+  padding: 20px;
+  position: relative;
+  overflow-x: hidden;
+
+  font-family: "Poppins", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--text-primary);
+  line-height: 1.4;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 
   background-image: url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=2074&auto=format&fit=crop');
   background-size: cover;
   background-position: center;
-
-  position: relative;
-  overflow: hidden;
-  padding: 20px;
-}
-
-.corner-brand {
-  display: none;
 }
 
 .login-container::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.178);
+  background: rgba(0, 0, 0, 0.25);
   z-index: 0;
   pointer-events: none;
 }
 
-/* ===== LOGIN CARD ===== */
+/* ===== TARJETA ===== */
 .login-card {
-  width: min(420px, 100%);
+  position: relative;
+  isolation: isolate;
   z-index: 1;
+  width: min(420px, 100%);
+  padding: 44px 40px 36px;
 
-  background: rgba(52, 51, 50, 0.478);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(40, 38, 36, 0.62);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 
-  /*  borde dorado suave */
-  border: 1px solid rgba(230, 187, 63, 0.35);
-
-  /*  más circular */
+  /* Borde dorado */
+  border: 1.5px solid var(--gold-border);
   border-radius: 32px;
 
-  padding: 48px 40px;
-  position: relative;
-
   box-shadow:
-    0 10px 40px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(230, 187, 63, 0.08);
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    0 0 28px rgba(230, 187, 63, 0.12);
 
   animation: slideUp 0.6s ease-out;
-}
-.login-card::after {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-
-  background: radial-gradient(
-    circle at top left,
-    rgba(230, 187, 63, 0.18),
-    transparent 60%
-  );
-
-  pointer-events: none;
 }
 
 .login-card::before {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: -1;
   border-radius: inherit;
-  background: radial-gradient(900px 300px at 15% 0%, rgba(230, 187, 63, 0.20), transparent 40%);
+  background: radial-gradient(
+    700px 260px at 15% 0%,
+    rgba(230, 187, 63, 0.2),
+    transparent 60%
+  );
   pointer-events: none;
 }
 
@@ -132,28 +108,40 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== HEADER ===== */
+/* ===== ENCABEZADO: LOGO + NOMBRE ===== */
 .card-header {
   text-align: center;
-  padding-top: 10px;
-  margin-bottom: 36px;
+  margin-bottom: 32px;
 }
 
-.card-header h1 {
-  margin: 0;
+.card-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
 }
 
-.card-brand { display: block; height: 92px; margin-bottom: 18px; padding-top: 68px; text-align: center; }
-.card-brand img { position: absolute; top: 20px; left: 22px; width: 72px; height: 72px; object-fit: cover; border-radius: 50%; }
-.card-brand span { display: block; font-family: inherit; font-size: 29px; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: lowercase; }
-.brand-title {
+.card-brand img {
+  width: 92px;
+  height: 92px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  box-shadow:
+    0 0 0 6px rgba(230, 187, 63, 0.15),
+    0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.card-brand span {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2rem, 6vw, 2.7rem);
+  font-size: 2rem;
   font-weight: 600;
-  color: var(--accent);
-  letter-spacing: 0.04em;
+  line-height: 1;
+  letter-spacing: 0.08em;
   text-transform: lowercase;
-  text-shadow: 0 2px 16px rgba(230, 187, 63, 0.2);
+  color: var(--accent);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
 }
 
 .card-header h2 {
@@ -164,19 +152,18 @@ body {
 }
 
 .subtitle {
-  color: #ffffff; /* Cambiado a blanco */
+  color: #ffffff;
   font-size: 1.05rem;
   font-weight: 400;
 }
 
-/* ===== FORM ===== */
+/* ===== FORMULARIO ===== */
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* ===== INPUT GROUPS ===== */
 .input-group {
   display: flex;
   flex-direction: column;
@@ -190,38 +177,45 @@ body {
 
   font-size: 0.85rem;
   font-weight: 650;
-  color: #ffffff; /* Cambiado a blanco */
+  color: #ffffff;
 
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  transition: color var(--transition-fast);
 }
 
 .input-icon {
-  color: #ffffff; /* Cambiado a blanco */
+  color: #ffffff;
   flex: 0 0 auto;
+  transition: color var(--transition-fast);
 }
 
+/* Inputs con borde dorado */
 .input-group input {
   width: 100%;
   padding: 14px 16px;
 
   background: var(--input-bg);
-  border: 1px solid var(--input-border);
+  border: 1.5px solid var(--gold-border);
   border-radius: 12px;
 
   color: var(--text-primary);
+  font-family: inherit;
   font-size: 0.95rem;
 
   outline: none;
   transition:
     border-color var(--transition),
     background-color var(--transition),
-    box-shadow var(--transition),
-    transform var(--transition-fast);
+    box-shadow var(--transition);
 }
 
 .input-group input::placeholder {
-  color: #ffffff; /* Cambiado a blanco puro */
+  color: #ffffff;
+}
+
+.input-group input:hover {
+  border-color: rgba(230, 187, 63, 0.85);
 }
 
 .input-group input:focus {
@@ -230,10 +224,19 @@ body {
   box-shadow: 0 0 0 4px var(--input-focus);
 }
 
-/* Accesibilidad */
-.input-group input:focus-visible {
-  outline: 2px solid rgba(230, 187, 63, 0.35);
-  outline-offset: 2px;
+.input-group:focus-within label,
+.input-group:focus-within .input-icon {
+  color: var(--accent);
+}
+
+/* Autocompletado del navegador */
+.input-group input:-webkit-autofill,
+.input-group input:-webkit-autofill:hover,
+.input-group input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff;
+  caret-color: #ffffff;
+  -webkit-box-shadow: 0 0 0 1000px #34312d inset;
+  transition: background-color 9999s ease-out;
 }
 
 .password-field {
@@ -256,7 +259,7 @@ body {
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
   transition: color var(--transition-fast), background-color var(--transition-fast);
 }
@@ -276,7 +279,7 @@ body {
   height: 19px;
 }
 
-/* ===== ALERT MESSAGE ===== */
+/* ===== ALERTAS ===== */
 .alert-message {
   display: flex;
   align-items: center;
@@ -295,18 +298,18 @@ body {
 }
 
 .alert-success {
-  background: rgba(46, 204, 113, 0.15);
-  border: 1px solid rgba(46, 204, 113, 0.25);
-  color: var(--success);
+  background: rgba(46, 204, 113, 0.18);
+  border: 1px solid rgba(46, 204, 113, 0.4);
+  color: #6ee7a0;
 }
 
 .alert-error {
-  background: rgba(231, 76, 60, 0.15);
-  border: 1px solid rgba(231, 76, 60, 0.25);
-  color: var(--error);
+  background: rgba(231, 76, 60, 0.18);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  color: #ff8a7a;
 }
 
-/* ===== ACTIONS ===== */
+/* ===== BOTONES ===== */
 .actions-group {
   display: flex;
   flex-direction: column;
@@ -314,7 +317,6 @@ body {
   margin-top: 8px;
 }
 
-/* ===== BUTTONS ===== */
 .btn {
   display: flex;
   align-items: center;
@@ -327,6 +329,7 @@ body {
   border: none;
   cursor: pointer;
   border-radius: 50px;
+  font-family: inherit;
 
   transition:
     transform var(--transition),
@@ -344,45 +347,51 @@ body {
   box-shadow: none;
 }
 
-/* CAMBIO 2: Botón Iniciar Sesión AHORA ES BLANCO (Sobre fondo amarillo) */
+/* Botón principal: dorado con texto blanco (como lo tenías).
+   Se oscurece un poco el dorado y se añade sombra al texto para que
+   el blanco se lea bien. */
 .btn-primary {
-  background: var(--accent);
-  color: #ffffff; /* Cambiado de negro a blanco */
+  background: linear-gradient(135deg, #e0b134 0%, #cf9f26 100%);
+  border: 1.5px solid var(--accent);
+  color: #ffffff;
   font-size: 1rem;
   font-weight: 800;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(230, 187, 63, 0.25);
 }
 
 .btn-primary:hover {
-  background: var(--accent-hover);
+  background: linear-gradient(135deg, #ebbd41 0%, #d9a72a 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(230, 187, 63, 0.4);
+  box-shadow: 0 8px 24px rgba(230, 187, 63, 0.45);
 }
 
 .btn-primary:active {
   transform: translateY(0);
 }
 
+/* Botón secundario con borde dorado */
 .btn-secondary {
   background: transparent;
-  color: #ffffff; /* Texto del botón secundario cambiado a blanco */
+  color: #ffffff;
   font-size: 0.95rem;
   font-weight: 650;
-
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  border: 1.5px solid var(--gold-border);
 }
 
 .btn-secondary:hover {
   color: var(--accent);
-  border-color: rgba(230, 187, 63, 0.35);
+  border-color: var(--accent);
+  background: rgba(230, 187, 63, 0.1);
   transform: translateY(-2px);
 }
 
 .btn:focus-visible {
-  outline: 2px solid rgba(230, 187, 63, 0.35);
+  outline: 2px solid rgba(230, 187, 63, 0.6);
   outline-offset: 3px;
 }
 
-/* ===== DIVIDER ===== */
+/* ===== SEPARADOR ===== */
 .divider {
   display: flex;
   align-items: center;
@@ -395,18 +404,18 @@ body {
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--input-border);
+  background: rgba(230, 187, 63, 0.35);
 }
 
 .divider span {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: #ffffff; /* Cambiado a blanco */
+  color: #ffffff;
   font-weight: 550;
 }
 
-/* ===== SECURITY NOTICE ===== */
+/* ===== AVISO DE SEGURIDAD ===== */
 .security-notice {
   display: flex;
   align-items: center;
@@ -414,39 +423,45 @@ body {
   gap: 8px;
 
   font-size: 0.75rem;
-  color: #ffffff; /* Cambiado a blanco */
+  color: #ffffff;
   text-align: center;
 }
 
 .security-notice svg {
-  color: #ffffff; /* Cambiado a blanco */
+  color: var(--accent);
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
   .login-container {
-    min-height: 100svh;
     padding: 12px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    place-items: center;
   }
 
   .login-card {
     width: 100%;
     max-width: 390px;
-    padding: 32px 24px;
-    border-radius: 20px;
+    padding: 34px 22px 28px;
+    border-radius: 24px;
   }
 
   .card-header {
-    padding-top: 4px;
     margin-bottom: 26px;
   }
 
-  .card-brand { height: 86px; padding-top: 62px; margin-bottom: 14px; }
-  .card-brand img { top: 16px; left: 18px; width: 62px; height: 62px; }
-  .card-brand span { font-size: clamp(20px, 7vw, 24px); }
+  .card-brand {
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .card-brand img {
+    width: 78px;
+    height: 78px;
+  }
+
+  .card-brand span {
+    font-size: 1.7rem;
+  }
+
   .card-header h2 { font-size: 1.3rem; }
   .subtitle { font-size: 0.9rem; line-height: 1.35; }
   .login-form { gap: 16px; }
@@ -457,7 +472,3 @@ body {
   .btn { padding: 13px 18px; }
   .security-notice { font-size: 0.68rem; }
 }
-
-/* Pulido visual consistente con el resto de Urban Studio. */
-.input-group:focus-within label, .input-group:focus-within .input-icon { color: var(--accent); }
-.login-card:hover { box-shadow: 0 14px 44px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(230, 187, 63, 0.15); }

@@ -1,9 +1,10 @@
 <div class="admin-wrapper">
+<div class="admin-inner">
 
   <div class="mensaje" *ngIf="mensaje">{{ mensaje }}</div>
 
   <div class="admin-header">
-    <div>
+    <div class="header-titles">
       <div class="page-brand">
         <img class="brand-logo" src="assets/img/logo-urban-studio.jpg" alt="Logo de Urban Studio">
         <span>urban studio</span>
@@ -16,46 +17,60 @@
 
   <div class="tabs">
     <button [class.active]="pestanaActiva === 'servicios'" (click)="cambiarPestana('servicios')">
-      ✂ Servicios
+      <i class="bi bi-scissors"></i><span>Servicios</span>
     </button>
     <button [class.active]="pestanaActiva === 'barberos'" (click)="cambiarPestana('barberos')">
-      👤 Barberos
+      <i class="bi bi-person"></i><span>Barberos</span>
     </button>
     <button [class.active]="pestanaActiva === 'productos'" (click)="cambiarPestana('productos')">
-      🧴 Productos
+      <i class="bi bi-bag"></i><span>Productos</span>
     </button>
     <button [class.active]="pestanaActiva === 'ordenes'" (click)="cambiarPestana('ordenes')">
-      📦 Apartados
+      <i class="bi bi-box-seam"></i><span>Apartados</span>
     </button>
   </div>
 
+  <!-- APARTADOS -->
   <div class="tab-content" *ngIf="pestanaActiva === 'ordenes'">
-    <h2>Apartados de productos</h2>
+    <div class="section-heading">
+      <div>
+        <span class="kicker">Ventas de mostrador</span>
+        <h2>Apartados de productos</h2>
+      </div>
+      <span class="count-badge">{{ listaOrdenes.length }} apartados</span>
+    </div>
+
     <div class="tabla-wrapper">
       <table>
-        <thead><tr><th>Apartado</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Estado</th></tr></thead>
+        <thead>
+          <tr><th>Apartado</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Estado</th></tr>
+        </thead>
         <tbody>
           <tr *ngFor="let orden of listaOrdenes">
-            <td>#{{ orden.id }}</td>
-            <td>{{ orden.cliente_nombre }}</td>
-            <td><span *ngFor="let item of orden.items">{{ item.producto_nombre }} × {{ item.cantidad }}<br></span></td>
+            <td><span class="order-id">#{{ orden.id }}</span></td>
+            <td>
+              <span class="row-lead"><span class="avatar-chip">{{ orden.cliente_nombre.charAt(0).toUpperCase() }}</span>{{ orden.cliente_nombre }}</span>
+            </td>
+            <td>
+              <div class="order-items">
+                <span class="order-item" *ngFor="let item of orden.items"><b>{{ item.cantidad }}×</b> {{ item.producto_nombre }}</span>
+              </div>
+            </td>
             <td class="gold">{{ formatMoneda(orden.total) }}</td>
             <td>
-              <span class="order-status-label" *ngIf="orden.estado === 'cancelada'">
+              <span class="order-badge order-badge-cancelada" *ngIf="orden.estado === 'cancelada'">
                 Cancelada
               </span>
               <div class="order-actions" *ngIf="orden.estado === 'pendiente'">
-                <button class="order-complete"
-                  (click)="cambiarEstadoOrden(orden, 'retirada')">
-                  Marcar pago y recogido
+                <button class="order-complete" (click)="cambiarEstadoOrden(orden, 'retirada')">
+                  <i class="bi bi-check2"></i> Marcar pago y recogido
                 </button>
-                <button class="order-cancel"
-                  (click)="cancelarOrden(orden)">
-                  Cancelar
+                <button class="order-cancel" (click)="cancelarOrden(orden)">
+                  <i class="bi bi-x"></i> Cancelar
                 </button>
               </div>
               <span class="order-status-complete" *ngIf="orden.estado === 'retirada' || orden.estado === 'pagada'">
-                ✓ Pago y recogido
+                <i class="bi bi-check-circle-fill"></i> Pago y recogido
               </span>
             </td>
           </tr>
@@ -65,58 +80,121 @@
     </div>
   </div>
 
+  <!-- PRODUCTOS -->
   <div class="tab-content" *ngIf="pestanaActiva === 'productos'">
-    <h2>{{ editandoProducto ? 'Editar Producto' : 'Nuevo Producto' }}</h2>
+    <div class="section-heading">
+      <div>
+        <span class="kicker">Inventario de la barbería</span>
+        <h2>{{ editandoProducto ? 'Editar producto' : 'Nuevo producto' }}</h2>
+      </div>
+    </div>
+
     <div class="form-card">
       <div class="form-row">
-        <select [(ngModel)]="productoForm.categoria" class="select-cat">
-          <option value="" disabled>Selecciona categoría</option>
-          <option *ngFor="let cat of categorias" [value]="cat.id" [disabled]="cat.slug !== 'productos'">
-            {{ cat.nombre }}
-          </option>
-        </select>
-        <input [(ngModel)]="productoForm.nombre" placeholder="Nombre del producto" />
-        <input [(ngModel)]="productoForm.precio" placeholder="Precio ($)" type="text" inputmode="numeric"
-          (ngModelChange)="alCambiarPrecioProducto($event)" />
-        <input [(ngModel)]="productoForm.inventario" placeholder="Inventario" type="number" min="0" />
-        <label class="image-picker">
-          <input type="file" accept="image/*" (change)="seleccionarImagen($event)" />
-          <span class="image-picker-action">Subir imagen</span>
-          <span class="image-picker-name">{{ nombreImagenProducto || 'Sin archivo seleccionado' }}</span>
-        </label>
+        <div class="field-group">
+          <label>Categoría</label>
+          <select [(ngModel)]="productoForm.categoria" class="select-cat">
+            <option value="" disabled>Selecciona categoría</option>
+            <option *ngFor="let cat of categorias" [value]="cat.id" [disabled]="cat.slug !== 'productos'">
+              {{ cat.nombre }}
+            </option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Nombre</label>
+          <input [(ngModel)]="productoForm.nombre" placeholder="Nombre del producto" />
+        </div>
+        <div class="field-group">
+          <label>Precio</label>
+          <input [(ngModel)]="productoForm.precio" placeholder="$ 0" type="text" inputmode="numeric"
+            (ngModelChange)="alCambiarPrecioProducto($event)" />
+        </div>
+        <div class="field-group">
+          <label>Inventario</label>
+          <input [(ngModel)]="productoForm.inventario" placeholder="Cantidad" type="number" min="0" />
+        </div>
+        <div class="field-group field-wide">
+          <label>Imagen</label>
+          <label class="image-picker">
+            <input type="file" accept="image/*" (change)="seleccionarImagen($event)" />
+            <span class="image-picker-action"><i class="bi bi-upload"></i> Subir imagen</span>
+            <span class="image-picker-name">{{ nombreImagenProducto || 'Sin archivo seleccionado' }}</span>
+          </label>
+        </div>
+        <div class="field-group field-wide">
+          <label>Descripción</label>
+          <textarea [(ngModel)]="productoForm.descripcion" placeholder="Descripción"></textarea>
+        </div>
       </div>
-      <textarea [(ngModel)]="productoForm.descripcion" placeholder="Descripción"></textarea>
       <label class="check-label"><input type="checkbox" [(ngModel)]="productoForm.disponible" /> Disponible</label>
-      <div class="form-actions"><button class="btn-primary" (click)="guardarProducto()">{{ editandoProducto ? 'Actualizar' : 'Crear Producto' }}</button>
-        <button class="btn-secondary" *ngIf="editandoProducto" (click)="limpiarProducto()">Cancelar</button></div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="guardarProducto()">
+          {{ editandoProducto ? 'Actualizar' : 'Crear producto' }}
+        </button>
+        <button class="btn-secondary" *ngIf="editandoProducto" (click)="limpiarProducto()">Cancelar</button>
+      </div>
     </div>
-    <h2>Productos</h2>
-    <div class="tabla-wrapper"><table><thead><tr><th>Nombre</th><th>Precio</th><th>Inventario</th><th>Acciones</th></tr></thead>
-      <tbody><tr *ngFor="let p of listaProductos"><td>{{ p.nombre }}</td><td>{{ formatMoneda(p.precio) }}</td><td>{{ p.inventario }}</td>
-        <td class="acciones"><button class="btn-edit" (click)="editarProducto(p)">Editar</button><button class="btn-delete" (click)="eliminarProducto(p.id)">Eliminar</button></td></tr></tbody>
-    </table></div>
+
+    <div class="section-heading">
+      <div>
+        <span class="kicker">Catálogo</span>
+        <h2>Productos</h2>
+      </div>
+      <span class="count-badge">{{ listaProductos.length }} productos</span>
+    </div>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Nombre</th><th>Precio</th><th>Inventario</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let p of listaProductos">
+            <td><span class="row-lead"><i class="bi bi-bag row-icon"></i>{{ p.nombre }}</span></td>
+            <td class="gold">{{ formatMoneda(p.precio) }}</td>
+            <td>{{ p.inventario }}</td>
+            <td class="acciones">
+              <button class="btn-edit" (click)="editarProducto(p)"><i class="bi bi-pencil"></i> Editar</button>
+              <button class="btn-delete" (click)="eliminarProducto(p.id)"><i class="bi bi-trash"></i> Eliminar</button>
+            </td>
+          </tr>
+          <tr *ngIf="listaProductos.length === 0"><td colspan="4" class="empty">No hay productos registrados.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
+  <!-- SERVICIOS -->
   <div class="tab-content" *ngIf="pestanaActiva === 'servicios'">
-
-    <h2>{{ editandoServicio ? 'Editar Servicio' : 'Nuevo Servicio' }}</h2>
+    <div class="section-heading">
+      <div>
+        <span class="kicker">Menú de la barbería</span>
+        <h2>{{ editandoServicio ? 'Editar servicio' : 'Nuevo servicio' }}</h2>
+      </div>
+    </div>
 
     <div class="form-card">
       <div class="form-row">
-
-        <select [(ngModel)]="servicioForm.categoria" class="select-cat">
-          <option value="" disabled>Selecciona categoría</option>
-          <option *ngFor="let cat of categorias" [value]="cat.id">
-            {{ cat.nombre }}
-          </option>
-        </select>
-
-        <input [(ngModel)]="servicioForm.nombre"      placeholder="Nombre del servicio" />
-        <input [(ngModel)]="servicioForm.precio" placeholder="Precio ($)" type="text" inputmode="numeric"
-          (ngModelChange)="alCambiarPrecioServicio($event)" />
+        <div class="field-group">
+          <label>Categoría</label>
+          <select [(ngModel)]="servicioForm.categoria" class="select-cat">
+            <option value="" disabled>Selecciona categoría</option>
+            <option *ngFor="let cat of categorias" [value]="cat.id">
+              {{ cat.nombre }}
+            </option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Nombre</label>
+          <input [(ngModel)]="servicioForm.nombre" placeholder="Nombre del servicio" />
+        </div>
+        <div class="field-group">
+          <label>Precio</label>
+          <input [(ngModel)]="servicioForm.precio" placeholder="$ 0" type="text" inputmode="numeric"
+            (ngModelChange)="alCambiarPrecioServicio($event)" />
+        </div>
+        <div class="field-group field-wide">
+          <label>Descripción</label>
+          <textarea [(ngModel)]="servicioForm.descripcion" placeholder="Descripción del servicio"></textarea>
+        </div>
       </div>
-
-      <textarea [(ngModel)]="servicioForm.descripcion" placeholder="Descripción del servicio"></textarea>
 
       <label class="check-label">
         <input type="checkbox" [(ngModel)]="servicioForm.disponible" />
@@ -125,7 +203,7 @@
 
       <div class="form-actions">
         <button class="btn-primary" (click)="guardarServicio()">
-          {{ editandoServicio ? 'Actualizar' : 'Crear Servicio' }}
+          {{ editandoServicio ? 'Actualizar' : 'Crear servicio' }}
         </button>
         <button class="btn-secondary" *ngIf="editandoServicio" (click)="limpiarServicio()">
           Cancelar
@@ -133,22 +211,21 @@
       </div>
     </div>
 
-    <div class="filtros">
-      <span class="filtro-label">Filtrar por:</span>
-      <button
-        class="filtro-btn"
-        [class.active]="categoriaSeleccionada === ''"
-        (click)="filtrarPorCategoria('')"
-      >Todos</button>
-      <button
-        class="filtro-btn"
-        *ngFor="let cat of categorias"
-        [class.active]="categoriaSeleccionada === cat.slug"
-        (click)="filtrarPorCategoria(cat.slug)"
-      >{{ cat.nombre }}</button>
+    <div class="section-heading">
+      <div>
+        <span class="kicker">Catálogo</span>
+        <h2>Lista de servicios</h2>
+      </div>
+      <span class="count-badge">{{ serviciosFiltrados.length }} servicios</span>
     </div>
 
-    <h2>Lista de Servicios</h2>
+    <div class="filtros">
+      <span class="filtro-label">Filtrar por:</span>
+      <button class="filtro-btn" [class.active]="categoriaSeleccionada === ''" (click)="filtrarPorCategoria('')">Todos</button>
+      <button class="filtro-btn" *ngFor="let cat of categorias" [class.active]="categoriaSeleccionada === cat.slug"
+        (click)="filtrarPorCategoria(cat.slug)">{{ cat.nombre }}</button>
+    </div>
+
     <div class="tabla-wrapper">
       <table>
         <thead>
@@ -169,12 +246,13 @@
             <td class="gold">{{ formatMoneda(s.precio) }}</td>
             <td>
               <span class="estado" [class.on]="s.disponible">
+                <i class="bi" [ngClass]="s.disponible ? 'bi-check-circle-fill' : 'bi-dash-circle'"></i>
                 {{ s.disponible ? 'Sí' : 'No' }}
               </span>
             </td>
             <td class="acciones">
-              <button class="btn-edit"   (click)="editarServicio(s)">Editar</button>
-              <button class="btn-delete" (click)="eliminarServicio(s.id)">Eliminar</button>
+              <button class="btn-edit" (click)="editarServicio(s)"><i class="bi bi-pencil"></i> Editar</button>
+              <button class="btn-delete" (click)="eliminarServicio(s.id)"><i class="bi bi-trash"></i> Eliminar</button>
             </td>
           </tr>
           <tr *ngIf="serviciosFiltrados.length === 0">
@@ -185,71 +263,100 @@
     </div>
   </div>
 
+  <!-- BARBEROS -->
   <div class="tab-content" *ngIf="pestanaActiva === 'barberos'">
-    
+
     <div *ngIf="editandoBarbero">
-      <h2>Editar Información del Barbero</h2>
+      <div class="section-heading">
+        <div>
+          <span class="kicker">Equipo</span>
+          <h2>Editar información del barbero</h2>
+        </div>
+      </div>
       <div class="form-card">
         <div class="form-row">
-          <input [(ngModel)]="barberoForm.username" placeholder="Nombre de usuario" />
-          <input [(ngModel)]="barberoForm.email"    placeholder="barbero@gmail.com" type="email" />
-          <input [(ngModel)]="barberoForm.telefono" placeholder="Teléfono" inputmode="numeric" maxlength="10"
-            (input)="validarTelefono($event)" />
+          <div class="field-group">
+            <label>Nombre de usuario</label>
+            <input [(ngModel)]="barberoForm.username" placeholder="Nombre de usuario" />
+          </div>
+          <div class="field-group">
+            <label>Correo</label>
+            <input [(ngModel)]="barberoForm.email" placeholder="barbero@gmail.com" type="email" />
+          </div>
+          <div class="field-group">
+            <label>Teléfono</label>
+            <input [(ngModel)]="barberoForm.telefono" placeholder="Teléfono" inputmode="numeric" maxlength="10"
+              (input)="validarTelefono($event)" />
+          </div>
         </div>
         <div class="form-actions">
-          <button class="btn-primary"   (click)="guardarBarbero()">Actualizar</button>
+          <button class="btn-primary" (click)="guardarBarbero()"><i class="bi bi-check2"></i> Actualizar</button>
           <button class="btn-secondary" (click)="limpiarBarbero()">Cancelar</button>
         </div>
       </div>
     </div>
 
     <div *ngIf="!editandoBarbero">
-      <h2>Asignar Nuevo Barbero</h2>
+      <div class="section-heading">
+        <div>
+          <span class="kicker">Equipo</span>
+          <h2>Asignar nuevo barbero</h2>
+        </div>
+      </div>
       <div class="form-card">
-        <div class="form-row" style="display: flex; gap: 1rem; align-items: center;">
-          
-          <select [(ngModel)]="usuarioSeleccionadoId" class="select-cat" style="flex: 1;">
-            <option value="" disabled>Selecciona un usuario registrado...</option>
-            <option *ngFor="let usuario of listaUsuariosComunes" [value]="usuario.id">
-              {{ usuario.username }} — ({{ usuario.email }})
-            </option>
-            <option *ngIf="listaUsuariosComunes.length === 0" disabled>
-              No hay usuarios disponibles para asignar
-            </option>
-          </select>
-
+        <div class="form-row">
+          <div class="field-group">
+            <label>Usuario registrado</label>
+            <select [(ngModel)]="usuarioSeleccionadoId" class="select-cat">
+              <option value="" disabled>Selecciona un usuario registrado...</option>
+              <option *ngFor="let usuario of listaUsuariosComunes" [value]="usuario.id">
+                {{ usuario.username }} — ({{ usuario.email }})
+              </option>
+              <option *ngIf="listaUsuariosComunes.length === 0" disabled>
+                No hay usuarios disponibles para asignar
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
           <button class="btn-primary" (click)="guardarBarbero()" [disabled]="!usuarioSeleccionadoId">
-            ✦ Asignar como Barbero
+            <i class="bi bi-person-plus"></i> Asignar como barbero
           </button>
         </div>
       </div>
     </div>
 
-    <h2>Barberos Activos</h2>
+    <div class="section-heading">
+      <div>
+        <span class="kicker">Equipo</span>
+        <h2>Barberos activos</h2>
+      </div>
+      <span class="count-badge">{{ listaBarberos.length }} {{ listaBarberos.length === 1 ? 'barbero' : 'barberos' }}</span>
+    </div>
     <div class="tabla-wrapper">
       <table>
         <thead>
           <tr>
-            <th>ID</th><th>Usuario</th><th>Email</th><th>Teléfono</th><th>Acciones</th>
+            <th>Usuario</th><th>Email</th><th>Teléfono</th><th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let b of listaBarberos">
-            <td>{{ b.id }}</td>
-            <td>{{ b.username }}</td>
+            <td><span class="row-lead"><span class="avatar-chip">{{ b.username.charAt(0).toUpperCase() }}</span>{{ b.username }}</span></td>
             <td>{{ b.email }}</td>
             <td>{{ b.telefono || '—' }}</td>
             <td class="acciones">
-              <button class="btn-edit"   (click)="editarBarbero(b)">Editar</button>
-              <button class="btn-delete" (click)="eliminarBarbero(b.id)">Quitar Rol</button>
+              <button class="btn-edit" (click)="editarBarbero(b)"><i class="bi bi-pencil"></i> Editar</button>
+              <button class="btn-delete" (click)="eliminarBarbero(b.id)"><i class="bi bi-person-dash"></i> Quitar rol</button>
             </td>
           </tr>
           <tr *ngIf="listaBarberos.length === 0">
-            <td colspan="5" class="empty">No hay barberos registrados.</td>
+            <td colspan="4" class="empty">No hay barberos registrados.</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
+</div>
 </div>

@@ -72,7 +72,10 @@ class _LoginScreenState extends State<LoginScreen> {
         _showFeedback('Cuenta creada. Ya puedes iniciar sesión.');
       }
     } catch (e) {
-      _showFeedback(e.toString().replaceFirst('Bad state: ', ''), isError: true);
+      _showFeedback(
+        e.toString().replaceFirst('Bad state: ', ''),
+        isError: true,
+      );
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -97,7 +100,8 @@ class _LoginScreenState extends State<LoginScreen> {
           Image.network(
             'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=2074&auto=format&fit=crop',
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => const ColoredBox(color: UrbanColors.background),
+            errorBuilder: (_, __, ___) =>
+                const ColoredBox(color: UrbanColors.background),
           ),
           const ColoredBox(color: Color(0x35000000)),
           Center(
@@ -110,37 +114,138 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xC7343332),
                     borderRadius: BorderRadius.circular(32),
-                    border: Border.all(color: UrbanColors.gold.withValues(alpha: .35)),
-                    boxShadow: const [BoxShadow(color: Color(0x66000000), blurRadius: 40, offset: Offset(0, 10))],
+                    border: Border.all(
+                      color: UrbanColors.gold.withValues(alpha: .35),
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x66000000),
+                        blurRadius: 40,
+                        offset: Offset(0, 10),
+                      ),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Center(child: UrbanBrand(fontSize: 20, showName: false)),
-                      const SizedBox(height: 18),
-                      Text(_isLogin ? 'Iniciar sesión' : 'Nuevo registro', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700)),
+                      const Column(
+                        children: [_AuthBrand(), SizedBox(height: 22)],
+                      ),
+                      Text(
+                        _isLogin ? 'Iniciar sesión' : 'Crear cuenta',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       const SizedBox(height: 8),
-                      Text(_isLogin ? 'Gestión inteligente para barberías' : 'Únete a Urban Studio', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                      Text(
+                        _isLogin
+                            ? 'Gestión inteligente para barberías'
+                            : 'Únete a Urban Studio',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
                       const SizedBox(height: 34),
-                      _field(label: 'Usuario', controller: _usernameController, icon: Icons.person_outline, hint: _isLogin ? 'Ingresa tu usuario' : 'Elige un nombre de usuario', textInputAction: TextInputAction.next),
+                      _field(
+                        label: 'Usuario',
+                        controller: _usernameController,
+                        icon: Icons.person_outline,
+                        hint: _isLogin
+                            ? 'Ingresa tu usuario'
+                            : 'Elige un nombre de usuario',
+                        textInputAction: TextInputAction.next,
+                      ),
                       if (!_isLogin) ...[
                         const SizedBox(height: 20),
-                        _field(label: 'Correo electrónico', controller: _emailController, icon: Icons.mail_outline, hint: 'tucorreo@email.com', keyboardType: TextInputType.emailAddress, textInputAction: TextInputAction.next),
+                        _field(
+                          label: 'Correo electrónico',
+                          controller: _emailController,
+                          icon: Icons.mail_outline,
+                          hint: 'tucorreo@email.com',
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                        ),
                       ],
                       const SizedBox(height: 20),
                       _field(
-                        label: 'Contraseña', controller: _passwordController, icon: Icons.lock_outline, hint: '••••••••', obscureText: _obscurePassword,
-                        suffix: IconButton(onPressed: () => setState(() => _obscurePassword = !_obscurePassword), icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined), color: Colors.white70, tooltip: _obscurePassword ? 'Mostrar contraseña' : 'Ocultar contraseña'),
+                        label: 'Contraseña',
+                        controller: _passwordController,
+                        icon: Icons.lock_outline,
+                        hint: '••••••••',
+                        obscureText: _obscurePassword,
+                        suffix: IconButton(
+                          onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          color: Colors.white70,
+                          tooltip: _obscurePassword
+                              ? 'Mostrar contraseña'
+                              : 'Ocultar contraseña',
+                        ),
                         onSubmitted: (_) => _handleSubmit(),
                       ),
                       const SizedBox(height: 28),
                       _primaryButton(),
                       const SizedBox(height: 14),
-                      _outlinedButton(_isLogin ? 'Crear cuenta' : '¿Ya tienes cuenta? Inicia sesión', null, () => setState(() => _isLogin = !_isLogin)),
+                      _outlinedButton(
+                        _isLogin
+                            ? 'Crear cuenta'
+                            : '¿Ya tienes cuenta? Inicia sesión',
+                        null,
+                        () => setState(() => _isLogin = !_isLogin),
+                      ),
                       const SizedBox(height: 28),
-                      const Row(children: [Expanded(child: Divider(color: Color(0x44FFFFFF))), Padding(padding: EdgeInsets.symmetric(horizontal: 14), child: Text('ACCESO SEGURO', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600, letterSpacing: 1))), Expanded(child: Divider(color: Color(0x44FFFFFF)))]),
+                      const Row(
+                        children: [
+                          Expanded(child: Divider(color: Color(0x44FFFFFF))),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 14),
+                            child: Text(
+                              'ACCESO SEGURO',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                          Expanded(child: Divider(color: Color(0x44FFFFFF))),
+                        ],
+                      ),
                       const SizedBox(height: 14),
-                      const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.shield_outlined, size: 14, color: Colors.white), SizedBox(width: 8), Flexible(child: Text('Conexión segura • Tus datos están protegidos', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 11)))]),
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.shield_outlined,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              'Conexión segura • Tus datos están protegidos',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -152,25 +257,142 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _field({required String label, required TextEditingController controller, required IconData icon, required String hint, TextInputType? keyboardType, TextInputAction? textInputAction, bool obscureText = false, Widget? suffix, ValueChanged<String>? onSubmitted}) => Column(
+  Widget _field({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    required String hint,
+    TextInputType? keyboardType,
+    TextInputAction? textInputAction,
+    bool obscureText = false,
+    Widget? suffix,
+    ValueChanged<String>? onSubmitted,
+  }) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Row(children: [Icon(icon, color: Colors.white, size: 18), const SizedBox(width: 10), Text(label.toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: .5))]),
+      Row(
+        children: [
+          Icon(icon, color: Colors.white, size: 18),
+          const SizedBox(width: 10),
+          Text(
+            label.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              letterSpacing: .5,
+            ),
+          ),
+        ],
+      ),
       const SizedBox(height: 8),
-      TextField(controller: controller, keyboardType: keyboardType, textInputAction: textInputAction, obscureText: obscureText, onSubmitted: onSubmitted, style: const TextStyle(color: Colors.white), decoration: InputDecoration(hintText: hint, suffixIcon: suffix, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0x22FFFFFF))), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: UrbanColors.gold, width: 1.3)), fillColor: const Color(0x0DFFFFFF))),
+      TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        textInputAction: textInputAction,
+        obscureText: obscureText,
+        onSubmitted: onSubmitted,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          hintText: hint,
+          suffixIcon: suffix,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 15,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0x22FFFFFF)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: UrbanColors.gold, width: 1.3),
+          ),
+          fillColor: const Color(0x0DFFFFFF),
+        ),
+      ),
     ],
   );
 
   Widget _primaryButton() => FilledButton.icon(
     onPressed: _submitting ? null : _handleSubmit,
-    icon: _submitting ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.arrow_forward, size: 20),
+    icon: _submitting
+        ? const SizedBox.square(
+            dimension: 18,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.white,
+            ),
+          )
+        : const Icon(Icons.arrow_forward, size: 20),
     label: Text(_isLogin ? 'INICIAR SESIÓN' : 'CREAR CUENTA'),
-    style: FilledButton.styleFrom(backgroundColor: const Color(0xFFE6BB3F), foregroundColor: Colors.white, minimumSize: const Size.fromHeight(54), shape: const StadiumBorder(), textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+    style: FilledButton.styleFrom(
+      backgroundColor: const Color(0xFFE0B134),
+      foregroundColor: Colors.white,
+      minimumSize: const Size.fromHeight(54),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+    ),
   );
 
-  Widget _outlinedButton(String label, IconData? icon, VoidCallback onPressed) => OutlinedButton.icon(
+  Widget _outlinedButton(
+    String label,
+    IconData? icon,
+    VoidCallback onPressed,
+  ) => OutlinedButton.icon(
     onPressed: _submitting ? null : onPressed,
-    icon: icon == null ? const SizedBox.shrink() : Icon(icon, size: 20), label: Text(label),
-    style: OutlinedButton.styleFrom(foregroundColor: Colors.white, minimumSize: const Size.fromHeight(52), side: const BorderSide(color: Color(0x22FFFFFF)), shape: const StadiumBorder(), textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+    icon: icon == null ? const SizedBox.shrink() : Icon(icon, size: 20),
+    label: Text(label),
+    style: OutlinedButton.styleFrom(
+      foregroundColor: Colors.white,
+      minimumSize: const Size.fromHeight(52),
+      side: const BorderSide(color: Color(0x99E6BB3F)),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+    ),
   );
+}
+
+class _AuthBrand extends StatelessWidget {
+  const _AuthBrand();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 92,
+          height: 92,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0xFFE6BB3F), width: 2),
+            boxShadow: const [
+              BoxShadow(color: Color(0x26E6BB3F), spreadRadius: 6),
+              BoxShadow(
+                color: Color(0x80000000),
+                blurRadius: 30,
+                offset: Offset(0, 10),
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Image.asset(
+            'assets/img/logo-urban-studio.jpg',
+            fit: BoxFit.cover,
+          ),
+        ),
+        const SizedBox(height: 14),
+        const Text(
+          'urban studio',
+          style: TextStyle(
+            color: Color(0xFFE6BB3F),
+            fontFamily: 'Georgia',
+            fontSize: 32,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 2.5,
+          ),
+        ),
+      ],
+    );
+  }
 }

@@ -14,7 +14,6 @@
     <button title="Mis citas" [class.active]="pestanaActiva === 'citas'" (click)="cambiarPestana('citas')"><i class="bi bi-calendar3"></i><span>Mis Citas</span></button>
     <button title="Mis horarios" [class.active]="pestanaActiva === 'horarios'" (click)="cambiarPestana('horarios')"><i class="bi bi-clock"></i><span>Mis Horarios</span></button>
     <button title="Mi perfil" [class.active]="pestanaActiva === 'perfil'" (click)="cambiarPestana('perfil')"><i class="bi bi-person"></i><span>Mi Perfil</span></button>
-    
   </div>
 
   <div class="contenido">
@@ -97,7 +96,7 @@
       </div>
       <div *ngIf="listaCitas.length === 0" class="vacio">No tienes citas programadas.</div>
       <div *ngIf="listaCitas.length && !citasFiltradas.length" class="vacio">No hay citas con estos filtros.</div>
-      <div class="cita-card" *ngFor="let cita of citasFiltradas">
+      <div class="cita-card" *ngFor="let cita of citasFiltradas" [attr.data-estado]="cita.estado">
         <div class="cita-info">
           <span class="cita-cliente">{{ cita.cliente_nombre }}</span>
           <span class="cita-servicio">{{ cita.servicio_nombre }}</span>
@@ -204,3 +203,6 @@
         </div>
       </div>
     </div>
+
+  </div>
+</div>
