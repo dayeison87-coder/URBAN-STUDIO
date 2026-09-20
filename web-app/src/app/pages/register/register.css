@@ -76,13 +76,14 @@
   color: #ffffff;
 }
 
-.card-brand { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 18px; }
-.card-brand img { width: 42px; height: 42px; object-fit: cover; border-radius: 50%; }
-.card-brand span { font-family: inherit; font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: lowercase; }
+.card-brand { display: block; height: 58px; margin-bottom: 18px; padding-top: 16px; text-align: center; }
+.card-brand img { position: absolute; top: 20px; left: 22px; width: 72px; height: 72px; object-fit: cover; border-radius: 50%; }
+.card-brand span { display: block; font-family: inherit; font-size: 29px; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: lowercase; }
 .card-header h1 {
   font-size: 2rem;
   font-weight: 700;
   color: #ffffff; /* blanco */
+  margin: 0 0 8px;
 }
 
 .subtitle {
@@ -198,9 +199,9 @@
   .card-header h1 {
     font-size: 1.6rem;
   }
-  .card-brand { gap: 8px; }
-  .card-brand img { width: 42px; height: 42px; }
-  .card-brand span { font-size: 17px; }
+  .card-brand { height: 54px; padding-top: 12px; }
+  .card-brand img { top: 16px; left: 18px; width: 62px; height: 62px; }
+  .card-brand span { font-size: 24px; }
 }
 
 .password-checklist {
