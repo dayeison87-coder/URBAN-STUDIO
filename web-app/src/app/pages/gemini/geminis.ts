@@ -61,37 +61,11 @@ export class AnalisisRostroComponent implements OnDestroy {
   // de la aplicación móvil. No representan datos faciales reales: sirven
   // para mostrar el recorrido del escaneo mientras se estabiliza la cámara.
   readonly puntosEscaneo = [
-    { x: 50, y: 8, delay: '0s' },
-    { x: 35, y: 11, delay: '0.08s' },
-    { x: 65, y: 11, delay: '0.16s' },
-    { x: 24, y: 18, delay: '0.24s' },
-    { x: 76, y: 18, delay: '0.32s' },
-    { x: 17, y: 28, delay: '0.4s' },
-    { x: 83, y: 28, delay: '0.48s' },
-    { x: 13, y: 40, delay: '0.56s' },
-    { x: 87, y: 40, delay: '0.64s' },
-    { x: 12, y: 53, delay: '0.72s' },
-    { x: 88, y: 53, delay: '0.8s' },
-    { x: 15, y: 66, delay: '0.88s' },
-    { x: 85, y: 66, delay: '0.96s' },
-    { x: 20, y: 78, delay: '1.04s' },
-    { x: 80, y: 78, delay: '1.12s' },
-    { x: 30, y: 88, delay: '1.2s' },
-    { x: 70, y: 88, delay: '1.28s' },
-    { x: 50, y: 92, delay: '1.36s' },
-    { x: 28, y: 36, delay: '1.44s' },
-    { x: 72, y: 36, delay: '1.52s' },
-    { x: 35, y: 38, delay: '1.6s' },
-    { x: 65, y: 38, delay: '1.68s' },
-    { x: 31, y: 48, delay: '1.76s' },
-    { x: 69, y: 48, delay: '1.84s' },
-    { x: 50, y: 48, delay: '1.92s' },
-    { x: 42, y: 57, delay: '2s' },
-    { x: 58, y: 57, delay: '2.08s' },
-    { x: 35, y: 68, delay: '2.16s' },
-    { x: 65, y: 68, delay: '2.24s' },
-    { x: 42, y: 72, delay: '2.32s' },
-    { x: 58, y: 72, delay: '2.4s' }
+    { x: 23, y: 33, delay: '0s' },
+    { x: 77, y: 33, delay: '0.15s' },
+    { x: 50, y: 50, delay: '0.3s' },
+    { x: 32, y: 70, delay: '0.45s' },
+    { x: 68, y: 70, delay: '0.6s' }
   ];
 
   // ==========================================
@@ -101,15 +75,23 @@ export class AnalisisRostroComponent implements OnDestroy {
   modo: 'inicial' | 'camara' = 'inicial';
   streamActivo: MediaStream | null = null;
 
-  // Mensaje corto que se muestra mientras la cámara se estabiliza,
-  // para que el usuario sepa que sigue trabajando y no está trabada.
+  // Mensaje corto que se muestra en la cámara (mismos textos que la app
+  // de Flutter).
   estadoCamara: string = '';
 
-  // La APK estabiliza varios frames detectando un rostro real. La web usa
-  // MediaPipe Face Landmarker para seguir el mismo flujo.
+  // Progreso 0-100 de la captura automática. IGUAL QUE EN FLUTTER:
+  // solo sube mientras hay UN rostro bien puesto y de frente; si el rostro
+  // se pierde, hay más de uno o se descentra, vuelve a 0.
+  progresoEscaneo = 0;
+
   private escaneoActivo = false;
   private framesEscaneo = 0;
+  // Frames estables que se necesitan para capturar (igual que Flutter: 12).
   private readonly FRAMES_ESCANEO_NECESARIOS = 12;
+  // Igual que Flutter: se analiza como máximo un frame cada 100 ms.
+  private readonly INTERVALO_FRAMES_MS = 100;
+  private ultimoFrameProcesado = 0;
+
   private escaneoFrameId?: number;
   private faceLandmarker?: FaceLandmarker;
   private detectorInicializandose?: Promise<FaceLandmarker>;
@@ -123,6 +105,8 @@ export class AnalisisRostroComponent implements OnDestroy {
   // para considerarlo válido. Frames muy oscuros suelen significar que
   // la cámara todavía no terminó de ajustar exposición/enfoque.
   private readonly BRILLO_MINIMO = 22;
+  // Brillo máximo: descarta fotos quemadas (mismo valor que en Flutter).
+  private readonly BRILLO_MAXIMO = 235;
 
   constructor(private geminiService: GeminiService) {
 
@@ -196,6 +180,7 @@ export class AnalisisRostroComponent implements OnDestroy {
 
     this.errorMensaje = '';
     this.intentosCaptura = 0;
+    this.progresoEscaneo = 0;
     this.estadoCamara = 'Encendiendo cámara…';
 
     try {
@@ -239,7 +224,7 @@ export class AnalisisRostroComponent implements OnDestroy {
 
     // En vez de adivinar con un tiempo fijo, esperamos al evento real
     // que indica que ya hay un frame de video decodificado antes de
-    // arrancar el anillo de progreso.
+    // arrancar la detección.
     this.videoListoListener = () => {
       if (this.videoListoListener) {
         video.removeEventListener('loadeddata', this.videoListoListener);
@@ -259,8 +244,8 @@ export class AnalisisRostroComponent implements OnDestroy {
     });
 
     // Red de seguridad: si 'loadeddata' nunca llega (pasa en algunos
-    // navegadores/dispositivos), arrancamos el progreso de todos modos
-    // en vez de dejar la cámara colgada para siempre.
+    // navegadores/dispositivos), arrancamos de todos modos en vez de
+    // dejar la cámara colgada para siempre.
     this.fallbackTimer = setTimeout(() => {
       if (this.modo === 'camara' && !this.escaneoActivo) {
         void this.iniciarEscaneo();
@@ -269,7 +254,8 @@ export class AnalisisRostroComponent implements OnDestroy {
   }
 
   // ==========================================
-  // CÁMARA: ESTABILIZAR FRAMES Y CAPTURAR
+  // CÁMARA: DETECTAR ROSTRO, LLENAR PROGRESO Y CAPTURAR
+  // (misma lógica que _procesarFrameCamara de Flutter)
   // ==========================================
 
   private async iniciarEscaneo() {
@@ -278,14 +264,15 @@ export class AnalisisRostroComponent implements OnDestroy {
     }
     this.escaneoActivo = true;
     this.framesEscaneo = 0;
-    this.estadoCamara = 'Buscando rostro…';
+    this.progresoEscaneo = 0;
+    this.ultimoFrameProcesado = 0;
+    this.estadoCamara = 'Coloca tu rostro dentro del marco';
 
     try {
       const detector = await this.obtenerDetectorFacial();
       if (this.modo !== 'camara' || !this.streamActivo) {
         return;
       }
-      this.estadoCamara = 'Centra tu rostro…';
       this.detectarRostroEnVideo(detector);
     } catch (error) {
       console.error('Error inicializando detector facial:', error);
@@ -308,7 +295,8 @@ export class AnalisisRostroComponent implements OnDestroy {
             'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'
         },
         runningMode: 'VIDEO',
-        numFaces: 1,
+        // 2 para poder avisar "Solo debe aparecer un rostro" (como Flutter).
+        numFaces: 2,
         minFaceDetectionConfidence: 0.65,
         minFacePresenceConfidence: 0.65,
         minTrackingConfidence: 0.65
@@ -327,21 +315,34 @@ export class AnalisisRostroComponent implements OnDestroy {
       return;
     }
 
-    const resultado = detector.detectForVideo(video, performance.now());
-    const rostro = resultado.faceLandmarks?.[0];
+    const ahora = performance.now();
 
-    if (!rostro || !this.rostroEstaCorrectamentePosicionado(rostro)) {
-      this.framesEscaneo = 0;
-      this.estadoCamara = rostro
-        ? 'Centra tu rostro y mira al frente…'
-        : 'Buscando rostro…';
-    } else {
-      this.framesEscaneo++;
-      this.estadoCamara = 'Rostro detectado…';
-      if (this.framesEscaneo >= this.FRAMES_ESCANEO_NECESARIOS) {
-        this.escaneoActivo = false;
-        this.finalizarEscaneo();
-        return;
+    // Igual que Flutter: un frame analizado cada ~100 ms.
+    if (ahora - this.ultimoFrameProcesado >= this.INTERVALO_FRAMES_MS) {
+      this.ultimoFrameProcesado = ahora;
+
+      const resultado = detector.detectForVideo(video, ahora);
+      const rostros = resultado.faceLandmarks ?? [];
+
+      if (rostros.length === 0) {
+        this.actualizarEscaneo(0, 'Coloca tu rostro dentro del marco');
+      } else if (rostros.length > 1) {
+        this.actualizarEscaneo(0, 'Solo debe aparecer un rostro');
+      } else if (!this.rostroEstaCorrectamentePosicionado(rostros[0], video)) {
+        this.actualizarEscaneo(0, 'Centra tu rostro dentro del marco');
+      } else {
+        // Rostro bien puesto: el progreso sube un frame.
+        const frames = this.framesEscaneo + 1;
+        const porcentaje = Math.round(
+          Math.min(frames / this.FRAMES_ESCANEO_NECESARIOS, 1) * 100
+        );
+        this.actualizarEscaneo(frames, `Rostro detectado · ${porcentaje}%`);
+
+        if (frames >= this.FRAMES_ESCANEO_NECESARIOS) {
+          this.escaneoActivo = false;
+          this.finalizarEscaneo();
+          return;
+        }
       }
     }
 
@@ -350,7 +351,23 @@ export class AnalisisRostroComponent implements OnDestroy {
     });
   }
 
-  private rostroEstaCorrectamentePosicionado(landmarks: NormalizedLandmark[]): boolean {
+  /** Actualiza frames, porcentaje de la barra y mensaje de estado. */
+  private actualizarEscaneo(frames: number, estado: string) {
+    this.framesEscaneo = frames;
+    this.progresoEscaneo = Math.round(
+      Math.min(frames / this.FRAMES_ESCANEO_NECESARIOS, 1) * 100
+    );
+    this.estadoCamara = estado;
+  }
+
+  /**
+   * Mismos rangos que _rostroEstaCorrecto de Flutter:
+   * centrado, tamaño correcto, de frente y sin inclinar la cabeza.
+   */
+  private rostroEstaCorrectamentePosicionado(
+    landmarks: NormalizedLandmark[],
+    video: HTMLVideoElement
+  ): boolean {
     const xs = landmarks.map((punto) => punto.x);
     const ys = landmarks.map((punto) => punto.y);
     const izquierda = Math.min(...xs);
@@ -361,22 +378,35 @@ export class AnalisisRostroComponent implements OnDestroy {
     const centroY = (arriba + abajo) / 2;
     const ancho = derecha - izquierda;
     const alto = abajo - arriba;
+
+    const posicionOk =
+      centroX > 0.30 &&
+      centroX < 0.70 &&
+      centroY > 0.25 &&
+      centroY < 0.75 &&
+      ancho > 0.18 &&
+      ancho < 0.75 &&
+      alto > 0.18 &&
+      alto < 0.85;
+
     const nariz = landmarks[1];
     const ojoIzquierdo = landmarks[33];
     const ojoDerecho = landmarks[263];
-    const ojosCentroX = (ojoIzquierdo.x + ojoDerecho.x) / 2;
 
-    return (
-      centroX > 0.35 &&
-      centroX < 0.65 &&
-      centroY > 0.28 &&
-      centroY < 0.72 &&
-      ancho > 0.18 &&
-      ancho < 0.8 &&
-      alto > 0.2 &&
-      alto < 0.9 &&
-      Math.abs(nariz.x - ojosCentroX) < ancho * 0.22
-    );
+    // Mirando al frente (equivale a headEulerAngleY < 18 de Flutter).
+    // MediaPipe web no entrega ángulos, así que se usa la nariz respecto
+    // al centro de los ojos.
+    const ojosCentroX = (ojoIzquierdo.x + ojoDerecho.x) / 2;
+    const deFrente = Math.abs(nariz.x - ojosCentroX) < ancho * 0.22;
+
+    // Cabeza sin inclinar (equivale a headEulerAngleZ < 18 de Flutter):
+    // ángulo de la línea de los ojos, en píxeles reales.
+    const dx = Math.abs(ojoDerecho.x - ojoIzquierdo.x) * video.videoWidth;
+    const dy = Math.abs(ojoDerecho.y - ojoIzquierdo.y) * video.videoHeight;
+    const inclinacionGrados = (Math.atan2(dy, dx) * 180) / Math.PI;
+    const sinInclinar = inclinacionGrados < 18;
+
+    return posicionOk && deFrente && sinInclinar;
   }
 
   private finalizarEscaneo() {
@@ -403,7 +433,7 @@ export class AnalisisRostroComponent implements OnDestroy {
     const resultado = this.capturarFrameSiEsValido();
 
     if (!resultado) {
-      // El frame salió demasiado oscuro/negro: reiniciamos la estabilización.
+      // El frame salió demasiado oscuro/negro: reiniciamos la detección.
       this.reintentarEscaneo('Ajustando iluminación…');
       return;
     }
@@ -428,6 +458,7 @@ export class AnalisisRostroComponent implements OnDestroy {
     }
 
     this.estadoCamara = mensaje;
+    this.progresoEscaneo = 0;
 
     void this.iniciarEscaneo();
   }
@@ -539,7 +570,7 @@ export class AnalisisRostroComponent implements OnDestroy {
 
       const promedio = contados > 0 ? suma / contados : 0;
 
-      return promedio >= this.BRILLO_MINIMO;
+      return promedio >= this.BRILLO_MINIMO && promedio <= this.BRILLO_MAXIMO;
 
     } catch (error) {
       // Si por algún motivo no se puede leer el canvas (ej. políticas
@@ -607,6 +638,8 @@ export class AnalisisRostroComponent implements OnDestroy {
     this.detectorInicializandose = undefined;
     this.intentosCaptura = 0;
     this.framesEscaneo = 0;
+    this.progresoEscaneo = 0;
+    this.ultimoFrameProcesado = 0;
     this.escaneoActivo = false;
     this.estadoCamara = '';
     this.modo = 'inicial';
