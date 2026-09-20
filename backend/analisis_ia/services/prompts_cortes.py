@@ -75,6 +75,62 @@ PROMPTS_POR_CORTE = {
         "longitud en la nuca y el centro posterior, sin hacer un fade completo "
         "recto en toda la cabeza"
     ),
+    "bald fade": (
+        "bald fade: laterales y nuca afeitados al ras de la piel, con una "
+        "transición muy limpia hacia una parte superior claramente más larga"
+    ),
+    "low skin fade": (
+        "low skin fade: degradado a piel muy bajo, solo en la zona inferior "
+        "de patillas y nuca, conservando peso visible sobre las orejas"
+    ),
+    "mid skin fade": (
+        "mid skin fade: degradado a piel que comienza a media altura de los "
+        "laterales, con contraste claro entre piel, transición y parte superior"
+    ),
+    "high skin fade": (
+        "high skin fade: laterales afeitados a piel hasta cerca de las sienes, "
+        "contraste alto y parte superior separada y visible"
+    ),
+    "low drop fade": (
+        "low drop fade: degradado bajo a piel que cae suavemente detrás de "
+        "las orejas siguiendo la curva de la nuca"
+    ),
+    "mid drop fade": (
+        "mid drop fade: degradado a media altura que forma una caída curva "
+        "detrás de las orejas, con laterales más cortos y nuca definida"
+    ),
+    "burst fade mullet": (
+        "burst fade mullet: degradado circular alrededor de las orejas, "
+        "laterales cortos y nuca visiblemente más larga; solo con longitud real"
+    ),
+    "burst fade crop": (
+        "burst fade crop: burst fade alrededor de las orejas combinado con "
+        "parte superior corta texturizada y flequillo hacia adelante"
+    ),
+    "razor fade": (
+        "razor fade: degradado muy limpio afeitado con navaja en la base, "
+        "transición marcada y parte superior conservando su textura natural"
+    ),
+    "scissor fade": (
+        "scissor fade: laterales y nuca trabajados principalmente con tijera, "
+        "transición suave sin dejar el lateral completamente al ras"
+    ),
+    "taper fade with line": (
+        "taper fade con una sola línea lateral fina y limpia, taper bajo en "
+        "patillas y nuca, sin convertir todo el lateral en un fade"
+    ),
+    "low fade with line": (
+        "low fade con una sola línea lateral, degradado completo bajo desde "
+        "la piel y diseño separado claramente visible"
+    ),
+    "mid fade with line": (
+        "mid fade con una sola línea lateral, degradado completo a media "
+        "altura y diseño marcado sin añadir otros dibujos"
+    ),
+    "high fade with line": (
+        "high fade con una sola línea lateral, degradado alto y contraste "
+        "fuerte entre laterales y parte superior"
+    ),
     "buzz cut": (
         "buzz cut: cabello corto y uniforme con máquina en toda la cabeza, "
         "sin volumen superior, sin flequillo y sin textura larga"

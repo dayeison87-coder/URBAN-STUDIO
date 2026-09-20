@@ -53,7 +53,11 @@ ENFOQUES_ESTILO = [
 NOMBRES_CORTE_COMUNES = (
     "taper fade", "low taper", "mid taper", "high taper", "taper",
     "low fade", "mid fade", "high fade", "skin fade", "drop fade",
-    "burst fade", "temp fade", "temple fade", "shadow fade", "buzz cut", "crew cut",
+    "burst fade", "temp fade", "temple fade", "shadow fade", "bald fade",
+    "low skin fade", "mid skin fade", "high skin fade", "low drop fade",
+    "mid drop fade", "burst fade mullet", "burst fade crop",
+    "razor fade", "scissor fade", "taper fade with line", "low fade with line",
+    "mid fade with line", "high fade with line", "buzz cut", "crew cut",
     "crop", "french crop", "caesar", "quiff", "pompadour", "slick back",
     "side part", "comb over", "mullet", "edgar", "two block", "curtains",
     "fringe", "shaggy", "bro flow", "afro", "undercut", "ivy league",
@@ -62,7 +66,11 @@ NOMBRES_CORTE_COMUNES = (
 FAMILIAS_CORTE = (
     "taper fade", "low taper", "mid taper", "high taper", "taper",
     "low fade", "mid fade", "high fade", "skin fade", "drop fade",
-    "burst fade", "temp fade", "temple fade", "shadow fade", "fade",
+    "burst fade mullet", "burst fade crop", "taper fade with line",
+    "low fade with line", "mid fade with line", "high fade with line",
+    "low skin fade", "mid skin fade", "high skin fade", "low drop fade",
+    "mid drop fade", "burst fade", "temp fade", "temple fade",
+    "shadow fade", "bald fade", "razor fade", "scissor fade", "fade",
     "buzz cut", "crew cut", "crop",
     "caesar", "quiff", "pompadour", "slick back", "side part",
     "comb over", "mullet", "edgar", "two block", "curtains", "fringe",
@@ -178,11 +186,6 @@ def _elegir_nombre_comun(nombre: str, recientes: list[str] | None) -> str:
 
 def _familia_corte(nombre: str) -> str | None:
     normalizado = " ".join(str(nombre or "").casefold().split())
-    if any(
-        palabra in normalizado
-        for palabra in ("fade", "taper", "degradado", "desvanecido")
-    ):
-        return "fade-taper"
     for familia in sorted(FAMILIAS_CORTE, key=len, reverse=True):
         if familia in normalizado:
             return familia
