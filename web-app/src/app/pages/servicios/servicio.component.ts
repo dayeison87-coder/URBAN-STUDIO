@@ -229,7 +229,7 @@ export class ServicioComponent implements OnInit {
       items: this.carrito.map(item => ({ producto: item.producto.id, cantidad: item.cantidad }))
     }, { headers }).subscribe({
       next: (order) => {
-        this.mensajeOrden = `Apartado #${order.id} creado. Paga y recÃ³gelo en Urban Studio.`;
+        this.mensajeOrden = `Apartado #${order.id} creado. Paga y recógelo en Urban Studio.`;
         this.carrito = [];
         this.ordenes = [order, ...this.ordenes];
       },
