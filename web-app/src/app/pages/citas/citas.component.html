@@ -119,8 +119,8 @@
       <div class="barbero-card" *ngFor="let b of barberos"
         [class.selected]="barberoSeleccionado?.id === b.id"
         (click)="seleccionarBarbero(b)">
-        <div class="barbero-avatar">{{ getInicial(b.username) }}</div>
-        <h3 class="barbero-nombre">{{ b.username }}</h3>
+        <div class="barbero-avatar">{{ getInicial(b.first_name || b.username) }}</div>
+        <h3 class="barbero-nombre">{{ b.first_name || b.username }}</h3>
         <p class="barbero-email">{{ b.email }}</p>
       </div>
       <div class="empty" *ngIf="barberos.length === 0">
@@ -178,7 +178,7 @@
       <div class="resumen-item"><span>Categoría</span><strong>{{ categoriaSeleccionada?.nombre }}</strong></div>
       <div class="resumen-item"><span>Servicio</span><strong>{{ servicioSeleccionado?.nombre }}</strong></div>
       <div class="resumen-item"><span>Precio</span><strong>{{ formatPrecio(servicioSeleccionado?.precio) }}</strong></div>
-      <div class="resumen-item"><span>Barbero</span><strong>{{ barberoSeleccionado?.username }}</strong></div>
+      <div class="resumen-item"><span>Barbero</span><strong>{{ barberoSeleccionado?.first_name || barberoSeleccionado?.username }}</strong></div>
       <div class="resumen-item"><span>Fecha</span><strong>{{ fechaSeleccionada }}</strong></div>
       <div class="resumen-item"><span>Hora</span><strong>{{ horaSeleccionada }}</strong></div>
     </div>

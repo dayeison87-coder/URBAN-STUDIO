@@ -73,6 +73,21 @@ class UsuarioRolBarberoViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.usuario.refresh_from_db()
         self.assertIsNone(self.usuario.rol)
+
+    def test_admin_can_set_display_name_without_changing_login_username(self):
+        response = self.client.patch(
+            f'/api/usuarios/{self.usuario.id}/',
+            {'first_name': 'José María Pérez'},
+            format='json',
+            secure=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.usuario.refresh_from_db()
+        self.assertEqual(self.usuario.first_name, 'José María Pérez')
+        self.assertEqual(self.usuario.username, 'cliente')
+        self.assertEqual(response.json()['first_name'], 'José María Pérez')
+
     @patch('users.views.send_registration_code')
     def test_successful_email_returns_ok(self, send_registration_code):
         response = self.client.post('/api/register/request-code/', self.payload, format='json')

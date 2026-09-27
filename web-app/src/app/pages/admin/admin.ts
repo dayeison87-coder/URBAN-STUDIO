@@ -34,6 +34,7 @@ interface OrdenProducto {
 interface Barbero {
   id: number;
   username: string;
+  first_name?: string;
   email: string;
   telefono?: string;
   rol?: string;
@@ -82,7 +83,7 @@ export class AdminComponent implements OnInit {
   listaUsuariosComunes: any[] = [];
   usuarioSeleccionadoId: string | number = '';
   
-  barberoForm = { id: null as number | null, username: '', email: '', telefono: '' };
+  barberoForm = { id: null as number | null, first_name: '', email: '', telefono: '' };
   editandoBarbero = false;
 
   private apiUrl = apiConfig.apiUrl;
@@ -392,13 +393,19 @@ export class AdminComponent implements OnInit {
     if (this.editandoBarbero && this.barberoForm.id) {
       if (!this.validarDatosBarbero()) return;
       const payload = {
-        username: this.barberoForm.username,
+        first_name: this.barberoForm.first_name.trim(),
         email:    this.barberoForm.email,
         telefono: this.barberoForm.telefono
       };
-      this.http.put(`${this.apiUrl}/usuarios/${this.barberoForm.id}/`, payload, { headers: this.getHeaders() }).subscribe({
+      this.http.patch(`${this.apiUrl}/usuarios/${this.barberoForm.id}/`, payload, { headers: this.getHeaders() }).subscribe({
         next:  () => { this.mensaje = '✓ Barbero actualizado.'; this.limpiarBarbero(); this.cargarBarberos(); },
-        error: (err) => console.error(err)
+        error: (err) => {
+          this.mensaje = err.error?.first_name?.[0]
+            || err.error?.email?.[0]
+            || err.error?.telefono?.[0]
+            || err.error?.detail
+            || 'No se pudo actualizar la información del barbero.';
+        }
       });
     } 
 
@@ -431,7 +438,12 @@ export class AdminComponent implements OnInit {
 
   editarBarbero(b: Barbero): void {
     this.editandoBarbero = true;
-    this.barberoForm = { id: b.id, username: b.username, email: b.email, telefono: b.telefono || '' };
+    this.barberoForm = {
+      id: b.id,
+      first_name: b.first_name || b.username,
+      email: b.email,
+      telefono: b.telefono || ''
+    };
   }
 
   eliminarBarbero(id: number): void {
@@ -459,14 +471,23 @@ export class AdminComponent implements OnInit {
   limpiarBarbero(): void {
     this.editandoBarbero = false;
     this.usuarioSeleccionadoId = '';
-    this.barberoForm = { id: null, username: '', email: '', telefono: '' };
+    this.barberoForm = { id: null, first_name: '', email: '', telefono: '' };
     setTimeout(() => this.mensaje = '', 3000);
   }
 
   private validarDatosBarbero(): boolean {
+    const nombre = this.barberoForm.first_name.trim();
     const email = this.barberoForm.email.trim();
     const telefono = this.barberoForm.telefono.trim();
 
+    if (!nombre) {
+      this.mensaje = 'Escribe el nombre para mostrar del barbero.';
+      return false;
+    }
+    if (nombre.length > 150) {
+      this.mensaje = 'El nombre para mostrar no puede superar 150 caracteres.';
+      return false;
+    }
     if (!/^[^\s@]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       this.mensaje = 'Escribe un correo válido, por ejemplo: barbero@gmail.com.';
       return false;

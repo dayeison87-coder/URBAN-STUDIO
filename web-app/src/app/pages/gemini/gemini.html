@@ -485,7 +485,7 @@
         <select class="barbero-select" [(ngModel)]="barberoSeleccionado" [disabled]="validandoCodigo">
           <option [ngValue]="null">Selecciona un barbero</option>
           <option *ngFor="let barbero of barberos" [ngValue]="barbero.id">
-            {{ barbero.username }}{{ barbero.experiencia ? ' · ' + barbero.experiencia + ' años' : '' }}
+            {{ barbero.first_name || barbero.username }}{{ barbero.experiencia ? ' · ' + barbero.experiencia + ' años' : '' }}
           </option>
         </select>
 

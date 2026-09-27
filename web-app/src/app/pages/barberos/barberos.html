@@ -45,7 +45,7 @@
           <img
             *ngIf="barbero.avatarUrl"
             [src]="barbero.avatarUrl"
-            [alt]="'Foto de perfil de ' + barbero.username"
+            [alt]="'Foto de perfil de ' + (barbero.first_name || barbero.username)"
             loading="lazy"
             width="120"
             height="120"
@@ -55,7 +55,7 @@
           </div>
         </div>
 
-        <h2>{{ barbero.username }}</h2>
+        <h2>{{ barbero.first_name || barbero.username }}</h2>
 
         <!-- Calificación con estrellas de Bootstrap -->
         <div class="estrellas">

@@ -276,8 +276,8 @@
       <div class="form-card">
         <div class="form-row">
           <div class="field-group">
-            <label>Nombre de usuario</label>
-            <input [(ngModel)]="barberoForm.username" placeholder="Nombre de usuario" />
+            <label>Nombre para mostrar</label>
+            <input [(ngModel)]="barberoForm.first_name" placeholder="Ej. María José Pérez" maxlength="150" required />
           </div>
           <div class="field-group">
             <label>Correo</label>
@@ -337,12 +337,12 @@
       <table>
         <thead>
           <tr>
-            <th>Usuario</th><th>Email</th><th>Teléfono</th><th>Acciones</th>
+            <th>Nombre</th><th>Email</th><th>Teléfono</th><th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let b of listaBarberos">
-            <td><span class="row-lead"><span class="avatar-chip">{{ b.username.charAt(0).toUpperCase() }}</span>{{ b.username }}</span></td>
+            <td><span class="row-lead"><span class="avatar-chip">{{ (b.first_name || b.username).charAt(0).toUpperCase() }}</span>{{ b.first_name || b.username }}</span></td>
             <td>{{ b.email }}</td>
             <td>{{ b.telefono || '—' }}</td>
             <td class="acciones">

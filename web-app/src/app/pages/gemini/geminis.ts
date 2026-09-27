@@ -14,6 +14,7 @@ import {
 interface Barbero {
   id: number;
   username: string;
+  first_name?: string;
   experiencia?: number | null;
 }
 
